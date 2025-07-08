@@ -1,0 +1,207 @@
+# A Snakemake workflow for phasing and imputation of genetic data.
+
+chrs = list(range(1, 23)) + ['X', 'Y']
+autosomes = list(range(1, 23))
+
+
+rule all:
+    input:
+        expand("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1k_genomes_ref_vcf_panel_phase3_hg38/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.gz", chrs=chrs),
+        expand("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1k_genomes_ref_vcf_panel_phase3_hg38/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.gz.tbi", chrs=chrs),
+        "src/ref_panel/.symlinks_done",
+        "src/ref_genome/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna",
+        "src/ref_genome/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai",
+        "src/genetic_map_hg38_withX.txt.gz",
+        "src/genetic_map_hg38_withX_chr.txt.gz",
+        expand("src/ref_panel/ALL.chr{chrs}_GRCh38.genotypes.20170504.bcf", chrs=chrs),
+        expand("src/ref_panel/ALL.chr{chrs}_GRCh38.genotypes.20170504.bcf.csi", chrs=chrs),
+        expand("results/phased_vcf/geno_lifted_phased_hg38_chr{chrs}.vcf.gz", chrs=autosomes),
+        expand("results/phased_vcf/geno_lifted_phased_hg38_chr{chrs}.vcf.gz.tbi", chrs=autosomes),
+        expand("src/ref_panel_msav/ALL.chr{chrs}_GRCh38.genotypes.20170504.msav", chrs=autosomes),
+        expand("results/imputed_vcf/geno_lifted_phased_imputed_hg38_chr{chrs}.vcf.gz", chrs=autosomes),
+        expand("results/imputed_vcf/geno_lifted_phased_imputed_hg38_chr{chrs}.vcf.gz.tbi", chrs=autosomes),
+        "results/imputed_vcf/geno_lifted_phased_imputed_hg38_allchrs.vcf.gz",
+        "results/imputed_vcf/geno_lifted_phased_imputed_hg38_allchrs.vcf.gz.tbi"
+
+
+### Phasing using Eagle
+rule dl_ref_vcf:
+    """Download the reference panel VCF files from 1k Genomes Phase 3, hg38"""
+    output:
+        multiext("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1k_genomes_ref_vcf_panel_phase3_hg38/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.", "gz", "gz.tbi")
+    params:
+        vcf_link = "https://cgl.gi.ucsc.edu/data/giraffe/construction/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.gz",
+        vcf_tbi_link = "https://cgl.gi.ucsc.edu/data/giraffe/construction/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.gz.tbi",
+        output_dir = "/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1k_genomes_ref_vcf_panel_phase3_hg38/"
+    shell:
+        """
+        wget -P {params.output_dir} {params.vcf_link} 
+        wget -P {params.output_dir} {params.vcf_tbi_link}
+        """
+
+
+rule softlink_ref_vcf:
+    """Create symbolic links to the downloaded VCF files"""
+    output:
+        touch("src/ref_panel/.symlinks_done")
+    shell:
+        """
+        mkdir -p src/ref_panel
+        ln -sf /data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1k_genomes_ref_vcf_panel_phase3_hg38/*.{{vcf.gz,vcf.gz.tbi}} src/ref_panel/
+        touch {output}
+        """
+
+
+rule dl_fasta_ref:
+    """Download the reference FASTA file and its index, hg38"""
+    output:
+        fasta = "src/ref_genome/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna",
+        indx = "src/ref_genome/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai"
+    params:
+        ref_link = "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz",
+        ref_indx_link = "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai"
+    shell:
+        """
+        wget -P src/ref_genome/ {params.ref_link}
+        wget -P src/ref_genome/ {params.ref_indx_link}
+        gunzip -f src/ref_genome/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz
+        """
+
+
+rule dl_genetic_map:
+    """Download the genetic map for hg38"""
+    output:
+        gmap = "src/genetic_map_hg38_withX.txt.gz",
+        gmap_chr = "src/genetic_map_hg38_withX_chr.txt.gz"
+    params:
+        genetic_map_link = "https://storage.googleapis.com/broad-alkesgroup-public/Eagle/downloads/tables/genetic_map_hg38_withX.txt.gz"
+    shell:
+        r"""
+        wget -P src/ {params.genetic_map_link}
+        zcat {output.gmap} | awk 'NR==1{{print $0; next}} {{ $1="chr"$1; print }}' OFS='\t' | gzip > {output.gmap_chr}
+        """
+
+
+rule process_ref_panel:
+    input:
+        ref_vcf = "src/ref_panel/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.gz",
+        ref_fasta = "src/ref_genome/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
+    output:
+        bcf = "src/ref_panel/ALL.chr{chrs}_GRCh38.genotypes.20170504.bcf",
+        bcf_indx = "src/ref_panel/ALL.chr{chrs}_GRCh38.genotypes.20170504.bcf.csi"
+    shell:
+        r"""
+        (
+        bcftools view --no-version -h {input.ref_vcf} | \
+        grep -v "^##contig=<ID=[GNh]" | \
+        sed 's/^##contig=<ID=MT/##contig=<ID=chrM/;s/^##contig=<ID=\([0-9XY]\)/##contig=<ID=chr\1/'
+
+        bcftools view --no-version -H -c 2 {input.ref_vcf} | sed 's/^/chr/'
+        ) | \
+        bcftools norm --no-version -Ou -m -any | \
+        bcftools norm --no-version -Ob -o {output.bcf} -d none -f {input.ref_fasta}
+
+        # Index the BCFs
+        bcftools index -f {output.bcf}
+        """
+
+
+rule phase_with_eagle:
+    input:
+        target_vcf = "../liftover/results/geno_lifted_hg38_deduped_renamed.bcf",
+        ref_panel = "src/ref_panel/ALL.chr{chrs}_GRCh38.genotypes.20170504.bcf",
+        genetic_map = "src/genetic_map_hg38_withX.txt.gz"
+    output:
+        phased_vcf = "results/phased_vcf/geno_lifted_phased_hg38_chr{chrs}.vcf.gz",
+        phased_vcf_indx = "results/phased_vcf/geno_lifted_phased_hg38_chr{chrs}.vcf.gz.tbi"
+    params:
+        eagle = "/data/hps/assoc/private/gdml/user/sesmae/tools/Eagle_v2.4.1/eagle",
+    threads: 8
+    shell:
+        """
+        {params.eagle} \
+            --vcfTarget {input.target_vcf} \
+            --vcfRef {input.ref_panel} \
+            --geneticMapFile={input.genetic_map} \
+            --chrom {wildcards.chrs} \
+            --vcfOutFormat z \
+            --allowRefAltSwap \
+            --numThreads {threads} \
+            --outPrefix results/phased_vcf/geno_lifted_phased_hg38_chr{wildcards.chrs}
+        
+        # Index the phased VCF
+        tabix -p vcf {output.phased_vcf}
+        """
+
+
+### Imputation with Minimac4
+rule msav_ref:
+    input:
+        ref_vcf = "src/ref_panel/ALL.chr{chrs}_GRCh38.genotypes.20170504.bcf"
+    output:
+        ref_msav = "src/ref_panel_msav/ALL.chr{chrs}_GRCh38.genotypes.20170504.msav"
+    params:
+        minimac4 = "/data/hps/assoc/private/gdml/user/sesmae/tools/minimac4-4.1.6-Linux-x86_64/bin/minimac4"
+    threads: 8
+    log:
+        "logs/msav_ref/msav_ref_chr{chrs}.log"
+    shell:
+        """
+        mkdir -p logs/msav_ref
+        mkdir -p src/ref_panel_msav
+        {params.minimac4} \
+            --compress-reference \
+            {input.ref_vcf} \
+            -o {output.ref_msav} \
+            --threads {threads} \
+            &> {log}
+        """
+
+rule imputation:
+    input:
+        ref_msav = "src/ref_panel_msav/ALL.chr{chrs}_GRCh38.genotypes.20170504.msav",
+        phased_vcf = "results/phased_vcf/geno_lifted_phased_hg38_chr{chrs}.vcf.gz"
+    output:
+        imputed_vcf = "results/imputed_vcf/geno_lifted_phased_imputed_hg38_chr{chrs}.vcf.gz",
+        imputed_vcf_indx = "results/imputed_vcf/geno_lifted_phased_imputed_hg38_chr{chrs}.vcf.gz.tbi"
+    params:
+        minimac4 = "/data/hps/assoc/private/gdml/user/sesmae/tools/minimac4-4.1.6-Linux-x86_64/bin/minimac4"
+    threads: 8
+    log:
+        "logs/imputation/imputation_chr{chrs}.log"
+    shell:
+        """
+        mkdir -p results/imputed_vcf
+        mkdir -p logs/imputation
+        {params.minimac4} \
+            {input.ref_msav} \
+            {input.phased_vcf} \
+            --min-r2 0.8 \
+            --threads {threads} \
+            --format HDS,DS,GP,GT,SD \
+            -o {output.imputed_vcf} \
+            &> {log}
+        
+        # Index the imputed VCF
+        tabix -p vcf {output.imputed_vcf}
+        """
+
+
+rule merge_imputed_vcfs:
+    input:
+        vcfs = expand("results/imputed_vcf/geno_lifted_phased_imputed_hg38_chr{chrs}.vcf.gz", chrs=autosomes)
+    output:
+        merged_vcf = "results/imputed_vcf/geno_lifted_phased_imputed_hg38_allchrs.vcf.gz",
+        merged_vcf_indx = "results/imputed_vcf/geno_lifted_phased_imputed_hg38_allchrs.vcf.gz.tbi"
+    shell:
+        """
+        ls -1 results/imputed_vcf/geno_lifted_phased_imputed_hg38_chr*.vcf.gz | sort -V > results/imputed_vcf/vcf_list.txt
+        bcftools concat \
+            -f results/imputed_vcf/vcf_list.txt \
+            -Oz -o {output.merged_vcf}
+        
+        # Index the merged VCF
+        tabix -p vcf {output.merged_vcf}
+        """
+
+### END
