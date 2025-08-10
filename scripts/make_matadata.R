@@ -142,8 +142,97 @@ meta_merged <- meta_rna %>%
     age = age.x, sex = sex.y, batch, read_length, blood, library_type) %>%
     mutate(sample_id_geno = replace_na(sample_id_geno, "no_genotype"))
 
+
+###---------------------------------------------------------------------------- Adding matching results - Beginning of the block.
+# Note: comment this block if you don't want to use matching results
+
+# Read in the mix-up table
+mix_up <- read.table("matching_analysis/results/rna_to_genotype_summary.tsv", header = T, sep = "\t")
+
+# Extract row for FTL_500_501 and duplicate it
+indx_n <- which(mix_up$RNA_ID == "FTL_500_501")
+new_rows <- mix_up[indx_n, ] %>%
+    slice(rep(1, 2)) %>%
+    mutate(RNA_ID = c("FTL_500", "FTL_501"))
+# Replace row 46 with the two new rows
+mix_up <- bind_rows(mix_up[-indx_n, ], new_rows)
+
+# Merging metadata and mix-up table
+mix_meta_for_check <- mix_up %>%
+    # select(-top_variant_count) %>%
+    inner_join(meta_merged[, c("library_id", "sample_id_geno", "tissue")],
+        by = c("RNA_ID" = "library_id"))
+
+# Check the number of matched and unmatched IDs
+table(mix_meta_for_check$top_simil_ID == mix_meta_for_check$sample_id_geno)
+
+# Save the results (this one is only for looking at in Excel)
+write_tsv(mix_meta_for_check[, c(1,2,8,3,4,6,7,9)], file = "src/mixup_table_forcheck.tsv")
+
+### Now making RNA metadata with matching results
+mix_meta_final <- meta_merged %>%
+        inner_join(mix_up[, c("RNA_ID", "top_simil_ID", "top_simil")],
+            by = c("library_id" = "RNA_ID"))  %>%
+        mutate(top_simil_ID = if_else(sample_id_geno == "no_genotype", "no_genotype", top_simil_ID), # If there is no genotype, then top_simil_ID becomes also no_genotype
+        matched = if_else(sample_id_geno == top_simil_ID, "Yes", "No")) %>%
+        filter(sample_id_geno != "no_genotype") %>%
+        mutate(human_id_top_simil = str_extract(top_simil_ID, "(?<=FTL_)\\d+")) %>%
+        dplyr::rename(sample_id_geno_org = sample_id_geno,
+            human_id_org = human_id,
+            sample_id_geno = top_simil_ID,
+            human_id = human_id_top_simil)
+
+# I'm overwriting the meta_merged to keep the rest of the script consistent
+meta_merged <- mix_meta_final
+
+###---------------------------------------------------------------------------- End of the block
+
+
 # Write out the metadata
 write_tsv(meta_merged, "src/metadata_rna.tsv")
+
+
+### Subsetting ids and covar files for each tissue + vestibular
+# Utricle
+samples_utricle <- meta_merged %>%
+    filter(tissue == "utricle") %>%
+    filter(sample_id_geno != "no_genotype") %>%
+    filter(!(matched == "No" & top_simil < 0.81)) %>% # Note: Comment this if you don't want to use matching results
+    select(sample_id_geno,age,sex) %>%
+    mutate(sex = recode(sex, "M" = 1, "F" = 2)) %>%
+    distinct(sample_id_geno, .keep_all = TRUE)
+
+
+# Write out
+write.table(samples_utricle$sample_id_geno, "src/utricle_sample_ids.tsv", quote = F, col.names = F, row.names = F)
+write_tsv(samples_utricle, "src/utricle_covars.tsv")
+
+
+# Saccule
+samples_saccule <- meta_merged %>%
+    filter(tissue == "saccule") %>%
+    filter(sample_id_geno != "no_genotype") %>%
+    filter(!(matched == "No" & top_simil < 0.81)) %>% # Note: Comment this if you don't want to use matching results
+    select(sample_id_geno,age,sex) %>%
+    mutate(sex = recode(sex, "M" = 1, "F" = 2)) %>%
+    distinct(sample_id_geno, .keep_all = TRUE)
+
+
+# Write out
+write.table(samples_saccule$sample_id_geno, "src/saccule_sample_ids.tsv", quote = F, col.names = F, row.names = F)
+write_tsv(samples_saccule, "src/saccule_covars.tsv")
+
+# Vestibular
+samples_vestibular <- meta_merged %>%
+    filter(sample_id_geno != "no_genotype") %>%
+    filter(!(matched == "No" & top_simil < 0.81)) %>% # Note: Comment this if you don't want to use matching results
+    select(sample_id_geno,age,sex) %>%
+    mutate(sex = recode(sex, "M" = 1, "F" = 2)) %>%
+    distinct(sample_id_geno, .keep_all = TRUE)
+
+# Write out
+write.table(samples_vestibular$sample_id_geno, "src/vestibular_sample_ids.tsv", quote = F, col.names = F, row.names = F)
+write_tsv(samples_vestibular, "src/vestibular_covars.tsv")
 
 
 ### Making a list of R1 and R2 reads for mapping

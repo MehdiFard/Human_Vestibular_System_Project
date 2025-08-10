@@ -17,6 +17,8 @@ rule all:
         expand("src/ref_panel/ALL.chr{chrs}_GRCh38.genotypes.20170504.bcf.csi", chrs=chrs),
         expand("results/phased_vcf/geno_lifted_phased_hg38_chr{chrs}.vcf.gz", chrs=autosomes),
         expand("results/phased_vcf/geno_lifted_phased_hg38_chr{chrs}.vcf.gz.tbi", chrs=autosomes),
+        "results/phased_vcf/geno_lifted_phased_hg38_allchrs.vcf.gz",
+        "results/phased_vcf/geno_lifted_phased_hg38_allchrs.vcf.gz.tbi",
         expand("src/ref_panel_msav/ALL.chr{chrs}_GRCh38.genotypes.20170504.msav", chrs=autosomes),
         expand("results/imputed_vcf/geno_lifted_phased_imputed_hg38_chr{chrs}.vcf.gz", chrs=autosomes),
         expand("results/imputed_vcf/geno_lifted_phased_imputed_hg38_chr{chrs}.vcf.gz.tbi", chrs=autosomes),
@@ -131,6 +133,24 @@ rule phase_with_eagle:
         
         # Index the phased VCF
         tabix -p vcf {output.phased_vcf}
+        """
+
+
+rule merge_phased_vcfs:
+    input:
+        vcfs = expand("results/phased_vcf/geno_lifted_phased_hg38_chr{chrs}.vcf.gz", chrs=autosomes)
+    output:
+        merged_vcf = "results/phased_vcf/geno_lifted_phased_hg38_allchrs.vcf.gz",
+        merged_vcf_indx = "results/phased_vcf/geno_lifted_phased_hg38_allchrs.vcf.gz.tbi"
+    shell:
+        """
+        ls -1 results/phased_vcf/geno_lifted_phased_hg38_chr*.vcf.gz | sort -V > results/phased_vcf/vcf_list.txt
+        bcftools concat \
+            -f results/phased_vcf/vcf_list.txt \
+            -Oz -o {output.merged_vcf}
+        
+        # Index the merged VCF
+        tabix -p vcf {output.merged_vcf}
         """
 
 
