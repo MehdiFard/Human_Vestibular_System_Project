@@ -7,20 +7,19 @@ library(patchwork)
 
 get_phenotypes <- function(modality) {
     # df <- read_tsv(str_glue("data/geuvadis/phenotypes/{modality}.bed.gz"),
-    df <- read_tsv(str_glue("phenotyping/output/utricle/{modality}.bed.gz"),
+    df <- read_tsv(str_glue("phenotyping/output/vestibular/{modality}.bed.gz"),
                     col_types = cols(phenotype_id = "c", .default = "-"))
     if (modality %in% c("expression", "stability")) {
         df <- mutate(df, gene_id = phenotype_id)
     } else {
         # group_file <- str_glue("data/geuvadis/phenotypes/{modality}.phenotype_groups.txt")
-        group_file <- str_glue("phenotyping/output/utricle/{modality}.phenotype_groups.txt")
+        group_file <- str_glue("phenotyping/output/vestibular/{modality}.phenotype_groups.txt")
         groups <- read_tsv(group_file, col_types = "cc",
                             col_names = c("phenotype_id", "gene_id"))
         df <- left_join(df, groups, by = "phenotype_id")
     }
     df
 }
-
 
 modalities <- c(
     expression = "Expression",
@@ -98,11 +97,11 @@ ggplot(data_1b, aes(x = thousands, y = modality, fill = modality, alpha = gene_b
 # ggsave("figures/figure1/figure1b.png", width = 3.2, height = 1.6, device = png)
 # ggsave("figures/figure1/figure1b.pdf", width = 3.2, height = 1.6)
 dir.create("figures/figure1/", recursive = TRUE)
-ggsave("figures/figure1/figure1b_utricle.pdf", width = 7.6, height = 3.2)
+ggsave("figures/figure1/figure1b_vestibular.pdf", width = 7.6, height = 3.2)
 
 # Save data
 dir.create("figures/source_data/", recursive = TRUE)
-write_tsv(data_1b, "figures/source_data/Figure_1b_utricle.txt")
+write_tsv(data_1b, "figures/source_data/Figure_1b_vestibular.txt")
 
 #############
 ## Panel C ## Number of phenotypes per gene per modality
@@ -136,10 +135,10 @@ ggplot(data_1c, aes(x = thousands, y = modality, fill = n_phenos)) +
 
 # ggsave("figures/figure1/figure1c.png", width = 3.8, height = 1.6, device = png)
 # ggsave("figures/figure1/figure1c.pdf", width = 3.8, height = 1.6)
-ggsave("figures/figure1/figure1c_utricle.pdf", width = 7.6, height = 3.2)
+ggsave("figures/figure1/figure1c_vestibular.pdf", width = 7.6, height = 3.2)
 
 # Save data
-write_tsv(data_1c, "figures/source_data/Figure_1c_utricle.txt")
+write_tsv(data_1c, "figures/source_data/Figure_1c_vestibular.txt")
 
 
 ### END

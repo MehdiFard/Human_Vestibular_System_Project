@@ -1,5 +1,6 @@
 # Figure 3: Separate vs. combined modality cis-QTL mapping
 rm(list = ls())
+
 library(tidyverse)
 library(eulerr) # Only on Env1
 
@@ -75,9 +76,9 @@ ggplot(data_3a, aes(x = n_qtls, y = thousands, fill = method)) +
 
 # ggsave("figures/figure3/figure3a.png", width = 2.5, height = 2.5, device = png)
 dir.create("figures/figure3")
-ggsave("figures/figure3/figure3a.pdf", width = 2.5, height = 2.5)
+ggsave("figures/figure3/figure3a_saccule.pdf", width = 2.5, height = 2.5)
 
-write_tsv(data_3a, "figures/source_data/Figure_3a.txt")
+write_tsv(data_3a, "figures/source_data/Figure_3a_saccule.txt")
 
 ## "Cross-modality mapping resulted in fewer total xQTLs per gene, from 2.94 on average to 1.76"
 comb_sep |>
@@ -108,7 +109,7 @@ venn <- bind_rows(
 p <- plot(venn, labels = FALSE, quantities = TRUE, col = "white",
           fill = c("#66666640", "#66666670", "#66666690"))
 # ggsave("figures/figure3/figure3b1.png", p, width = 2.5, height = 1.8)
-ggsave("figures/figure3/figure3b1.pdf", p, width = 2.5, height = 1.8)
+ggsave("figures/figure3/figure3b1_saccule.pdf", p, width = 2.5, height = 1.8)
 
 # cis-QTL genes, separate vs. combined, per modality
 
@@ -134,7 +135,7 @@ for (i in 1:length(modalities)) {
     p <- plot(venn2, labels = FALSE, quantities = TRUE, col = "white",
               fill = str_c(modality_colors[mod], c("40", "70", "90")))
     # ggsave(str_glue("figures/figure3/figure3b{i+1}.png"), p, width = 2, height = 1.5)
-    ggsave(str_glue("figures/figure3/figure3b{i+1}.pdf"), p, width = 2, height = 1.5)
+    ggsave(str_glue("figures/figure3/figure3b_saccule{i+1}.pdf"), p, width = 2, height = 1.5)
 }
 
 ## "Notably, we only observe a slight decrease (10.4%) in the total number of xGenes

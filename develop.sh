@@ -4,6 +4,10 @@ srun -p cpu-gdml-investor -N 1 -n 1 -c 16 --mem=64g --time=8:00:00 -A cpu-gdml-i
 mamba activate Env1
 
 
+salloc --partition=cpu-core-sponsored --cpus-per-task=8 --mem=32G --time=2:00:00
+srun --pty bash
+
+
 # Another source for imputation:
 https://www.protocols.io/view/genotype-imputation-workflow-v3-0-e6nvw78dlmkj/v2?step=1
 
@@ -150,6 +154,11 @@ sbatch --export=ALL,DATASET=saccule --job-name=saccule_phenotyping run_phenotypi
 2864909
 
 
+snakemake assemble_expression_bed   --configfile config.yml   --config dataset=saccule   --jobs 16   --default-resources mem_mb=64000 cpus=16   --printshellcmds   --rerun-incomplete   --latency-wait 60 -n
+snakemake assemble_expression_bed   --configfile config.yml   --config dataset=utricle   --jobs 16   --default-resources mem_mb=64000 cpus=16   --printshellcmds   --rerun-incomplete   --latency-wait 60 -n
+snakemake assemble_expression_bed   --configfile config.yml   --config dataset=vestibular   --jobs 16   --default-resources mem_mb=64000 cpus=16   --printshellcmds   --rerun-incomplete   --latency-wait 60 -n
+
+
 ## Utricle
 snakemake       --configfile config.yml \
                 --config dataset=utricle \
@@ -205,7 +214,7 @@ sbatch --export=ALL,DATASET=vestibular --job-name=vestibular_phenotyping run_phe
 
 
 ###------------------ LIFTOVER GWAS SUMSTAT
-# Go to the lift_gwas directory and run the script to lift over the GWAS sumstat to hg38 and prepare the final sumstat file
+# Go to the ./Pantry/pheast/lift_gwas directory and run the script to lift over the GWAS sumstat to hg38 and prepare the final sumstat file
 ###------------------ LIFTOVER GWAS SUMSTAT
 
 
@@ -377,6 +386,8 @@ sbatch --export=ALL,DATASET=vestibular --job-name=pheast_vestibular run_pheast_g
 
 ###------------ ASE
 scp username@remote:/path/to/remote/file /path/to/local/destination
+scp sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/pca_expression_count_tissue.png .
+scp sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/pca_expression_count_batch.png .
 
 bcftools view -v snps phasing_imputation/results/phased_vcf/geno_lifted_phased_hg38_chr22.vcf.gz | grep -v "##" | head
 
@@ -463,6 +474,203 @@ mamba activate pantry_pheast
 
 snakemake -s run_twas_with_tissue.smk --jobs 2 --printshellcmds --rerun-incomplete -n
 sbatch run_twas_assoc.slurm
-2799583
-2811504
-2839409
+4625309
+
+
+
+seff 4623743
+sacct -j 4623743 --format=JobID,JobName%30,State,Elapsed,ReqMem,MaxRSS,AveRSS,ExitCode
+
+
+### Path to phased ref panel
+/data/hps/assoc/private/gdml/user/twil15/1kGP_pipeline/resources/1kG/hg38
+
+
+### Downloading GTEx color palette for plotting
+wget https://raw.githubusercontent.com/broadinstitute/gtex-viz/master/boxplot/dev/colors.json -O src/gtex_colors.json
+
+scp sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/pca_expression_gtex_vestibular_tissue.png .
+scp sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/pca_expression_tmm_logcpm_vestibular.png .
+scp sesmae@login-2.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/VolcanoPlot_utricle_vs_saccule_batch_fitted.jpeg .
+
+
+rsync -avz "OneDrive_2_11-5-2025.zip" sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/Pantry/pheast/lift_gwas/gwas_sumstats/
+rsync -avz "OneDrive_3_11-5-2025.zip" sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/Pantry/pheast/lift_gwas/gwas_sumstats/
+
+
+### RUN DGE
+sbatch Pantry/phenotyping/run_dge.slurm
+4737203
+
+# runing differential_gene_expression.R
+sbatch Pantry/phenotyping/run_dge.slurm
+4737409
+4813242
+
+###-------------------------------------------------------- Runing pheast after removing outliers
+# Removing this 3 samples: "31947386", "31907773", "32073088"
+# Genotype
+cd Pantry/pheast_no_outlier/
+plink2  --vcf ../../phasing_imputation/results/imputed_vcf/geno_lifted_phased_imputed_hg38_allchrs.vcf.gz \
+        --keep input/vestibular/vestibular.individuals.txt \
+        --fa ../phenotyping/input/ref/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa \
+        --ref-from-fa force \
+        --maf 0.05 \
+        --geno 0.01 \
+        --hwe 1e-6 \
+        --snps-only just-acgt \
+        --nonfounders \
+        --max-alleles 2 \
+        --chr 1-22 \
+        --set-all-var-ids @_#_'$r'_'$a' \
+        --make-bed \
+        --out  input/vestibular/vestibular_genotype
+
+
+scripts/prepare_phenotypes_updated072225.py \
+        --indir ../phenotyping/output/vestibular \
+        --outdir input/vestibular/phenotypes/ \
+        --map input/vestibular/vestibular.sample_map.txt \
+        --individuals input/vestibular/vestibular.individuals.txt
+
+
+## Now Run the pheast
+mamba activate pantry_pheast
+
+#  Dry run
+snakemake --configfile config.yml --config dataset=vestibular --cores 16 --printshellcmds -n
+
+# Submit on gpu
+sbatch --export=ALL,DATASET=vestibular --job-name=pheast_vestibular run_pheast_gpu_wrapper.slurm
+2816964
+2897577
+
+
+snakemake --profile slurm \
+                --config dataset=vestibular \
+                --configfile config.yml \
+                --printshellcmds \
+                --keep-going \
+                --rerun-incomplete \
+                -j 20 -n
+
+sbatch run_snakemake_profile.slurm
+4945407
+4950958
+# ~/.config/snakemake/slurm/config.yaml
+
+# executor: slurm
+# default-resources:
+#   runtime: "24h"
+#   mem_mb: 32000
+#   slurm_partition: "cpu-core-sponsored"
+#   slurm_account: "cpu-core-sponsored"
+# set-resources:
+#   tensorqtl_cis:
+#     slurm_partition: "gpu-core-sponsored"
+#     slurm_account: "gpu-core-sponsored"
+#     slurm_extra: "'--gres=gpu:1'"
+#   tensorqtl_cis_independent:
+#     slurm_partition: "gpu-core-sponsored"
+#     slurm_account: "gpu-core-sponsored"
+#     slurm_extra: "'--gres=gpu:1'"
+#   tensorqtl_trans:
+#     slurm_partition: "gpu-core-sponsored"
+#     slurm_account: "gpu-core-sponsored"
+#     slurm_extra: "'--gres=gpu:1'"
+# use-conda: true
+# latency-wait: 60
+# max-jobs-per-timespan: "1/1s"
+# max-status-checks-per-second: 5
+
+sacct -j 2816964 --format=JobID,State,Partition,AllocTRES,ReqTRES,AllocCPUS,NodeList
+
+
+###---------------------- TWAS after removing outliers
+cd Pantry/pheast_no_outlier/twas
+mamba activate pantry_pheast
+
+# Dry run
+snakemake -s run_twas_with_tissue.smk --jobs 2 --printshellcmds --rerun-incomplete -n
+
+# Submit the job
+sbatch run_twas_assoc.slurm
+5004182
+
+
+
+/data/hps/assoc/private/gdml/user/dmunro/pantry/pheast/{tissue}/intermediate/twas/
+
+/data/hps/assoc/private/gdml/user/dmunro/pantry/pheast/PRSTTE/intermediate/twas/expression/ENSG00000000460.wgt.RDat
+load("/data/hps/assoc/private/gdml/user/dmunro/pantry/pheast/PRSTTE/intermediate/twas/expression/ENSG00000000460.wgt.RDat")
+
+# SNP format in GTEx weight file:
+chr1_169162312_A_C_b38 - rs12755385
+
+
+for tissue in $(ls -1 /data/hps/assoc/private/gdml/user/dmunro/pantry/pheast/); do
+        echo "Linking $tissue"
+        mkdir -p weights/$tissue/
+        ln -s /data/hps/assoc/private/gdml/user/dmunro/pantry/pheast/$tissue/intermediate/twas weights/$tissue
+done
+
+# rsync -ah  --info=progress2
+
+
+###---------------------- TWAS with GTEx tissue weights
+cd Pantry/pheast_no_outlier/twas/twas_gtex
+mamba activate pantry_pheast
+
+# Dry run
+snakemake -s run_twas_gtex_tissue.smk --jobs 10 --printshellcmds --rerun-incomplete -n
+snakemake -s run_twas_gtex_tissue.smk -j 1 -p \
+        results/BRNAMY/intermediate/expression/anx_eur/expression.anx_eur.chr5.tsv -n
+
+
+# Dry run - I'm using Slurm profile (loctaed here ~/.config/snakemake/slurm/config.yaml)
+snakemake -s run_twas_gtex_tissue.smk \
+                --profile slurm \
+                --jobs 250 \
+                --keep-going \
+                --rerun-incomplete \
+                -n
+
+# Submit the job
+sbatch run_twas_gtex_tissues.slurm
+5025548
+
+
+
+
+tmux new -s twas_gtex
+Ctrl+b d    → detach
+tmux a      → reattach
+tmux attach -t twas_gtex
+
+# Run Snakemake
+snakemake -s run_twas_gtex_tissue.smk \
+                --profile slurm \
+                --jobs 250 \
+                --keep-going \
+                --rerun-incomplete
+
+
+scontrol show partitions
+
+
+git config --global user.name "Mehdi Esmaeilifard"
+git config --global user.email "mehdi.esmaeilifard@seattlechildrens.org"
+git config --global core.editor "code --wait"
+git config --global core.autocrlf input
+git config --global -e
+
+
+
+grep -R --exclude="twas_hits.tsv" -n \
+        "ENSG00000167232__ENST00000300619" \
+        Pantry/pheast_no_outlier/twas/twas_gtex/results/*/output/ > tmp/search_res.txt
+
+git add . # stage files 
+git restore --staged . # unstage
+git log --oneline
+git commit -m "Add additional analysis scripts"

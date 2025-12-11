@@ -42,7 +42,7 @@ feature_rel_pos <- function(genes, pos, features) {
         slice_sample(n = 1) |>
         ungroup() |>
         mutate(start = features$start[subjectHits],
-               end = features$end[subjectHits])
+                end = features$end[subjectHits])
     tibble(pos = pos) |>
         mutate(index = 1:n()) |>
         left_join(hits, by = c("index" = "queryHits"), relationship = "one-to-one") |>

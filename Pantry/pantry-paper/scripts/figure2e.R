@@ -1,5 +1,6 @@
 # Figure 2: QTL functional analysis
 # Panel E: Functional annotation enrichment
+rm(list = ls)
 
 library(tidyverse)
 library(patchwork)

@@ -45,9 +45,37 @@ rule kallisto:
             {input.fastq}
         """
 
+# rule assemble_expression_bed:
+#     """Assemble kallisto outputs into expression BED files
+    
+#     Currently only tpm is used for downstream analysis.
+#     """
+#     input:
+#         kallisto = expand(str(interm_dir / 'expression' / '{sample_id}' / 'abundance.tsv'), sample_id=samples),
+#         samples = samples_file,
+#         ref_anno = ref_anno,
+#     output:
+#         iso = output_dir / 'unnorm' / 'isoforms.bed',
+#         gene = output_dir / 'unnorm' / 'expression.bed',
+#     params:
+#         unnorm_dir = output_dir / 'unnorm',
+#         expr_dir = interm_dir / 'expression',
+#     resources:
+#         mem_mb = 32000,
+#     shell:
+#         """
+#         mkdir -p {params.unnorm_dir}
+#         python3 scripts/assemble_bed.py \
+#             --type expression \
+#             --input-dir {params.expr_dir} \
+#             --samples {input.samples} \
+#             --ref_anno {input.ref_anno} \
+#             --output {output.iso} \
+#             --output2 {output.gene}
+#         """
+
 rule assemble_expression_bed:
     """Assemble kallisto outputs into expression BED files
-    
     Currently only tpm is used for downstream analysis.
     """
     input:
@@ -57,6 +85,8 @@ rule assemble_expression_bed:
     output:
         iso = output_dir / 'unnorm' / 'isoforms.bed',
         gene = output_dir / 'unnorm' / 'expression.bed',
+        iso_count = output_dir / 'unnorm' / 'isoforms_count.bed',
+        gene_count = output_dir / 'unnorm' / 'expression_count.bed',
     params:
         unnorm_dir = output_dir / 'unnorm',
         expr_dir = interm_dir / 'expression',
@@ -65,14 +95,17 @@ rule assemble_expression_bed:
     shell:
         """
         mkdir -p {params.unnorm_dir}
-        python3 scripts/assemble_bed.py \
+        python3 scripts/assemble_bed_est_counts.py \
             --type expression \
             --input-dir {params.expr_dir} \
             --samples {input.samples} \
             --ref_anno {input.ref_anno} \
             --output {output.iso} \
-            --output2 {output.gene}
+            --output2 {output.gene} \
+            --output3 {output.iso_count} \
+            --output4 {output.gene_count}
         """
+
 
 rule normalize_expression:
     """Quantile-normalize values for QTL mapping"""

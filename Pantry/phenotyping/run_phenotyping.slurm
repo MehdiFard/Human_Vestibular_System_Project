@@ -19,7 +19,7 @@
 
 
 ## Activate environment
-MAMBA="/data/hps/assoc/private/gdml/user/sesmae/miniforge3//etc/profile.d/mamba.sh"
+MAMBA="/data/hps/assoc/private/gdml/user/sesmae/miniforge3/etc/profile.d/mamba.sh"
 source $MAMBA
 mamba activate pantry
 

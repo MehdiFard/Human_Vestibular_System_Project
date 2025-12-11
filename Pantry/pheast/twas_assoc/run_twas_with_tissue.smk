@@ -3,8 +3,8 @@
 
 import pandas as pd
 
-datasets = ['saccule', 'utricle', "vestibular"]
-# datasets = ['utricle']
+datasets = ['vestibular']
+# datasets = ['saccule', 'utricle', "vestibular"]
 modalities = ['alt_polyA', 'alt_TSS', 'RNA_editing', 'expression', 'isoforms', 'splicing', 'stability']
 # modalities = ['expression']
 trait_df = pd.read_csv('../input/gwas_sumstat/gwas_metadata.tsv', sep='\t')
@@ -28,7 +28,8 @@ rule all:
 
 rule assoc_test_chr:
     input:
-        sumstats = "../input/gwas_sumstat/{trait}.sumstats",
+        # sumstats = "../input/gwas_sumstat/{trait}.sumstats",
+        sumstats = "../../../gwas_sumstats_prep/output/{trait}_hg38_twas_input.sumstats.gz",
         weights = "../intermediate/{dataset}/twas/{modality}.pos",
         ref_ld = lambda wildcards: expand("../input/LDREF/1kg_ldref_hg38_chr{chrom}.{ext}", chrom=[wildcards.chrom], ext=['bed', 'bim', 'fam'])
     output:
@@ -36,7 +37,7 @@ rule assoc_test_chr:
     params:
         weights_dir = "../intermediate/{dataset}/twas/",
         ref_ld_prefix = "../input/LDREF/1kg_ldref_hg38_chr",
-        coloc_p = "5e-8",
+        coloc_p = "5e-8", # Will be divided by number of RNA phenotype going to be tested
         gwas_n = lambda w: gwas_n[w.trait]
     resources:
         mem_mb = 64000

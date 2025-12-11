@@ -89,7 +89,7 @@ p2 <- qtls_pos |>
     ggtitle("Retained when combining modalities")
 
 # png("figures/figure3/figure3c.png", width = 9, height = 3.5, units = "in", res = 300)
-pdf("figures/figure3/figure3c.pdf", width = 9, height = 3.5)
+pdf("figures/figure3/figure3c_saccule.pdf", width = 9, height = 3.5)
 p1 + p2
 grid::grid.draw(grid::textGrob(
     "xVariant position normalized to xGene length",
@@ -106,7 +106,7 @@ data_3c <- bind_rows(
            xmin = sprintf("%g", xmin),
            xmax = sprintf("%g", xmax))
 
-write_tsv(data_3c, "figures/source_data/Figure_3c.txt")
+write_tsv(data_3c, "figures/source_data/Figure_3c_saccule.txt")
 
 
 ### END

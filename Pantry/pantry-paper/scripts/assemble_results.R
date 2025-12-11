@@ -13,11 +13,17 @@ library(stringr)
 modalities <- c("alt_polyA", "alt_TSS", "expression", "isoforms", "RNA_editing", "splicing", "stability")
 
 # tissues <- read_lines("data/gtex/tissues.txt")
-tissues <- c("saccule", "utricle")
+tissues <- c("saccule", "utricle", "vestibular")
 
 traits <- read_tsv("pheast/input/gwas_sumstat/gwas_metadata.tsv",
             col_types = cols(trait = "c", .default = "-")) |>
             pull()
+
+# traits <- read_tsv(
+#     "pheast/input/gwas_sumstat/gwas_metadata.tsv",
+#     col_types = cols(trait = "c", .default = "-")) |>
+#     mutate(trait = str_remove(trait, "\\.hg38$")) |>
+#     pull(trait)
 
 ###########
 ## Genes ##
@@ -29,7 +35,7 @@ genes <- rtracklayer::import("phenotyping/input/ref/Homo_sapiens.GRCh38.110.chr.
             gene_biotype %in% c("protein_coding", "lncRNA")) |>
     pull(gene_id)
 
-# dir.create("figures/source_data/", recursive = TRUE)
+dir.create("figures/source_data/", recursive = TRUE)
 write_lines(genes, "figures/source_data/genes_pcg_lncrna.txt")
 
 ###################
@@ -40,7 +46,7 @@ write_lines(genes, "figures/source_data/genes_pcg_lncrna.txt")
 
 # geuv_assoc <- tibble(modality = modalities) |>
 #     reframe({
-#         fname <- str_glue("pheast/output/saccule_w8/qtl/{modality}.cis_qtl.txt.gz")
+#         fname <- str_glue("pheast/output/saccule/qtl/{modality}.cis_qtl.txt.gz")
 #         if (modality %in% c("expression", "stability")) {
 #             read_tsv(fname, col_types = "c-----cc-------cc-") |>
 #                 mutate(gene_id = phenotype_id)
@@ -56,9 +62,11 @@ write_lines(genes, "figures/source_data/genes_pcg_lncrna.txt")
 
 # write_tsv(geuv_assoc, "data/processed/geuvadis.sep.assoc.tsv")
 
+
 geuv_assoc <- tibble(modality = modalities) |>
     reframe({
-        fname <- str_glue("pheast/output/saccule/qtl/{modality}.cis_qtl.txt.gz")
+        # fname <- str_glue("pheast/output/saccule/qtl/{modality}.cis_qtl.txt.gz")
+        fname <- str_glue("pheast/results_all_samples/output/vestibular/qtl/{modality}.cis_qtl.txt.gz")
         df <- read_tsv(fname, col_types = cols(.default = col_character()))
         if ("group_id" %in% colnames(df)) {
             df <- df |>
@@ -76,25 +84,35 @@ geuv_assoc <- tibble(modality = modalities) |>
     relocate(gene_id, .before = 1) |>
     arrange(gene_id, modality) |>
     mutate(qval = as.numeric(qval)) # Ensure qval is numeric
+dim(geuv_assoc)
+View(geuv_assoc)
 
-# # To get the counts of significant associations per modality
-# modality_counts <- geuv_assoc %>%
-#     filter(modality %in% modalities, qval < 0.05) %>%
-#     group_by(modality) %>%
-#     summarise(n = n(), .groups = "drop") %>%
-#     complete(modality = modalities, fill = list(n = 0)) 
-# print(modality_counts)
+# To get the counts of significant variant–phenotype pairs per modality
+egene_counts <- geuv_assoc %>%
+    filter(qval < 0.05) %>%
+    distinct(modality, gene_id) %>%
+    count(modality) %>%
+    tidyr::complete(modality = modalities, fill = list(n = 0))
+print(egene_counts)
+sum(egene_counts$n)
+
+# eGenes unique
+total_egenes <- geuv_assoc %>%
+    filter(qval < 0.05) %>%
+    distinct(gene_id) %>%
+    nrow()
+print(total_egenes)
+
 
 # Write out the data
 write_tsv(geuv_assoc, "figures/source_data/geuvadis.sep.assoc.tsv")
-
 
 
 ## Geuvadis QTLs (mapped separately per modality)
 
 # geuv_qtls_sep <- tibble(modality = modalities) |>
 #     reframe({
-#         fname <- str_glue("pheast/output/saccule_w8/qtl/{modality}.cis_independent_qtl.txt.gz")
+#         fname <- str_glue("pheast/output/saccule/qtl/{modality}.cis_independent_qtl.txt.gz")
 #         if (modality %in% c("expression", "stability")) {
 #             read_tsv(fname, col_types = "c-----cc-------ci") |>
 #                 mutate(gene_id = phenotype_id)

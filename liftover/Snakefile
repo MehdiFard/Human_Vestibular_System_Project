@@ -19,7 +19,6 @@ rule all:
         "results/geno_lifted_hg38_deduped_renamed.bcf.csi"
 
 
-
 rule symlink_genotype_files:
     output:
         touch("../data/genotype/.symlinks_done")

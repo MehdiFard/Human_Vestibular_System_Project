@@ -1,4 +1,5 @@
 # Figure 4: TWAS
+rm(list = ls())
 
 library(tidyverse)
 library(patchwork)
@@ -26,6 +27,7 @@ modality_colors <- c(
 twas <- read_tsv("figures/source_data/geuvadis.twas.tsv.gz", col_types = "ccccdcddddddd") |>
     mutate(modality = factor(modalities[modality], levels = modalities)) |>
     filter(TWAS.P < 5e-8 / 6)
+View(twas)
 
 # ssize <- read_tsv("pheast/input/gwas_sumstat/gwas_metadata.tsv",
 #                   col_types = cols(trait = "c", sample_size = "i", .default = "-")) |>
@@ -59,21 +61,26 @@ d <- twas |>
     ) |>
     mutate(
         modality_hits = c(`TRUE_FALSE` = "Expression only",
-                          `TRUE_TRUE` = "Expr. & other(s)",
-                          `FALSE_TRUE` = "Non-expr. only")[modality_hits] |>
+                            `TRUE_TRUE` = "Expr. & other(s)",
+                            `FALSE_TRUE` = "Non-expr. only")[modality_hits] |>
             fct_relevel("Expression only", "Expr. & other(s)", "Non-expr. only")
     )
 
 d20 <- d |>
     filter(trait %in% levels(fct_infreq(trait))[1:20])
 
+# trait_labels <- c(
+#     Young_VsEP_P1_Amplitude = "Young P1 Amplitude",
+#     Young_VsEP_P2_latency = "Young P2 latency",
+#     Young_VsEP_threshold = "Young threshold",
+#     Young_beamtest = "Young beam test",
+#     aged_vsep_f = "Aged Vsep - F",
+#     aged_vsep_m = "Aged Vsep - M")
+
 trait_labels <- c(
-    Young_VsEP_P1_Amplitude = "Young P1 Amplitude",
-    Young_VsEP_P2_latency = "Young P2 latency",
-    Young_VsEP_threshold = "Young threshold",
-    Young_beamtest = "Young beam test",
-    aged_vsep_f = "Aged Vsep - F",
-    aged_vsep_m = "Aged Vsep - M")
+    balance_meta1.hg38 = "balance_meta1")
+
+
 
 # trait_labels <- c(
 #     Astle_et_al_2016_Eosinophil_counts = "Eosinophil count",
@@ -118,7 +125,7 @@ d20 |>
     labs(fill = "Gene's xTWAS\nhits include")
 
 # ggsave("figures/figure4/figure4a1.png", width = 5.8, height = 3.7, device = png)
-ggsave("figures/figure4/figure4a1.pdf", width = 5.8, height = 3.7)
+ggsave("figures/figure4/figure4a1_saccule.pdf", width = 5.8, height = 3.7)
 
 ###################
 ## Panel A right ## Modality of top hit
@@ -150,7 +157,7 @@ top_hits |>
     labs(fill = "Modality of\ngene's top hit")
 
 # ggsave("figures/figure4/figure4a2.png", width = 5.8, height = 3.7, device = png)
-ggsave("figures/figure4/figure4a2.pdf", width = 5.8, height = 3.7)
+ggsave("figures/figure4/figure4a2_saccule.pdf", width = 5.8, height = 3.7)
 
 data_4ab <- full_join(
     d20,
@@ -158,7 +165,7 @@ data_4ab <- full_join(
     by = c("trait", "gene_id")
 )
 
-write_tsv(data_4ab, "figures/source_data/Figure_4ab.txt")
+write_tsv(data_4ab, "figures/source_data/Figure_4ab_saccule.txt")
 
 #############
 ## Panel B ## Colocalization proportions
@@ -182,7 +189,7 @@ top_hits |>
     ylab(NULL)
 
 # ggsave("figures/figure4/figure4b1.png", width = 2.5, height = 1.5, device = png)
-ggsave("figures/figure4/figure4b1.pdf", width = 2.5, height = 1.5)
+ggsave("figures/figure4/figure4b1_saccule.pdf", width = 2.5, height = 1.5)
 
 top_hits |>
     mutate(trait = trait_labels[trait] |> fct_infreq() |> fct_rev()) |>
@@ -208,7 +215,7 @@ top_hits |>
     ylab(NULL)
 
 # ggsave("figures/figure4/figure4b2.png", width = 4.5, height = 3.5, device = png)
-ggsave("figures/figure4/figure4b2.pdf", width = 4.5, height = 3.5)
+ggsave("figures/figure4/figure4b2_saccule.pdf", width = 4.5, height = 3.5)
 
 #############
 ## Panel C ## GTEx colocalizations expression vs. other
@@ -262,3 +269,6 @@ ggplot(data_4c, aes(x = thousands, y = tissue, fill = modality_hits)) +
 ggsave("figures/figure4/figure4c.pdf", width = 3.5, height = 3.5)
 
 write_tsv(data_4c, "figures/source_data/Figure_4c.txt")
+
+
+### END

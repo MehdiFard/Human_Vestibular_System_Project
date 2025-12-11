@@ -6,8 +6,10 @@ autosomes = list(range(1, 23))
 
 rule all:
     input:
-        expand("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1k_genomes_ref_vcf_panel_phase3_hg38/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.gz", chrs=chrs),
-        expand("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1k_genomes_ref_vcf_panel_phase3_hg38/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.gz.tbi", chrs=chrs),
+        expand("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1kgp_phase3_hg38_phased/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.gz", chrs=chrs),
+        expand("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1kgp_phase3_hg38_phased/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.gz.tbi", chrs=chrs),
+        # expand("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1kgp_30x_hg38_phased/1kGP_high_coverage_Illumina.chr{chrs}.filtered.SNV_INDEL_SV_phased_panel.vcf.gz", chrs=chrs),
+        # expand("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1kgp_30x_hg38_phased/1kGP_high_coverage_Illumina.chr{chrs}.filtered.SNV_INDEL_SV_phased_panel.vcf.gz.tbi", chrs=chrs),
         "src/ref_panel/.symlinks_done",
         "src/ref_genome/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna",
         "src/ref_genome/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai",
@@ -26,20 +28,35 @@ rule all:
         "results/imputed_vcf/geno_lifted_phased_imputed_hg38_allchrs.vcf.gz.tbi"
 
 
-### Phasing using Eagle
+## Phasing using Eagle
 rule dl_ref_vcf:
     """Download the reference panel VCF files from 1k Genomes Phase 3, hg38"""
     output:
-        multiext("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1k_genomes_ref_vcf_panel_phase3_hg38/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.", "gz", "gz.tbi")
+        multiext("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1kgp_phase3_hg38_phased/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.", "gz", "gz.tbi")
     params:
         vcf_link = "https://cgl.gi.ucsc.edu/data/giraffe/construction/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.gz",
         vcf_tbi_link = "https://cgl.gi.ucsc.edu/data/giraffe/construction/ALL.chr{chrs}_GRCh38.genotypes.20170504.vcf.gz.tbi",
-        output_dir = "/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1k_genomes_ref_vcf_panel_phase3_hg38/"
+        output_dir = "/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1kgp_phase3_hg38_phased/"
     shell:
         """
         wget -P {params.output_dir} {params.vcf_link} 
         wget -P {params.output_dir} {params.vcf_tbi_link}
         """
+
+
+# rule dl_ref_vcf_high_coverage_phased:
+#     """Download the reference panel VCF files from 1k Genomes Phase 3, hg38"""
+#     output:
+#         multiext("/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1kgp_30x_hg38_phased/1kGP_high_coverage_Illumina.chr{chrs}.filtered.SNV_INDEL_SV_phased_panel.vcf", "gz", "gz.tbi")
+#     params:
+#         vcf_link = "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20220422_3202_phased_SNV_INDEL_SV/1kGP_high_coverage_Illumina.chr{chrs}.filtered.SNV_INDEL_SV_phased_panel.vcf.gz",
+#         vcf_tbi_link = "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20220422_3202_phased_SNV_INDEL_SV/1kGP_high_coverage_Illumina.chr{chrs}.filtered.SNV_INDEL_SV_phased_panel.vcf.gz.tbi",
+#         output_dir = "/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1kgp_30x_hg38_phased/"
+#     shell:
+#         """
+#         wget -P {params.output_dir} {params.vcf_link} 
+#         wget -P {params.output_dir} {params.vcf_tbi_link}
+#         """
 
 
 rule softlink_ref_vcf:
@@ -49,7 +66,7 @@ rule softlink_ref_vcf:
     shell:
         """
         mkdir -p src/ref_panel
-        ln -sf /data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1k_genomes_ref_vcf_panel_phase3_hg38/*.{{vcf.gz,vcf.gz.tbi}} src/ref_panel/
+        ln -sf /data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1kgp_phase3_hg38_phased/*.{{vcf.gz,vcf.gz.tbi}} src/ref_panel/
         touch {output}
         """
 

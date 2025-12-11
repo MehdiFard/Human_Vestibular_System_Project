@@ -8,7 +8,7 @@
 #SBATCH --account=cpu-core-sponsored
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=34
 #SBATCH --mem=512G
 #SBATCH --time=48:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
@@ -27,9 +27,11 @@ mamba activate pantry_pheast
 
 # Run Snakemake
 snakemake -s run_twas_with_tissue.smk \
-            --default-resources mem_mb=512000 cpus=32 \
-            --jobs 8 \
+            --default-resources mem_mb=512000 cpus=16 \
+            --jobs 10 \
             --printshellcmds \
+            --rerun-incomplete \
+            --keep-going \
             --latency-wait 60
 
 ### END

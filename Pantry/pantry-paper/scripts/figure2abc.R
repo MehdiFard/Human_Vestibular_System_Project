@@ -24,6 +24,7 @@ modality_colors <- c(
     `RNA stability` = "#fdc11c",
     `RNA editing` = "#984210")
 
+
 # qtls <- read_tsv("figures/source_data/geuvadis.comb.qtls.tsv", col_types = "cicccid") |>
 #     mutate(modality = factor(modalities[modality], level = modalities),
 #            rank = fct_other(as.character(rank), keep = as.character(1:9),
@@ -34,6 +35,7 @@ qtls <- read_tsv("figures/source_data/geuvadis.comb.qtls.tsv", col_types = "cicc
             rank = fct_other(as.character(rank), keep = as.character(1:9),
                             other_level = "10+"))
 dim(qtls)
+View(qtls)
 
 #############
 ## Panel A ## xQTLs per rank per modality using separate mapping
@@ -67,11 +69,11 @@ ggplot(data_2a, aes(x = thousands, y = modality, fill = n_QTLs)) +
 
 # ggsave("figures/figure2/figure2a.png", width = 3.2, height = 1.7, device = png)
 dir.create("figures/figure2")
-ggsave("figures/figure2/figure2a.pdf", width = 6.4, height = 3.4)
+ggsave("figures/figure2/figure2a_saccule.pdf", width = 6.4, height = 3.4)
 
 
 # Write out data 
-write_tsv(data_2a, "figures/source_data/Figure_2a.txt")
+write_tsv(data_2a, "figures/source_data/Figure_2a_saccule.txt")
 View(qtls)
 #############
 ## Panel B ## QTLs per gene
@@ -97,8 +99,8 @@ ggplot(data_2b, aes(x = n_qtls, y = thousands)) +
     )
 
 # ggsave("figures/figure2/figure2b.png", width = 2.2, height = 2.1, device = png)
-ggsave("figures/figure2/figure2b.pdf", width = 4.4, height = 4.2)
-write_tsv(data_2b, "figures/source_data/Figure_2b.txt")
+ggsave("figures/figure2/figure2b_saccule.pdf", width = 4.4, height = 4.2)
+write_tsv(data_2b, "figures/source_data/Figure_2b_saccule.txt")
 
 
 #############
@@ -131,13 +133,13 @@ qtls |>
     )
 
 # ggsave("figures/figure2/figure2c.png", width = 3.5, height = 2.3, device = png)
-ggsave("figures/figure2/figure2c.pdf", width = 7, height = 4.6)
+ggsave("figures/figure2/figure2c_saccule.pdf", width = 7, height = 4.6)
 
 data_2c <- qtls |>
     count(rank, modality) |>
     mutate(proportion = n / sum(n),
             .by = rank)
 
-write_tsv(data_2c, "figures/source_data/Figure_2c.txt")
+write_tsv(data_2c, "figures/source_data/Figure_2c_saccule.txt")
 
 ### END

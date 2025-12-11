@@ -187,10 +187,8 @@ meta_merged <- mix_meta_final
 
 ###---------------------------------------------------------------------------- End of the block
 
-
 # Write out the metadata
 write_tsv(meta_merged, "src/metadata_rna.tsv")
-
 
 ### Subsetting ids and covar files for each tissue + vestibular
 # Utricle
@@ -202,11 +200,9 @@ samples_utricle <- meta_merged %>%
     mutate(sex = recode(sex, "M" = 1, "F" = 2)) %>%
     distinct(sample_id_geno, .keep_all = TRUE)
 
-
 # Write out
 write.table(samples_utricle$sample_id_geno, "src/utricle_sample_ids.tsv", quote = F, col.names = F, row.names = F)
 write_tsv(samples_utricle, "src/utricle_covars.tsv")
-
 
 # Saccule
 samples_saccule <- meta_merged %>%
@@ -216,7 +212,6 @@ samples_saccule <- meta_merged %>%
     select(sample_id_geno,age,sex) %>%
     mutate(sex = recode(sex, "M" = 1, "F" = 2)) %>%
     distinct(sample_id_geno, .keep_all = TRUE)
-
 
 # Write out
 write.table(samples_saccule$sample_id_geno, "src/saccule_sample_ids.tsv", quote = F, col.names = F, row.names = F)
@@ -233,7 +228,6 @@ samples_vestibular <- meta_merged %>%
 # Write out
 write.table(samples_vestibular$sample_id_geno, "src/vestibular_sample_ids.tsv", quote = F, col.names = F, row.names = F)
 write_tsv(samples_vestibular, "src/vestibular_covars.tsv")
-
 
 ### Making a list of R1 and R2 reads for mapping
 # Batch 1
@@ -294,7 +288,6 @@ rna_meta_with_path <- meta_merged %>%
 
 # Write out the fastq files list
 write_tsv(rna_meta_with_path, "src/path_to_fqs.tsv")
-
 
 # # Function to get read length from gzipped FASTQ (first read only)
 # get_read_length <- function(fq) {
