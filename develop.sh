@@ -670,7 +670,26 @@ grep -R --exclude="twas_hits.tsv" -n \
         "ENSG00000167232__ENST00000300619" \
         Pantry/pheast_no_outlier/twas/twas_gtex/results/*/output/ > tmp/search_res.txt
 
+git status -s
 git add . # stage files 
 git restore --staged . # unstage
-git log --oneline
+git log --oneline # see priviuos commits
 git commit -m "Add additional analysis scripts"
+
+# Adding the GitHub remote to your local repo
+git remote add origin https://github.com/MehdiFard/Human_Vestibular_System_Project.git
+
+# Check
+git remote -v
+
+# Find branch name
+git branch -M main # GitHub using main, so let's change it to main
+git branch
+
+# Making a key
+ssh-keygen -t ed25519 -C "mehdi.esmaeilifard@gmail.com"
+git remote set-url origin git@github.com:MehdiFard/Human_Vestibular_System_Project.git
+
+# Push
+git push -u origin main
+
