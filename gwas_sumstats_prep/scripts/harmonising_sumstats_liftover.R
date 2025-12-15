@@ -1,6 +1,5 @@
 #!/usr/bin/env Rscript
 
-# Do NOT setwd() when called by Snakemake.
 suppressPackageStartupMessages({
     library(data.table)
     library(MungeSumstats)

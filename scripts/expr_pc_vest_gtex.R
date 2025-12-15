@@ -187,7 +187,7 @@ pc_df_annot <- pc_df_annot %>%
 unique(pc_df_annot$tissue_color_hex[pc_df_annot$tissue == "VESTIB"]) # should show "#000000"
 pc_df_annot[1:5, c("human_id", "tissue", "batch", "tissue_color_hex")] 
 
-View(pc_df_annot[pc_df_annot$tissue == "VESTIB", c("human_id", "tissue", "batch", "tissue_color_hex")] )
+# View(pc_df_annot[pc_df_annot$tissue == "VESTIB", c("human_id", "tissue", "batch", "tissue_color_hex")] )
 
 indx <- which(pc_df_annot$human_id %in% c("31947386", "31907773", "32073088"))
 
@@ -202,7 +202,6 @@ ggplot(pc_df_annot[-indx, ], aes(PC1, PC2, color = tissue)) + #
     y = paste0("PC2 (", round(var_expl[2]*100, 1), "%)")
   ) +
   theme_classic(base_size = 14)
-
 
 
 # ### To add sample Ids
@@ -239,7 +238,6 @@ ggplot(pc_df_annot[-indx, ], aes(PC1, PC2, color = tissue)) + #
 #     y = paste0("PC2 (", round(var_expl[2]*100, 1), "%)")
 #   ) +
 #   theme_classic(base_size = 14)
-
 
 
 

@@ -690,6 +690,37 @@ git branch
 ssh-keygen -t ed25519 -C "mehdi.esmaeilifard@gmail.com"
 git remote set-url origin git@github.com:MehdiFard/Human_Vestibular_System_Project.git
 
+# Pull first, cause I have License and Readme.md file in github but not here
+git pull --rebase origin main
+
 # Push
 git push -u origin main
 
+
+###------ Getting some stats
+## Lift over
+# in bim file after merge, hg19, 871,077 (maf > 0.01)
+
+# No of rejected variants
+bcftools view -H liftover/results/rejected_variants_to_lift.vcf | wc -l # 394,795 / for only SNPs add -v snps
+
+# Why rejected
+bcftools view -H liftover/results/rejected_variants_to_lift.vcf | cut -f7 | sort | uniq -c
+        394342 MismatchedRefAllele
+        453 NoTarget
+
+
+# No of lifted variants
+bcftools view -H liftover/results/geno_lifted_hg38.vcf.gz | wc -l # 476282
+
+
+## Phasing and imputation
+vcf="/data/hps/assoc/private/gdml/user/sesmae/refs_gtfs_indx_vcfs/vcfs/1kgp_phase3_hg38_phased/ALL.chr21_GRCh38.genotypes.20170504.vcf.gz"
+# To check genome built
+bcftools view -H $vcf | head | cut -f1-6
+
+# To get saample siz
+bcftools query -l $vcf | wc -l
+
+# To get number of snps after imputation
+bcftools view -H phasing_imputation/results/imputed_vcf/geno_lifted_phased_imputed_hg38_allchrs.vcf.gz | wc -l

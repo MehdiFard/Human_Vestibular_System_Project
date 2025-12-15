@@ -120,7 +120,7 @@ dim(count_mtx_filtered)
 count_mtx_filtered[1:5, 1:5]
 
 # Build DESeq2 object with paired design
-design = ~ human_id + tissue
+design = ~ batch + tissue # human_id
 
 sample_info$human_id <- as.factor(sample_info$human_id)
 sample_info$tissue <- as.factor(sample_info$tissue)
@@ -154,7 +154,6 @@ dea_obj_batch_fitted = readRDS("Pantry/phenotyping/intermediate/vestibular/dea_o
 resultsNames(dea_obj_batch_fitted)
 res <- results(dea_obj_batch_fitted, contrast = c("tissue", "utricle", "saccule"))
 View(res)
-readr::write_tsv(res, "Pantry/phenotyping/intermediate/vestibular/deseq2_result.tsv")
 
 res_df <- as.data.frame(res)
 res_df$gene_id <- rownames(res_df)
@@ -162,6 +161,7 @@ res_df <- res_df[!is.na(res_df$padj), ]
 res_df <- res_df[order(res_df$padj), ]
 dim(res_df)
 head(res_df)
+write_tsv(res_df[, c(7, 1:6)], "Pantry/phenotyping/intermediate/vestibular/deg_res.tsv")
 
 results_utr_vs_sac_signif <- res_df %>%
   filter(padj < 0.05) %>%
