@@ -6,14 +6,23 @@ import pandas as pd
 gwas_map = pd.read_csv("src/gwas_map.tsv", sep="\t")
 
 # Map trait → info
+# GWAS = {
+#     row.trait: {
+#         "file_name": row.file_name,
+#         "ref_build": row.ref_build
+#     }
+#     for _, row in gwas_map.iterrows()
+# }
+
+
 GWAS = {
     row.trait: {
         "file_name": row.file_name,
-        "ref_build": row.ref_build
+        "ref_build": row.ref_build,
+        "sample_size": int(row.sample_size),
     }
     for _, row in gwas_map.iterrows()
 }
-
 
 # ---- rule all ----
 rule all:
@@ -36,7 +45,7 @@ rule format_gwas:
         ref_build = lambda wc: GWAS[wc.trait]["ref_build"]
     log:
         log_sumstat = "logs/format_gwas/{trait}_formatted_hg38.log"
-    threads: 16
+    threads: 8
     shell:
         r"""
         set -euo pipefail
@@ -62,11 +71,12 @@ rule make_twas_input:
         # out prefix is simply the output path without the .sumstats.gz suffix
         out_prefix = lambda wc: f"output/{wc.trait}_hg38_twas_input",
         min_maf = 0,
-        sample_size = 100000,
+        # sample_size = 100000,
+        sample_size = lambda wc: GWAS[wc.trait]["sample_size"],
         env_name = "ldsc"
     log:
         log_ldsc = "logs/make_twas_input/{trait}_hg38_twas_input.log"
-    threads: 16
+    threads: 8
     shell:
         r"""
         set -euo pipefail

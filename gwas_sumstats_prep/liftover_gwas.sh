@@ -157,3 +157,10 @@ fi
 /data/hps/home/sesmae/.config/snakemake/slurm/config.yaml
 
 snakemake -s Snakefile --profile slurm --printshellcmds --scheduler greedy -n
+
+
+snakemake -j 24 --printshellcmds --scheduler greedy output/vertigo_hg38_twas_input.sumstats.gz -n 
+
+
+sbatch run_job.slurm
+5215027

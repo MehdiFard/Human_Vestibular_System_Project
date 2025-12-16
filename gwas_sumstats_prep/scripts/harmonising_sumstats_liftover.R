@@ -35,7 +35,7 @@ if (build == "GRCh37") {
         ref_genome            = "GRCh37",
         convert_ref_genome    = "GRCh38",
         local_chain           = chain_path,
-        nThread               = 16,
+        nThread               = 8,
         force_new             = TRUE,
         bi_allelic_filter     = FALSE,
         flip_frq_as_biallelic = TRUE,
@@ -46,7 +46,7 @@ if (build == "GRCh37") {
     gwas_sumstat <- format_sumstats(
         path                  = sumstats_path,
         ref_genome            = "GRCh38",
-        nThread               = 16,
+        nThread               = 8,
         force_new             = TRUE,
         bi_allelic_filter     = FALSE,
         flip_frq_as_biallelic = TRUE,

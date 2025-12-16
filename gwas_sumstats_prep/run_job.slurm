@@ -6,10 +6,10 @@
 #SBATCH --error=logs/%x-%j.err
 #SBATCH --partition=cpu-core-sponsored
 #SBATCH --account=cpu-core-sponsored
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=34
-#SBATCH --mem=256G
+#SBATCH --nodes=3
+#SBATCH --ntasks=22
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=64G
 #SBATCH --time=24:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mehdi.esmaeilifard@seattlechildrens.org
@@ -27,8 +27,8 @@ mamba activate Env1
 
 # Run Snakemake
 snakemake -s Snakefile \
-            --default-resources mem_mb=175000 cpus=34 \
-            --jobs 4 \
+            --default-resources mem_mb=64000 cpus=8 \
+            --jobs 22 \
             --printshellcmds \
             --scheduler greedy \
             --latency-wait 60 \
