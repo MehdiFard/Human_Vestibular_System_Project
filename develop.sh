@@ -724,3 +724,72 @@ bcftools query -l $vcf | wc -l
 
 # To get number of snps after imputation
 bcftools view -H phasing_imputation/results/imputed_vcf/geno_lifted_phased_imputed_hg38_allchrs.vcf.gz | wc -l
+
+
+
+### R code to investigate vertigo
+###--------------------------------------------------------
+sumstats_path = "data/gwas_raw_sumstats/vertigo_GRCH38_sorted.tsv.gz"
+build = "GRCh38"
+out_file = "formatted_sumstats/vertigo_formatted_hg38.tsv.gz"
+
+df = fread("data/gwas_raw_sumstats/vertigo_GRCH38_sorted.tsv.gz")
+dim(df)
+head(df)
+colnames(df)[3] <- "BP"
+
+# 1) Effect size on log scale
+df[, BETA := log(OR)]
+
+# 2) Convert SE on OR scale -> SE on log(OR) scale
+df[, SE_beta := SE / OR]
+
+# 3) Z-score on log scale
+df[, Z := BETA / SE_beta]
+
+# 4) Two-sided P-value
+df[, P := 2 * pnorm(-abs(Z))]
+range(df$P)
+
+# 5) Clip P to (0,1) for qqman safety
+df[, P := pmin(pmax(P, 1e-300), 1 - 1e-15)]
+
+
+df[, BETA := log(OR)]
+df[, Z := BETA / (log(SE))]
+df[, P := 2 * pnorm(-abs(Z))]
+df[, P := 2 * pnorm(abs(Z), lower.tail = FALSE)]
+
+range(df$P)
+
+table(p_value < 1e-8)
+
+df[, q := p.adjust(P, method = "BH")]
+table(df$q < 0.05)
+
+df[, p_bonf := pmin(P * .N, 1)]
+table(df$p_bonf < 0.05)
+
+fwrite(df, "data/gwas_raw_sumstats/vertigo_GRCH38_sorted_cln.tsv.gz", sep = "\t")
+
+install.packages("qqman")
+library(qqman)
+head(df2)
+df2 <- df[, .(CHR = CHR, BP = BP, SNP = SNP, P = P)]
+
+png("figures/Manhattan_vertigo.png", width = 1000, height = 500, res = 100)
+manhattan(df2, chr = "CHR", bp = "BP", p = "P", snp = "SNP", genomewideline = -log10(5e-08))
+dev.off()
+
+range(df2$P)
+summary(df2$P)
+sum(is.na(df2$P))
+sum(!is.finite(df2$P))
+sum(df2$P == 0, na.rm = TRUE)
+
+# Replace exact 0 and 1 with safe bounds
+df2[, P := pmin(pmax(P, 1e-300), 1 - 1e-15)]
+###--------------------------------------------------------
+
+
+

@@ -6,36 +6,55 @@ library(data.table)
 library(dplyr)
 library(matrixStats)
 library(ggplot2)
+library(rtracklayer)
+library(jsonlite)
 
+
+# Getting protein coding and lncRNAs gene IDs
+gtf <- readGFF("Pantry/phenotyping/input/ref/Homo_sapiens.GRCh38.110.chr.gtf")
+
+# Getting a list of genes that are protein coding or lncRNA
+genes_protien_lncRNA <- gtf %>%
+    dplyr::filter(type == "gene") %>% 
+    dplyr::filter(gene_biotype %in% c("protein_coding", "lncRNA")) %>%
+    dplyr::pull("gene_id")
+length(genes_protien_lncRNA)
 
 # Vestibular tissue, calculating median gene expression
 expr_vest_tpm <- fread("Pantry/phenotyping/output/vestibular/unnorm/expression.bed") %>%
-    select(-`#chr`, -start, -end) %>%
-    dplyr::rename(gene_id = phenotype_id)
-
+    dplyr::select(-`#chr`, -start, -end) %>%
+    dplyr::rename(gene_id = phenotype_id) %>%
+    filter(gene_id %in% genes_protien_lncRNA)
+dim(expr_vest_tpm)
 
 # Convert numeric columns to matrix and compute row medians
 median_expr_vest <- data.table(
     gene_id = expr_vest_tpm$gene_id,
     median_expr_vest = rowMedians(as.matrix(expr_vest_tpm[, -1]))
+    
 )
 
 # GTEx tissues median gene expression
 path_to_gtex_expr <- "/data/hps/assoc/private/gdml/user/dmunro/pantry/phenos/"
 tissue_names <- setdiff(list.dirs(path_to_gtex_expr, recursive = FALSE, full.names = FALSE), "ref")
+i=1
 
 # Looping over vestibular tissues
 for (i in seq_along(tissue_names)) {
     tissue = tissue_names[i]
     cat("Looking at:", tissue, "Tissue", "\n")
     expr_gtex <- fread(paste0(path_to_gtex_expr, tissue,"/output/unnorm/expression.bed")) %>%
-        select(-`#chr`, -start, -end) %>%
-        dplyr::rename(gene_id = phenotype_id)
+        dplyr::select(-`#chr`, -start, -end) %>%
+        dplyr::rename(gene_id = phenotype_id) %>%
+        filter(gene_id %in% genes_protien_lncRNA)
+    dim(expr_gtex)
+    expr_gtex[1:5,1:5]
 
     # Convert numeric columns to matrix and compute row medians
     median_expr_gtex <- data.table(
-    gene_id = expr_gtex$gene_id,
-    median_expr_gtex = rowMedians(as.matrix(expr_gtex[, -1])))
+        gene_id = expr_gtex$gene_id,
+        median_expr_gtex = rowMedians(as.matrix(expr_gtex[, -1])))
+    dim(median_expr_gtex)
 
     # Compare median expression between vestibular and GTEx tissue
     col = paste0("median_expr_", tissue)
@@ -46,8 +65,10 @@ for (i in seq_along(tissue_names)) {
         mutate(
         fold_change = (median_expr_vest + 1) / (median_expr_gtex + 1),
         log2_fc = log2((median_expr_vest + 1) / (median_expr_gtex + 1))) %>%
-        filter(log2_fc > 1 | log2_fc < -1)  %>%
+        # filter(log2_fc > 1 | log2_fc < -1)  %>%
         dplyr::rename(!!col := median_expr_gtex)
+    dim(expr_compare)
+    head(expr_compare)
 
     # Save comparison table
     fwrite(expr_compare,
@@ -145,3 +166,199 @@ for (i in seq_along(tissue_names)) {
 #         title = paste0("VESTIB vs ", tissue, " Median Gene Expression")
 #     ) +
 #     theme_classic(); p
+
+
+
+###---------------------------------------------- To run t-tests
+# Getting protein coding and lncRNAs gene IDs
+gtf <- readGFF("Pantry/phenotyping/input/ref/Homo_sapiens.GRCh38.110.chr.gtf")
+
+# Getting a list of genes that are protein coding or lncRNA
+genes_protien_lncRNA <- gtf %>%
+    dplyr::filter(type == "gene") %>% 
+    dplyr::filter(gene_biotype %in% c("protein_coding", "lncRNA")) %>%
+    dplyr::pull("gene_id")
+
+# Vestibular tissue, calculating median gene expression
+expr_vest_tpm <- fread("Pantry/phenotyping/output/vestibular/unnorm/expression.bed") %>%
+    dplyr::select(-`#chr`, -start, -end) %>%
+    dplyr::rename(gene_id = phenotype_id) %>%
+    filter(gene_id %in% genes_protien_lncRNA)
+
+median_expr_vest <- data.table(
+    gene_id = expr_vest_tpm$gene_id,
+    VESTIB = log2(
+        rowMedians(as.matrix(expr_vest_tpm[, -1])) + 1
+    )
+)
+
+# Reading GTEx tissue expression
+for (i in seq_along(tissue_names)) {
+
+    tissue = tissue_names[i]
+    cat("Looking at:", tissue, "Tissue", "\n")
+    expr_gtex <- fread(paste0(path_to_gtex_expr, tissue,"/output/unnorm/expression.bed")) %>%
+        dplyr::select(-`#chr`, -start, -end) %>%
+        dplyr::rename(gene_id = phenotype_id) %>%
+        filter(gene_id %in% genes_protien_lncRNA)
+
+    # Convert numeric columns to matrix and compute row medians and log2 transform
+    median_expr_gtex <- data.table(
+        gene_id = expr_gtex$gene_id,
+        median_expr_gtex = log2(
+            rowMedians(as.matrix(expr_gtex[, -1])) + 1
+        ))
+
+    # Compare median expression between vestibular and GTEx tissue
+    col = tissue
+    expr_compare <- median_expr_vest %>%
+        # left_join(median_expr_gtex, by = "gene_id") %>%
+        inner_join(median_expr_gtex, by = "gene_id") %>%
+        dplyr::rename(!!col := median_expr_gtex)
+
+    if(i == 1){
+        expr_tabal_log2_median <- expr_compare
+    } else {
+        expr_tabal_log2_median <- expr_tabal_log2_median %>%
+        inner_join(expr_compare[, -2], by = "gene_id")
+    }
+}
+dim(expr_tabal_log2_median)
+expr_tabal_log2_median[1:5, 1:5]
+
+
+###---------------- Running t-test
+dt <- copy(expr_tabal_log2_median)
+
+# Removing genes with zero expression
+dt <- dt[rowSums(dt[, -1, with = FALSE] > 0) > 0]
+
+# Filtering genes only expressed in vestibilur tissue
+dt[, all_other_zero :=
+        rowSums(.SD[, setdiff(names(.SD), "VESTIB"), with = FALSE] > 0) == 0,
+    .SDcols = setdiff(names(dt), "gene_id")]
+
+# put them in another df
+df_all_other_zero <- dt[all_other_zero == TRUE]
+
+# Save
+fwrite(df_all_other_zero,
+    file = "figures/data_tables/vestib_vs_gtex_only_expressed_in_vestib.tsv",
+    sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+# keeping the other genes and removing "all_other_zero" column
+dt_filtered <- dt[all_other_zero == FALSE, -"all_other_zero"]
+
+# Getting tissue names
+tissue_cols <- setdiff(names(dt), "gene_id")
+
+# run t-test
+res <- dt_filtered[, {
+    vestib <- VESTIB
+    others <- unlist(.SD[, setdiff(names(.SD), "VESTIB"), with = FALSE],
+                    use.names = FALSE)
+    others <- others[is.finite(others)]
+    # one-sided: VESTIB higher
+    p_more <- t.test(others, mu = vestib, alternative = "less")$p.value
+    # one-sided: VESTIB lower
+    p_less <- t.test(others, mu = vestib, alternative = "greater")$p.value
+    # two-sided (optional)
+    p_two  <- t.test(others, mu = vestib, alternative = "two.sided")$p.value
+    .(
+        VESTIB = vestib,
+        mean_other = mean(others),
+        diff = vestib - mean(others),
+        p_vestib_higher = p_more,
+        p_vestib_lower  = p_less,
+        p_two_sided     = p_two
+    )
+}, by = gene_id, .SDcols = setdiff(names(dt_filtered), "gene_id")]
+
+# Mulitiple testing correction
+res[, padj_two_sided  := p.adjust(p_two_sided, method = "BH")]
+
+# Order
+res[order(padj_two_sided)][1:20]
+
+# Save comparison table
+fwrite(res,
+    file = "figures/data_tables/vestib_vs_gtex_t_tests.tsv",
+    sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+
+### Plot
+# Getting GTEx tissue color
+gtex_colors <- fromJSON("https://raw.githubusercontent.com/broadinstitute/gtex-viz/master/boxplot/dev/colors.json")
+
+# Convert to data frame
+gtex_annot <- bind_rows(lapply(names(gtex_colors), function(tissue) {
+    data.frame(
+        tissue_name = tissue,
+        tissue_abbrv = gtex_colors[[tissue]]$tissue_abbrv,
+        tissue_color_hex = paste0("#", gtex_colors[[tissue]]$tissue_color_hex),
+        stringsAsFactors = FALSE
+    )
+}))
+
+# Making a vector of tissues and colors
+gtex_palette <- setNames(gtex_annot$tissue_color_hex, gtex_annot$tissue_abbrv)
+vestib_color <- "#000000"  # black — common choice for new tissue
+gtex_palette <- c( VESTIB = vestib_color, gtex_palette)
+
+# Function for ploting
+plot_gene_bar <- function(gene, dt_filtered, gtex_palette) {
+
+    x <- dt_filtered[gene_id == gene]
+
+    long <- melt(
+        x,
+        id.vars = "gene_id",
+        variable.name = "tissue",
+        value.name = "expr"
+    )
+
+    ggplot(long, aes(x = reorder(tissue, -expr), y = expr, fill = tissue)) +
+        geom_col() +
+        scale_fill_manual(values = gtex_palette, drop = FALSE) +
+        theme_classic() +
+        theme(
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        legend.position = "none"
+        ) +
+        labs(
+        title = gene,
+        x = NULL,
+        y = "log2(median TPM + 1)"
+    )
+}
+
+# Plot
+p = plot_gene_bar("ENSG00000167232", dt_filtered, gtex_palette); p
+
+# Save the plot
+ggsave(
+    filename = "figures/expr_across_gtex_ENSG00000167232.png",
+    plot = p,
+    width = 10,
+    height = 8,
+    dpi = 100
+)
+
+
+# ### Plot many genes at the same time
+# top_genes <- res[order(padj_two_sided)][1:12, gene_id]
+# long_top <- melt(
+#     dt_filtered[gene_id %in% top_genes],
+#     id.vars = "gene_id",
+#     variable.name = "tissue",
+#     value.name = "expr"
+# )
+# # Plot
+# ggplot(long_top, aes(x = tissue, y = expr, fill = (tissue == "VESTIB"))) +
+#     geom_col(show.legend = FALSE) +
+#     facet_wrap(~ gene_id, scales = "free_y") +
+#     theme_classic() +
+#     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+#     labs(x = NULL, y = "log2(median TPM + 1)")
+
+### END
