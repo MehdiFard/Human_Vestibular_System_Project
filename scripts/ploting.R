@@ -1135,3 +1135,29 @@ ggplot(twas, aes(x = TWAS.Z, y = -log10(TWAS.P))) +
   ) +
   theme_bw()
 
+
+
+###------------------------------------
+
+cr <- fread("Pantry/pheast_no_outlier/output/vestibular/qtl/cross_modality.cis_qtl.txt.gz")
+dim(cr)
+head(cr)
+View(cr[1:5, ])
+table(cr$qval < 0.05)
+
+cr_ind <- fread("Pantry/pheast_no_outlier/output/vestibular/qtl/cross_modality.cis_independent_qtl.txt.gz")
+dim(cr_ind)
+head(cr_ind)
+View(cr_ind[1:20, ])
+table(cr_ind$qval < 0.05)
+names(cr_ind)
+fwrite(cr_ind, "cr_ind.tsv", row.names = F, col.names = T, sep = "\t")
+
+# x is a character vector OR a column in a data.table
+cr_ind[, c("modality","feature") := tstrsplit(phenotype_id, ":", fixed = TRUE, keep = c(1,2))]
+
+# gene id = first ENSG... token in the feature part
+cr_ind[, gene_id := sub("^(ENSG[0-9]+).*", "\\1", feature)]
+
+unique(cr_ind$modality)
+length(unique(cr_ind$gene_id))
