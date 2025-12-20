@@ -46,10 +46,10 @@ modality_colors <- c(
 # genes <- rtracklayer::import("data/Homo_sapiens.GRCh38.106.gtf.gz") |>
 genes <- rtracklayer::import("Pantry/phenotyping/input/ref/Homo_sapiens.GRCh38.110.chr.gtf") |>
     as_tibble() |>
-    filter(type == "gene",
-            gene_biotype %in% c("protein_coding", "lncRNA")) |> # In mouse it's "lincRNA"
+    dplyr::filter(type == "gene", gene_biotype %in% c("protein_coding", "lncRNA")) |> # In mouse it's "lincRNA"
     dplyr::select(gene_id, gene_biotype)
 
+names(genes)
 dim(genes)
 head(genes)
 unique(genes$gene_biotype)

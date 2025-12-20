@@ -793,3 +793,4 @@ df2[, P := pmin(pmax(P, 1e-300), 1 - 1e-15)]
 
 
 
+scp sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/paper/* .

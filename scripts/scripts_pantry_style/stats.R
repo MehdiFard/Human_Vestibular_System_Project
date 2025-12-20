@@ -1,4 +1,6 @@
 library(tidyverse)
+library(readr)
+library(dplyr)
 
 get_phenotypes <- function(modality) {
     df <- read_tsv(str_glue("data/geuvadis/phenotypes/{modality}.bed.gz"),
@@ -80,11 +82,11 @@ write_tsv(data_t1, "figures/source_data/Table_1.txt")
 ## QTLs ##
 ##########
 
-qtls_sep <- read_tsv("data/processed/geuvadis.sep.qtls.tsv.gz", col_types = "cicccid") |>
-    mutate(modality = factor(modalities[modality], level = modalities))
+qtls_sep <- read_tsv("figures/data_tables/vestibular.sep.qtls.tsv", col_types = "cicccd") |>
+    dplyr::mutate(modality = factor(modalities[modality], level = modalities))
 
-qtls_comb <- read_tsv("data/processed/geuvadis.comb.qtls.tsv.gz", col_types = "cicccid") |>
-    mutate(modality = factor(modalities[modality], level = modalities))
+qtls_comb <- read_tsv("figures/data_tables/vestibular.comb.qtls.tsv", col_types = "cicccd") |>
+    dplyr::mutate(modality = factor(modalities[modality], level = modalities))
 
 ## We start with reporting combined modality QTLs
 nrow(qtls_comb)
@@ -93,6 +95,8 @@ qtls_comb |>
     filter(modality == "Expression") |>
     distinct(gene_id) |>
     count()
+
+table(qtls_comb$modality)
 
 # "cis-eQTLs found in 7215 genes, more than 3.2 times the second-most abundant xQTL group isoform ratio."
 qtls_comb |>

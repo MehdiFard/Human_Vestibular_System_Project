@@ -1,6 +1,6 @@
 # Figure 2: QTL overview
 rm(list = ls())
-install.packages("tidyverse")
+# install.packages("tidyverse")
 
 library(tidyverse)
 library(patchwork)
@@ -25,11 +25,6 @@ modality_colors <- c(
     `RNA stability` = "#fdc11c",
     `RNA editing` = "#984210")
 
-
-# qtls <- read_tsv("figures/data_tables/geuvadis.comb.qtls.tsv", col_types = "cicccid") |>
-#     mutate(modality = factor(modalities[modality], level = modalities),
-#            rank = fct_other(as.character(rank), keep = as.character(1:9),
-#                             other_level = "10+"))
 
 qtls <- read_tsv("figures/data_tables/vestibular.comb.qtls.tsv", col_types = "cicccd") |>
     mutate(modality = factor(modalities[modality], level = modalities),

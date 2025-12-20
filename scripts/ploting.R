@@ -1138,7 +1138,7 @@ ggplot(twas, aes(x = TWAS.Z, y = -log10(TWAS.P))) +
 
 
 ###------------------------------------
-
+library(data.table)
 cr <- fread("Pantry/pheast_no_outlier/output/vestibular/qtl/cross_modality.cis_qtl.txt.gz")
 dim(cr)
 head(cr)
@@ -1149,7 +1149,7 @@ cr_ind <- fread("Pantry/pheast_no_outlier/output/vestibular/qtl/cross_modality.c
 dim(cr_ind)
 head(cr_ind)
 View(cr_ind[1:20, ])
-table(cr_ind$qval < 0.05)
+table(cr_ind$pval_beta < 0.05)
 names(cr_ind)
 fwrite(cr_ind, "cr_ind.tsv", row.names = F, col.names = T, sep = "\t")
 
