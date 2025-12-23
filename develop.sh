@@ -794,3 +794,66 @@ df2[, P := pmin(pmax(P, 1e-300), 1 - 1e-15)]
 
 
 scp sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/paper/* .
+
+###---------------------- Fine-mapping with SuSiE
+mamba create -n susie_env -c conda-forge -c bioconda r-susier r-dplyr r-tidyverse r-data.table r-readr r-tidyr r-stringr r-devtools r-R.utils r-BEDMatrix r-plink2R r-SNPRelate r-bigsnpr
+mamba install -c conda-forge r-dplyr r-tidyverse r-data.table r-readr r-tidyr r-stringr r-devtools r-R.utils r-BEDMatrix r-plink2R r-SNPRelate r-bigsnpr
+mamba install conda-forge::r-bigsnpr
+
+mamba create -n susie_env2 \
+        -c conda-forge -c bioconda \
+        r-base \
+        r-susier \
+        r-data.table \
+        r-tidyverse \
+        r-R.utils \
+        r-BEDMatrix \
+        r-plink2R \
+        r-SNPRelate \
+        r-bigsnpr \
+        r-devtools \
+        r-matrix \
+        r-mvtnorm \
+        r-irlba \
+        r-rcpp \
+        r-rcpparmadillo \
+        r-GenomicRanges \
+        r-SummarizedExperiment \
+        r-VariantAnnotation \
+        r-qvalue \
+        r-coloc \
+        r-ashr \
+        r-ggplot2 \
+        r-patchwork \
+        r-cowplot \
+        r-arrow \
+        r-fst
+
+
+mamba create -n susie_env2 \
+        -c conda-forge -c bioconda \
+        r-base \
+        r-susier \
+        r-data.table \
+        r-tidyverse \
+        r-r.utils \
+        r-bedmatrix \
+        r-bigsnpr \
+        r-devtools \
+        r-matrix \
+        r-mvtnorm \
+        r-irlba \
+        r-rcpp \
+        r-rcpparmadillo \
+        bioconductor-genomicranges \
+        bioconductor-summarizedexperiment \
+        bioconductor-variantannotation \
+        bioconductor-qvalue \
+        bioconductor-snprelate \
+        r-coloc \
+        r-ashr \
+        r-ggplot2 \
+        r-patchwork \
+        r-cowplot \
+        r-arrow \
+        r-fst
