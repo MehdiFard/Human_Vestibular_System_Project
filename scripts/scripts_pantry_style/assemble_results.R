@@ -21,11 +21,6 @@ traits <- read_tsv("Pantry/pheast_no_outlier/input/gwas_sumstat/gwas_metadata.ts
             col_types = cols(trait = "c", .default = "-")) |>
             pull()
 
-# traits <- read_tsv(
-#     "pheast/input/gwas_sumstat/gwas_metadata.tsv",
-#     col_types = cols(trait = "c", .default = "-")) |>
-#     mutate(trait = str_remove(trait, "\\.hg38$")) |>
-#     pull(trait)
 
 ###########
 ## Genes ##
@@ -45,26 +40,6 @@ write_lines(genes, "figures/data_tables/genes_pcg_lncrna.txt")
 ###################
 
 ## Geuvadis top associations per gene per modality
-
-# vestib_assoc <- tibble(modality = modalities) |>
-#     reframe({
-#         fname <- str_glue("pheast/output/saccule/qtl/{modality}.cis_qtl.txt.gz")
-#         if (modality %in% c("expression", "stability")) {
-#             read_tsv(fname, col_types = "c-----cc-------cc-") |>
-#                 mutate(gene_id = phenotype_id)
-#         } else {
-#             read_tsv(fname, col_types = "c-----cc-------cc-c-") |>
-#                 mutate(gene_id = group_id) |>
-#                 select(-group_id)
-#         }
-#     }, .by = modality) |>
-#     filter(gene_id %in% genes) |>
-#     relocate(gene_id, .before = 1) |>
-#     arrange(gene_id, modality)
-
-# write_tsv(vestib_assoc, "data/processed/vestibular.sep.assoc.tsv")
-
-
 vestib_assoc <- tibble(modality = modalities) |>
     reframe({
         # fname <- str_glue("pheast/output/saccule/qtl/{modality}.cis_qtl.txt.gz")
@@ -111,26 +86,6 @@ write_tsv(vestib_assoc, "figures/data_tables/vestibular.sep.assoc.tsv")
 
 
 ## Geuvadis QTLs (mapped separately per modality)
-
-# vestib_qtls_sep <- tibble(modality = modalities) |>
-#     reframe({
-#         fname <- str_glue("pheast/output/saccule/qtl/{modality}.cis_independent_qtl.txt.gz")
-#         if (modality %in% c("expression", "stability")) {
-#             read_tsv(fname, col_types = "c-----cc-------ci") |>
-#                 mutate(gene_id = phenotype_id)
-#         } else {
-#             read_tsv(fname, col_types = "c-----cc-------cc-i") |>
-#                 mutate(gene_id = group_id) |>
-#                 select(-group_id)
-#         }
-#     }, .by = modality) |>
-#     filter(gene_id %in% genes) |>
-#     select(gene_id, rank, modality, phenotype_id, variant_id, tss_distance, pval_beta) |>
-#     arrange(gene_id, modality, rank)
-
-# write_tsv(vestib_qtls_sep, "data/processed/vestibular.sep.qtls.tsv")
-
-
 vestib_qtls_sep <- tibble(modality = modalities) |>
     reframe({
         fname <- str_glue("Pantry/pheast_no_outlier/output/vestibular/qtl/{modality}.cis_independent_qtl.txt.gz")
@@ -157,17 +112,6 @@ dim(vestib_qtls_sep)
 write_tsv(vestib_qtls_sep, "figures/data_tables/vestibular.sep.qtls.tsv")
 
 
-## Geuvadis QTLs (combined-modality mapping)
-
-# vestib_qtls_comb <- read_tsv("data/geuvadis/qtl/all.cis_independent_qtl.txt.gz",
-#                       col_types = "c-----cc-------cc-i") |>
-#     separate_wider_delim(phenotype_id, ":", names = c("modality", "phenotype_id"), too_many = "merge") |>
-#     select(gene_id = group_id, rank, modality, phenotype_id, variant_id, tss_distance, pval_beta) |>
-#     filter(gene_id %in% genes) |>
-#     arrange(gene_id, rank)
-# write_tsv(vestib_qtls_comb, "data/processed/vestibular.comb.qtls.tsv")
-
-
 # Modified
 vestib_qtls_comb <- read_tsv("Pantry/pheast_no_outlier/output/vestibular/qtl/cross_modality.cis_independent_qtl.txt.gz",
         col_types = cols(.default = col_character(), rank = col_integer())) |>
@@ -188,31 +132,6 @@ write_tsv(vestib_qtls_comb, "figures/data_tables/vestibular.comb.qtls.tsv")
 ###############
 
 ## GTEx top associations per gene per modality
-
-# gtex_assoc <- crossing(tissue = tissues,
-#                         modality = modalities) |>
-#     reframe({
-#         fname <- str_glue("data/gtex/qtl/{tissue}/{modality}.cis_qtl.txt.gz")
-#         if (file.exists(fname)) {
-#             if (modality %in% c("expression", "stability")) {
-#                 read_tsv(fname, col_types = "c-----cc-------cc-") |>
-#                     mutate(gene_id = phenotype_id)
-#             } else {
-#                 read_tsv(fname, col_types = "c-----cc-------cc-c-") |>
-#                     mutate(gene_id = group_id) |>
-#                     select(-group_id)
-#             }
-#         } else {
-#             tibble()
-#         }
-#     }, .by = c(tissue, modality)) |>
-#     filter(gene_id %in% genes) |>
-#     relocate(gene_id, .before = 2) |>
-#     arrange(tissue, gene_id, modality)
-
-# write_tsv(gtex_assoc, "data/processed/gtex.sep.assoc.tsv.gz")
-
-
 gtex_assoc <- crossing(tissue = tissues, modality = modalities) |>
     reframe({
         fname <- str_glue("Pantry/pheast_no_outlier/output/{tissue}/qtl/{modality}.cis_qtl.txt.gz")
@@ -236,39 +155,12 @@ gtex_assoc <- crossing(tissue = tissues, modality = modalities) |>
     relocate(gene_id, .before = 2) |>
     arrange(tissue, gene_id, modality)
 
-dim(gtex_assoc)
-View(gtex_assoc)
 
 # Write out the data
 write_tsv(gtex_assoc, "figures/data_tables/gtex.sep.assoc.tsv.gz")
 
 
 ## GTEx QTLs (mapped separately per modality)
-
-# gtex_qtls_sep <- crossing(tissue = tissues,
-#                           modality = modalities) |>
-#     reframe({
-#         fname <- str_glue("data/gtex/qtl/{tissue}/{modality}.cis_independent_qtl.txt.gz")
-#         if (file.exists(fname)) {
-#             if (modality %in% c("expression", "stability")) {
-#                 read_tsv(fname, col_types = "c-----cc-------ci") |>
-#                     mutate(gene_id = phenotype_id)
-#             } else {
-#                 read_tsv(fname, col_types = "c-----cc-------cc-i") |>
-#                     mutate(gene_id = group_id) |>
-#                     select(-group_id)
-#             }
-#         } else {
-#             tibble()
-#         }
-#     }, .by = c(tissue, modality)) |>
-#     filter(gene_id %in% genes) |>
-#     select(tissue, gene_id, rank, modality, phenotype_id, variant_id, tss_distance, pval_beta) |>
-#     arrange(tissue, gene_id, modality, rank)
-
-# write_tsv(gtex_qtls_sep, "data/processed/gtex.sep.qtls.tsv.gz")
-
-
 gtex_qtls_sep <- crossing(tissue = tissues, modality = modalities) |>
     reframe({
         fname <- str_glue("pheast/output/{tissue}/qtl/{modality}.cis_independent_qtl.txt.gz")
@@ -296,23 +188,6 @@ write_tsv(gtex_qtls_sep, "figures/data_tables/gtex.sep.qtls.tsv.gz")
 
 
 ## GTEx QTLs (combined-modality mapping)
-
-# gtex_qtls_comb <- tibble(tissue = tissues) |>
-#     reframe({
-#         fname <- str_glue("data/gtex/qtl/{tissue}/all.cis_independent_qtl.txt.gz")
-#         if (file.exists(fname)) {
-#             read_tsv(fname, col_types = "c-----cc-------cc-i")
-#         } else {
-#             tibble()
-#         }
-#     }, .by = tissue) |>
-#     separate_wider_delim(phenotype_id, ":", names = c("modality", "phenotype_id"), too_many = "merge") |>
-#     select(tissue, gene_id = group_id, rank, modality, phenotype_id, variant_id, tss_distance, pval_beta) |>
-#     filter(gene_id %in% genes) |>
-#     arrange(tissue, gene_id, rank)
-# write_tsv(gtex_qtls_comb, "data/processed/gtex.comb.qtls.tsv.gz")
-
-
 gtex_qtls_comb <- tibble(tissue = tissues) |>
     reframe({
         fname <- str_glue("pheast/output/{tissue}/qtl/cross_modality.cis_independent_qtl.txt.gz")
@@ -333,9 +208,9 @@ gtex_qtls_comb <- tibble(tissue = tissues) |>
     select(any_of(c("tissue", "gene_id", "rank", "modality", "phenotype_id", "variant_id", "tss_distance", "pval_beta"))) |>
     filter(gene_id %in% genes) |>
     arrange(tissue, gene_id, rank)
+
 # Write out the data
 write_tsv(gtex_qtls_comb, "figures/data_tables/gtex.comb.qtls.tsv.gz")
-
 
 
 ###################
@@ -374,8 +249,6 @@ vestib_twas <- crossing(modality = modalities,
     dplyr::select(trait, gene_id, modality, phenotype_id = ID, HSQ:COLOC.PP4) |>
     arrange(trait, gene_id, modality, phenotype_id)
 
-dim(vestib_twas)
-View(vestib_twas)
 
 # Write out the data
 write_tsv(vestib_twas, "figures/data_tables/vestibular.twas.tsv.gz")
@@ -386,24 +259,6 @@ write_tsv(vestib_twas, "figures/data_tables/vestibular.twas.tsv.gz")
 ###############
 
 ## GTEx heritability/r2/pvals
-
-# gtex_hsq <- crossing(tissue = tissues,
-#                         modality = modalities) |>
-#     reframe({
-#         fname <- str_glue("data/gtex/twas_models/{tissue}/{modality}.profile")
-#         if (file.exists(fname)) {
-#             read_tsv(fname, col_types = "cccccccc-cccc-c")
-#         } else {
-#             tibble()
-#         }
-#     }, .by = c(tissue, modality)) |>
-#     rename(phenotype_id = id) |>
-#     mutate(gene_id = str_extract(phenotype_id, "^[:alnum:]+"),
-#             .before = 3) |>
-#     filter(gene_id %in% genes)
-# write_tsv(gtex_hsq, "data/processed/gtex.hsq.tsv.gz")
-
-
 gtex_hsq <- crossing(tissue = tissues,
                         modality = modalities) |>
     reframe({
@@ -424,23 +279,6 @@ write_tsv(gtex_hsq, "figures/data_tables/gtex.hsq.tsv.gz")
 
 
 ## GTEx TWAS (significant hits only)
-
-# gtex_twas <- tibble(tissue = tissues) |>
-#     reframe({
-#         fname <- str_glue("data/gtex/twas/{tissue}.twas_hits.tsv")
-#         if (file.exists(fname)) {
-#             read_tsv(fname, col_types = "ccccccccccccccccccccccccc")
-#         } else {
-#             tibble()
-#         }
-#     }, .by = tissue) |>
-#     mutate(gene_id = str_extract(ID, "^[:alnum:]+")) |>
-#     filter(gene_id %in% genes) |>
-#     select(tissue, trait = TRAIT, gene_id, modality = MODALITY, phenotype_id = ID, HSQ, MODEL, TWAS.Z, TWAS.P, COLOC.PP0, COLOC.PP1, COLOC.PP2, COLOC.PP3, COLOC.PP4) |>
-#     arrange(tissue, trait, gene_id, modality, phenotype_id)
-# write_tsv(gtex_twas, "data/processed/gtex.twas_hits.tsv.gz")
-
-
 gtex_twas <- tibble(tissue = tissues) |>
     reframe({
         fname <- str_glue("pheast/twas_assoc/{tissue}/output/alt_polyA/twas_hits.tsv") # For a given tissue, all modalites have the same "twas_hits.tsv" file, so I just pick "alt_polyA".
@@ -456,5 +294,6 @@ gtex_twas <- tibble(tissue = tissues) |>
     arrange(tissue, trait, gene_id, modality, phenotype_id)
 # Write out the data
 write_tsv(gtex_twas, "figures/data_tables/gtex.twas_hits.tsv.gz")
+
 
 ### END
