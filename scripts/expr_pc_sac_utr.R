@@ -46,7 +46,6 @@ utr_name <- names(utricle_expr_count)[-1]
 names(utricle_expr_count)[-1] <- paste0(names(utricle_expr_count)[-1], "_utr") # Add tissue suffix
 
 
-
 # Merge saccule and utricle and keeping protien and lncRNA genes
 sac_utr_expr_count <- saccule_expr_count %>%
   inner_join(utricle_expr_count, by = "phenotype_id") %>%
@@ -112,10 +111,11 @@ pc_df_merged[1:5, .(Sample, human_id, Tissue, tissue, age, sex, batch)] # Inspec
 table(pc_df$Tissue, useNA = "ifany")
 
 # outlier sample index
-indx <- which(pc_df_merged$human_id == "31947386")
+indx <- which(pc_df_merged$human_id %in% c("31947386", "31907773", "32073088"))
+
 
 # Plot by tissue
-ggplot(pc_df_merged, aes(x = PC1, y = PC2, color = Tissue)) + # [-indx, ]
+ggplot(pc_df_merged[-indx, ], aes(x = PC1, y = PC2, color = Tissue)) +
   geom_point(size = 3, alpha = 0.9) +
   labs(
     title = "PCA of TMM + logCPM expression (Saccule and Utricle)",
@@ -135,7 +135,7 @@ ggsave(
 )
 
 # Plot by batch
-ggplot(pc_df_merged, aes(x = PC1, y = PC2, color = batch)) + # [-indx, ]
+ggplot(pc_df_merged[-indx, ], aes(x = PC1, y = PC2, color = batch)) + # [-indx, ]
   geom_point(size = 3, alpha = 0.9) +
   labs(
     title = "PCA of TMM + logCPM expression (Saccule and Utricle)",
@@ -219,9 +219,11 @@ table(pc_df$Tissue, useNA = "ifany")
 
 # outlier sample index
 indx <- which(pc_df_merged$human_id == "31947386")
+indx <- which(pc_df_merged$human_id %in% c("31947386", "31907773", "32073088"))
+
 
 # Plot by tissue
-ggplot(pc_df_merged, aes(x = PC1, y = PC2, color = Tissue)) + # [-indx, ]
+ggplot(pc_df_merged[-indx, ], aes(x = PC1, y = PC2, color = Tissue)) +
   geom_point(size = 3, alpha = 0.9) +
   labs(
     title = "PCA of TMM + logCPM expression (Saccule and Utricle)",
@@ -241,7 +243,7 @@ ggsave(
 )
 
 # Plot by batch
-ggplot(pc_df_merged, aes(x = PC1, y = PC2, color = batch)) + # [-indx, ]
+ggplot(pc_df_merged[-indx, ], aes(x = PC1, y = PC2, color = batch)) +
   geom_point(size = 3, alpha = 0.9) +
   labs(
     title = "PCA of TMM + logCPM expression (Saccule and Utricle)",
@@ -254,7 +256,7 @@ ggplot(pc_df_merged, aes(x = PC1, y = PC2, color = batch)) + # [-indx, ]
 # Save plot
 ggsave(
   last_plot(),
-  filename = "figures/pca_expression_tmm_logcpm_sac_utr_batch__mean_centered.png",
+  filename = "figures/pca_expression_tmm_logcpm_sac_utr_batch_mean_centered.png",
   width = 9,
   height = 7.5,
   dpi = 300

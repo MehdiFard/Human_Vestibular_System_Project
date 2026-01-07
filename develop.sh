@@ -857,3 +857,7 @@ mamba create -n susie_env2 \
         r-cowplot \
         r-arrow \
         r-fst
+mamba install -n susie_env2 -c conda-forge r-bigsnpr
+
+
+scp sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/pca_expression_tmm_logcpm_sac_utr_* .

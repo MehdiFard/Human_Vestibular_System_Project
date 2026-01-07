@@ -3,6 +3,10 @@ rm(list = ls())
 
 library(tidyverse)
 library(patchwork)
+library(readr)
+library(ggplot2)
+library(tibble)
+library(forcats)
 
 modalities <- c(
     expression = "Expression",
@@ -24,13 +28,17 @@ modality_colors <- c(
     `RNA editing` = "#984210"
 )
 
-twas <- read_tsv("figures/source_data/geuvadis.twas.tsv.gz", col_types = "ccccdcddddddd") |>
+twas <- read_tsv("figures/data_tables/vestibular.twas.tsv.gz", col_types = "ccccdcddddddd") |>
     mutate(modality = factor(modalities[modality], levels = modalities)) |>
-    filter(TWAS.P < 5e-8 / 6)
+    filter(TWAS.P < 5e-8 / 7)
 View(twas)
+dim(twas)
+summary(twas$TWAS.P)
+length(unique(twas$phenotype_id))
+length(unique(twas$gene_id))
 
 # ssize <- read_tsv("pheast/input/gwas_sumstat/gwas_metadata.tsv",
-#                   col_types = cols(trait = "c", sample_size = "i", .default = "-")) |>
+#                     col_types = cols(trait = "c", sample_size = "i", .default = "-")) |>
 #     mutate(
 #         # Sample_Size = format(Sample_Size, big.mark=","),
 #         # Sample_Size = scales::label_number(scale_cut = scales::cut_short_scale())(Sample_Size), # Currently fails due to bug in scales package
@@ -38,15 +46,16 @@ View(twas)
 #     ) |>
 #     deframe()
 
-ssize <- read_tsv("pheast/input/gwas_sumstat/gwas_metadata.tsv",
+ssize <- read_tsv("Pantry/pheast_no_outlier/input/gwas_sumstat/gwas_metadata.tsv",
                     col_types = cols(trait = "c", sample_size = "i", .default = "-")) |>
-    # mutate(
-    #     # Sample_Size = format(Sample_Size, big.mark=","),
-    #     # Sample_Size = scales::label_number(scale_cut = scales::cut_short_scale())(Sample_Size), # Currently fails due to bug in scales package
-    #     sample_size = sample_size |> round(-3) |> str_sub(1, -4) |> str_c("K"),
-    # ) |>
+    mutate(
+        # Sample_Size = format(Sample_Size, big.mark=","),
+        # Sample_Size = scales::label_number(scale_cut = scales::cut_short_scale())(Sample_Size), # Currently fails due to bug in scales package
+        sample_size = sample_size |> round(-3) |> str_sub(1, -4) |> str_c("K"),
+    ) |>
     deframe()
 
+View(ssize)
 
 ##################
 ## Panel A left ## Genes with expression vs other modality TWAS hits
@@ -65,46 +74,39 @@ d <- twas |>
                             `FALSE_TRUE` = "Non-expr. only")[modality_hits] |>
             fct_relevel("Expression only", "Expr. & other(s)", "Non-expr. only")
     )
+View(d)
 
 d20 <- d |>
     filter(trait %in% levels(fct_infreq(trait))[1:20])
-
-# trait_labels <- c(
-#     Young_VsEP_P1_Amplitude = "Young P1 Amplitude",
-#     Young_VsEP_P2_latency = "Young P2 latency",
-#     Young_VsEP_threshold = "Young threshold",
-#     Young_beamtest = "Young beam test",
-#     aged_vsep_f = "Aged Vsep - F",
-#     aged_vsep_m = "Aged Vsep - M")
+View(d20)
+table(d20$modality_hits)
 
 trait_labels <- c(
-    balance_meta1.hg38 = "balance_meta1")
+        anx_eur	= "Anxiety",
+        balance_meta_eur	= "Balance meta eur",
+        balance_meta1 = "Balance meta",
+        cognitive_skills_ext = "Cognitive skills",
+        fluid_intelligence_eur = "Fluid intelligence",
+        tinnitus_eur = "Tinnitus",
+        frailty_gwas = "Frailty",
+        alzheimer = "Alzheimer",
+        parkinson_gp2_eur = "Parkinson ",
+        hearing_hleur = "Hearing",
+        icp_fa = "ICP FA",
+        icp_md = "ICP MD",
+        mcp_fa = "MCP FA",
+        mcp_md = "MCP MD",
+        non_cognitive_skills_ext = "Non-cognitive skills",
+        depression_mdd = "Depression",
+        scp_fa = "SCP FA",
+        scp_md = "SCP MD",
+        cerebellar_volume = "Cerebellar volume",
+        cerebral_volume = "Cerebral volume",
+        subcortical_volume = "Subcortical volume",
+        ukbb_falls = "Falls-UKBB"
+)
 
-
-
-# trait_labels <- c(
-#     Astle_et_al_2016_Eosinophil_counts = "Eosinophil count",
-#     Astle_et_al_2016_Granulocyte_count = "Granulocyte count",
-#     Astle_et_al_2016_High_light_scatter_reticulocyte_count = "High light scatter reticulocyte count",
-#     Astle_et_al_2016_Lymphocyte_counts = "Lymphocyte count",
-#     Astle_et_al_2016_Monocyte_count = "Monocyte count",
-#     Astle_et_al_2016_Myeloid_white_cell_count = "Myeloid white cell count",
-#     Astle_et_al_2016_Neutrophil_count = "Neutrophil count",
-#     Astle_et_al_2016_Platelet_count = "Platelet count",
-#     Astle_et_al_2016_Red_blood_cell_count = "Red blood cell count",
-#     Astle_et_al_2016_Reticulocyte_count = "Reticulocyte count",
-#     Astle_et_al_2016_Sum_basophil_neutrophil_counts = "Sum basophil neutrophil counts",
-#     Astle_et_al_2016_Sum_eosinophil_basophil_counts = "Sum eosinophil basophil counts",
-#     Astle_et_al_2016_Sum_neutrophil_eosinophil_counts = "Sum neutrophil eosinophil counts",
-#     Astle_et_al_2016_White_blood_cell_count = "White blood cell count",
-#     GIANT_HEIGHT = "Height (GIANT 2014)",
-#     UKB_20002_1065_self_reported_hypertension = "Self-reported hypertension",
-#     UKB_21001_Body_mass_index_BMI = "Body mass index",
-#     UKB_23099_Body_fat_percentage = "Body fat percentage",
-#     UKB_50_Standing_height = "Height (UKBB)",
-#     UKB_6152_9_diagnosed_by_doctor_Hayfever_allergic_rhinitis_or_eczema = "Hayfever, allergic rhinitis or eczema"
-# )
-trait_labels <- str_glue("{trait_labels} (n={ssize[names(trait_labels)]})") |> set_names(names(trait_labels))
+trait_labels <- str_glue("{trait_labels} (n={ssize[names(trait_labels)]})") |> purrr::set_names(names(trait_labels))
 stopifnot(all(d20$trait %in% names(trait_labels)))
 
 d20 |>
@@ -124,8 +126,9 @@ d20 |>
     ylab("Traits (top 20 by # of genes with hits)") +
     labs(fill = "Gene's xTWAS\nhits include")
 
+
 # ggsave("figures/figure4/figure4a1.png", width = 5.8, height = 3.7, device = png)
-ggsave("figures/figure4/figure4a1_saccule.pdf", width = 5.8, height = 3.7)
+ggsave("figures/paper/figure4a1_vestibular.pdf", width = 8.7, height = 5.55)
 
 ###################
 ## Panel A right ## Modality of top hit
@@ -157,15 +160,15 @@ top_hits |>
     labs(fill = "Modality of\ngene's top hit")
 
 # ggsave("figures/figure4/figure4a2.png", width = 5.8, height = 3.7, device = png)
-ggsave("figures/figure4/figure4a2_saccule.pdf", width = 5.8, height = 3.7)
+ggsave("figures/paper/figure4a2_vestibular.pdf", width = 8.7, height = 5.55)
 
 data_4ab <- full_join(
     d20,
-    top_hits |> select(trait, gene_id, top_hit_modality = modality, top_hit_p_coloc = COLOC.PP4),
+    top_hits |> dplyr::select(trait, gene_id, top_hit_modality = modality, top_hit_p_coloc = COLOC.PP4),
     by = c("trait", "gene_id")
 )
 
-write_tsv(data_4ab, "figures/source_data/Figure_4ab_saccule.txt")
+write_tsv(data_4ab, "figures/data_tables/Figure_4ab_vestibular.txt")
 
 #############
 ## Panel B ## Colocalization proportions
@@ -189,7 +192,7 @@ top_hits |>
     ylab(NULL)
 
 # ggsave("figures/figure4/figure4b1.png", width = 2.5, height = 1.5, device = png)
-ggsave("figures/figure4/figure4b1_saccule.pdf", width = 2.5, height = 1.5)
+ggsave("figures/paper/figure4b1_vestibular.pdf", width = 2.5, height = 1.5)
 
 top_hits |>
     mutate(trait = trait_labels[trait] |> fct_infreq() |> fct_rev()) |>
@@ -198,9 +201,9 @@ top_hits |>
     geom_bar(width = 1, show.legend = FALSE) +
     # annotate("text", x = 0, y = 10, vjust = -0.5, label = "Traits", angle = 90) +
     geom_text(data = tibble(modality = factor(modalities[1], levels = modalities)),
-              mapping = aes(alpha = NULL, y = NULL),
-              x = 0, y = 10, vjust = -0.5, label = "Traits", angle = 90, size = 3.5,
-              show.legend = FALSE) +
+                mapping = aes(alpha = NULL, y = NULL),
+                x = 0, y = 10, vjust = -0.5, label = "Traits", angle = 90, size = 3.5,
+                show.legend = FALSE) +
     scale_fill_manual(values = modality_colors) +
     scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = 0.5)) +
     theme_classic() +
@@ -215,7 +218,7 @@ top_hits |>
     ylab(NULL)
 
 # ggsave("figures/figure4/figure4b2.png", width = 4.5, height = 3.5, device = png)
-ggsave("figures/figure4/figure4b2_saccule.pdf", width = 4.5, height = 3.5)
+ggsave("figures/paper/figure4b2_vestibular.pdf", width = 4.5, height = 3.5)
 
 #############
 ## Panel C ## GTEx colocalizations expression vs. other
@@ -272,3 +275,8 @@ write_tsv(data_4c, "figures/source_data/Figure_4c.txt")
 
 
 ### END
+
+
+gwas = data.table::fread("data/gwas_raw_sumstats/vertigo_GRCH38_sorted.tsv.gz")
+head(gwas)
+dim(gwas)
