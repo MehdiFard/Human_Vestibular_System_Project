@@ -176,7 +176,8 @@ ggsave("fine_mapping/plots/plot2_susie_results_balance_meta1_pip_vs_z.png", widt
 
 ### Run susie on QTL mapping
 qtls <- fread("Pantry/pheast_no_outlier/output/vestibular/qtl/cross_modality.cis_qtl.txt.gz")
-
+qtls <- fread("Pantry/pheast_no_outlier/output/vestibular/qtl/isoforms.cis_qtl.txt.gz")
+dim(qtls)
 
 ## Get the SNP IDs in the LD matrix order
 snps_ld <- bim$id[idx]   # same order as columns in X and in R
@@ -185,8 +186,9 @@ length(snps_ld)
 
 ## Match sumstats to LD SNP order
 m <- match(snps_ld, qtls$variant_id)
+length(m)
 keep <- which(!is.na(m))
-
+length(keep)
 
 ## subset to SNPs present in both
 snps_ld2 <- snps_ld[keep]
@@ -194,6 +196,7 @@ R2 <- R[keep, keep, drop = FALSE]
 qtls2 <- qtls[m[keep], ]
 qtls2$z <- qtls2$slope / qtls2$slope_se
 z <- qtls2$z
+View(qtls2)
 
 ## Basic sanity checks
 stopifnot(length(z) == ncol(R2), ncol(R2) == nrow(R2))
@@ -262,9 +265,11 @@ gwas_res <- fread("gwas_sumstats_prep/formatted_sumstats/balance_meta1_formatted
 # Merge
 cs_df_rsid <- merge(cs_df, gwas_res[, c("SNP", "rsID", "CHR", "BP", "A1", "A2", "FRQ", "BETA", "P")], by = "SNP", sort = F)
 dim(cs_df_rsid)
+View(cs_df_rsid)
 
 # Save
 fwrite(cs_df_rsid, file = "fine_mapping/results/susie_results_QTLs_cross_modalities.tsv", sep = "\t")
+fwrite(cs_df_rsid, file = "fine_mapping/results/susie_results_QTLs_isoforms.tsv", sep = "\t")
 
 
 ### Plotting the results

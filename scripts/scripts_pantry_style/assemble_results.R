@@ -248,7 +248,7 @@ vestib_twas <- crossing(modality = modalities,
     filter(gene_id %in% genes) |>
     dplyr::select(trait, gene_id, modality, phenotype_id = ID, HSQ:COLOC.PP4) |>
     arrange(trait, gene_id, modality, phenotype_id)
-
+head(vestib_twas)
 
 # Write out the data
 write_tsv(vestib_twas, "figures/data_tables/vestibular.twas.tsv.gz")

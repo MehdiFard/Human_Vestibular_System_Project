@@ -14,33 +14,23 @@ pseudocount = 0.1
 
 # Getting protein coding and lncRNAs gene IDs
 gtf <- readGFF("Pantry/phenotyping/input/ref/Homo_sapiens.GRCh38.110.chr.gtf")
-names(gtf)
-unique(gtf$gene_biotype)
-dim(gtf)
-length(unique(gtf$gene_id))
 
 # Getting a list of genes that are protein coding or lncRNA
 genes_protien_lncRNA <- gtf %>%
     dplyr::filter(type == "gene") %>% 
     dplyr::filter(gene_biotype %in% c("protein_coding", "lncRNA")) %>%
     dplyr::pull("gene_id")
-length(genes_protien_lncRNA)
-View(genes_protien_lncRNA)
-unique(genes_protien_lncRNA$gene_biotype)
 
 # Vestibular tissue, calculating median gene expression
 expr_vest_tpm <- fread("Pantry/phenotyping/output/vestibular/unnorm/expression.bed") %>%
     dplyr::select(-`#chr`, -start, -end) %>%
     dplyr::rename(gene_id = phenotype_id) %>%
     filter(gene_id %in% genes_protien_lncRNA)
-dim(expr_vest_tpm)
-expr_vest_tpm[1:3, 1:5]
 
 # Convert numeric columns to matrix and compute row medians
 median_expr_vest <- data.table(
     gene_id = expr_vest_tpm$gene_id,
     median_expr_vest = rowMedians(as.matrix(expr_vest_tpm[, -1]))
-    
 )
 
 # GTEx tissues median gene expression
@@ -56,14 +46,11 @@ for (i in seq_along(tissue_names)) {
         dplyr::select(-`#chr`, -start, -end) %>%
         dplyr::rename(gene_id = phenotype_id) %>%
         filter(gene_id %in% genes_protien_lncRNA)
-    # dim(expr_gtex)
-    # expr_gtex[1:5,1:5]
 
     # Convert numeric columns to matrix and compute row medians
     median_expr_gtex <- data.table(
         gene_id = expr_gtex$gene_id,
         median_expr_gtex = rowMedians(as.matrix(expr_gtex[, -1])))
-    dim(median_expr_gtex)
 
     # Compare median expression between vestibular and GTEx tissue
     col = paste0("median_expr_", tissue)
@@ -76,8 +63,6 @@ for (i in seq_along(tissue_names)) {
         log2_fc = log2((median_expr_vest + pseudocount) / (median_expr_gtex + pseudocount))) %>%
         filter(log2_fc > 1 | log2_fc < -1)  %>%
         dplyr::rename(!!col := median_expr_gtex)
-    # dim(expr_compare)
-    # head(expr_compare)
 
     # Save comparison table
     fwrite(expr_compare,
@@ -110,7 +95,7 @@ for (i in seq_along(tissue_names)) {
         ) +
         theme_classic(); p
 
-    # Let's save it
+    # Let's save plot
     # dir.create("figures/expr_comparison", showWarnings = FALSE)
     ggsave(p, file = paste0("figures/expr_comparison/VESTIB_vs_", tissue, "_expr_comparison.png"),
         width = 9, height = 8, dpi = 300)
@@ -124,37 +109,36 @@ for (i in seq_along(tissue_names)) {
 # ENSG00000277209, chr 14:20343071_20343411, Gene = RPPH1, Type = ncRNA,  ribonuclease P RNA component H1
 
 
-
 ### END
 
-# Adding gene names
-label_genes <- c(
-    "ENSG00000120885",
-    "ENSG00000100473"
-)
+# # Adding gene names
+# label_genes <- c(
+#     "ENSG00000120885",
+#     "ENSG00000100473"
+# )
 
-p = ggplot(expr_compare_plot,
-        aes(x = log2_gtex, y = log2_vest)) +
-    geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-    geom_point(aes(color = high_fc), alpha = 0.6, size = 1.5) +
-    scale_color_manual(values = c("other" = "grey70", "high_fc" = "red")) +
-    geom_text(
-        data = expr_compare_plot %>% filter(gene_id %in% label_genes),
-        aes(label = gene_id),
-        size = 3,
-        vjust = -0.7
-    ) +
-    labs(
-        x = bquote(.(tissue_names[i])~log[2]~"(median TPM + pseudocount)"),
-        y = bquote("VESTIB"~log[2]~"(median TPM + pseudocount)"),
-        color = "|log2 FC| ≥ 2",
-        title = paste0("VESTIB vs ", tissue_names[i], " Median Gene Expression")
-    ) +
-    theme_classic(); p
+# p = ggplot(expr_compare_plot,
+#         aes(x = log2_gtex, y = log2_vest)) +
+#     geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+#     geom_point(aes(color = high_fc), alpha = 0.6, size = 1.5) +
+#     scale_color_manual(values = c("other" = "grey70", "high_fc" = "red")) +
+#     geom_text(
+#         data = expr_compare_plot %>% filter(gene_id %in% label_genes),
+#         aes(label = gene_id),
+#         size = 3,
+#         vjust = -0.7
+#     ) +
+#     labs(
+#         x = bquote(.(tissue_names[i])~log[2]~"(median TPM + pseudocount)"),
+#         y = bquote("VESTIB"~log[2]~"(median TPM + pseudocount)"),
+#         color = "|log2 FC| ≥ 2",
+#         title = paste0("VESTIB vs ", tissue_names[i], " Median Gene Expression")
+#     ) +
+#     theme_classic(); p
 
-
-    ggsave(p, file = paste0("figures/expr_comparison/VESTIB_vs_", tissue, "_expr_comparison_2.png"),
-        width = 9, height = 8, dpi = 300)
+# # Plot
+# ggsave(p, file = paste0("figures/expr_comparison/VESTIB_vs_", tissue, "_expr_comparison_2.png"),
+#         width = 9, height = 8, dpi = 300)
 
 
 # # Coloring based on log2_fc
@@ -202,6 +186,7 @@ median_expr_vest <- data.table(
         rowMedians(as.matrix(expr_vest_tpm[, -1])) + pseudocount
     )
 )
+
 
 # Reading GTEx tissue expression
 for (i in seq_along(tissue_names)) {
@@ -298,30 +283,52 @@ fwrite(res,
 
 
 # Plotting t-test results
-p = ggplot(res,
-        aes(x = mean_other, y = VESTIB, color = padj_two_sided)) +
-    geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+thr = 0.01/nrow(res)
+res$signif <- res$padj_two_sided < thr
+ggplot(res, aes(x = mean_other, y = VESTIB, color = signif)) +
+    geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey60") +
     geom_point(alpha = 0.7, size = 1.5) +
-    # scale_color_gradient2(
-    #     low = "blue",
-    #     # mid = "white",
-    #     high = "red",
-    #     midpoint = 0,
-    #     name = "T-test pvalue (adj)"
-    # ) +
+    scale_color_manual(
+        values = c("FALSE" = "grey70", "TRUE" = "red"),
+        name = "padj < 0.01"
+    ) +
+    theme_classic() +
     labs(
         x = "Median Expression Across GTEx Tissues",
         y = "Median Expression in Vestibular Tissue",
-        title = "Comparing Vestibular vs GTEx Median Gene Expression"
+        title = "Vestibular vs GTEx Median Gene Expression"
+    )
+
+# Another coloring scheme
+res$class <- "NS"
+res$class[res$padj_two_sided < thr & res$diff > 0] <- "Vestib > GTEx"
+res$class[res$padj_two_sided < thr & res$diff < 0] <- "Vestib < GTEx"
+
+p <- ggplot(res, aes(mean_other, VESTIB, color = class)) +
+    geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey60") +
+    geom_point(alpha = 0.75, size = 1.5) +
+    scale_color_manual(
+        values = c(
+        "Vestib > GTEx" = "red",
+        "Vestib < GTEx" = "blue",
+        "NS" = "grey75"
+        )
     ) +
-    theme_classic(); p
+    theme_classic() +
+    labs(
+        x = "Median Expression (log2) Across GTEx Tissues",
+        y = "Median Expression (log2) in Vestibular Tissue",
+        color = "Category"
+    )
+
 
 # Save it
 ggsave(p, file = "figures/VESTIB_vs_all_GTEx_expr_comparison.png",
-        width = 9, height = 8, dpi = 300)
+        width = 10, height = 10, dpi = 300)
 
 
-### Plot
+
+### Plot expression of a gene across all tissues
 # Getting GTEx tissue color
 gtex_colors <- fromJSON("https://raw.githubusercontent.com/broadinstitute/gtex-viz/master/boxplot/dev/colors.json")
 

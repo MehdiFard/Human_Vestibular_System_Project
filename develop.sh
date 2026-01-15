@@ -22,9 +22,7 @@ rsync -avh  /data/hps/assoc/private/gdml/user/sesmae/projects/cybertron_data/ref
 
 snakemake -j 16 --printshellcmds -n
 snakemake -j 16 --printshellcmds --scheduler greedy -R summarize_matching -n
-
 snakemake -j 24 --printshellcmds --scheduler greedy -n
-
 
 samtools view -H data/bam/FTL_834_Aligned.sortedByCoord.out.bam | grep '^@RG' | head
 

@@ -1,16 +1,17 @@
 library(tidyverse)
 library(readr)
 library(dplyr)
+library(data.table)
 
 get_phenotypes <- function(modality) {
     df <- read_tsv(str_glue("Pantry/pheast_no_outlier/input/vestibular/phenotypes/{modality}.bed.gz"),
-                   col_types = cols(phenotype_id = "c", .default = "-"))
+                    col_types = cols(phenotype_id = "c", .default = "-"))
     if (modality %in% c("expression", "stability")) {
         df <- mutate(df, gene_id = phenotype_id)
     } else {
         group_file <- str_glue("Pantry/pheast_no_outlier/input/vestibular/phenotypes/{modality}.phenotype_groups.txt")
         groups <- read_tsv(group_file, col_types = "cc",
-                           col_names = c("phenotype_id", "gene_id"))
+                            col_names = c("phenotype_id", "gene_id"))
         df <- left_join(df, groups, by = "phenotype_id")
     }
     df
@@ -428,9 +429,13 @@ nrow(qtls_venn_sep_expr)
 ## TWAS ##
 ##########
 
-twas <- read_tsv("data/processed/geuvadis.twas.tsv.gz", col_types = "ccccdcddddddd") |>
+twas <- read_tsv("figures/data_tables/vestibular.twas.tsv.gz", col_types = "ccccdcddddddd") |>
     mutate(modality = factor(modalities[modality], levels = modalities)) |>
-    filter(TWAS.P < 5e-8 / 6)
+    filter(TWAS.P < 5e-8 / 7)
+head(twas)
+table(twas$modality)
+table(twas$'COLOC.PP4' > 0.8)
+
 
 # "We found 10,065 significant hits..."
 nrow(twas)
@@ -454,8 +459,13 @@ twas |>
 # "...51.3% involved only non-expression RNA phenotypes"
 twas |>
     summarise(has_expr = "Expression" %in% modality,
-              .by = c(trait, gene_id)) |>
+                .by = c(trait, gene_id)) |>
     with(mean(!has_expr))
+head(a)
+dim(a)
+sum(a$has_expr == FALSE)
+sum(a$has_expr == TRUE)
+
 
 # Abstract: "...and enhances identification of regulatory mechanisms underlying GWAS signal in a large fraction of previously associated gene-trait pairs"
 twas |>
@@ -502,3 +512,52 @@ twas |>
     summarise(has_non_expr = any(modality != "Expression"),
               .by = c(trait, gene_id)) |>
     with(mean(has_non_expr))
+
+
+
+# Royce gwas hit in the table: rs397756857 / rs61210103 | rs201920291 / rs610054 
+
+gwas_res <- fread("data/gwas_raw_sumstats/balance_meta1.tbl.sorted.filtered.gz")
+dim(gwas_res)
+head(gwas_res)
+class(gwas_res$`P-value`)
+gwas_res_sort <- gwas_res[order(gwas_res$`P-value`), ]
+head(gwas_res_sort)
+View(gwas_res_sort[1:500, c(1:3, 12)])
+which(gwas_res_sort$Position == 23468510)
+gwas_res_sort[gwas_res_sort$Position == 23468510,]
+gwas_res_sort[gwas_res_sort$Position == 23727939,]
+
+
+which(gwas_res_sort$MarkerName == "rs397756857")
+gwas_res_sort[gwas_res_sort$MarkerName == "rs397756857",]
+
+which(gwas_res_sort$MarkerName == "rs201920291")
+gwas_res_sort[gwas_res_sort$MarkerName == "rs201920291",]
+
+which(gwas_res_sort$MarkerName == "rs610054")
+gwas_res_sort[gwas_res_sort$MarkerName == "rs610054",]
+
+# Lead SNP:
+# 1- rs397756857, Pos: 19:23595789_ct_c (hg19) - 1st hit in gwas meta - https://gnomad.broadinstitute.org/variant/19-23595789-CT-C?dataset=gnomad_r2_1 , https://www.ncbi.nlm.nih.gov/snp/?term=rs61210103
+# 2- rs201920291, Pos: 19:23600232_a_atgtg (hg19) - 4th hit in gwas meta
+# 3- rs610054,    Pos: 19:23597125_a_c (hg19) - 27th hit in gwas meta - should be the same as rs201920291
+
+
+sumstat <- fread("gwas_sumstats_prep/formatted_sumstats/balance_meta_eur_formatted_hg38.tsv.gz")
+sumstat_sort <- sumstat[order(sumstat$P), ]
+head(sumstat_sort)
+dim(sumstat_sort)
+
+which(sumstat_sort$BP == 23412987)
+
+
+which(sumstat_sort$SNP == "rs610054")
+sumstat_sort[sumstat_sort$SNP == "rs610054",]
+
+# Found in hg38:
+# 1- rs610054,    Pos: 19:23414323_C_A (hg38) - 40th hit in gwas meta - P = 2.258e-26
+
+# Our isoform ratio QTL for ZNF91 colocalizes with 19:23421111_A_G (rs695017):
+rs167154(19_23307401_A_G)	chr19:23307401	G	ZNF91	ENST00000593292.1	Transcript	splice_region_variant	192
+ENSG00000167232__ENST00000300619
