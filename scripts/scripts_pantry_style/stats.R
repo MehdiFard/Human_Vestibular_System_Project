@@ -561,3 +561,5 @@ sumstat_sort[sumstat_sort$SNP == "rs610054",]
 # Our isoform ratio QTL for ZNF91 colocalizes with 19:23421111_A_G (rs695017):
 rs167154(19_23307401_A_G)	chr19:23307401	G	ZNF91	ENST00000593292.1	Transcript	splice_region_variant	192
 ENSG00000167232__ENST00000300619
+
+Jax google colocalization:
