@@ -1161,3 +1161,86 @@ cr_ind[, gene_id := sub("^(ENSG[0-9]+).*", "\\1", feature)]
 
 unique(cr_ind$modality)
 length(unique(cr_ind$gene_id))
+
+###---------------- ZNF91 ecxpression vs age
+expr <- fread("Pantry/phenotyping/output/vestibular/unnorm/expression.bed")
+class(expr)
+
+dim(expr)
+View(expr[1:5, 1:10])
+names(expr)[1:5]
+
+
+
+
+
+
+expr_znf91 <- expr %>%
+  as.data.frame() %>%
+  dplyr::filter(phenotype_id == "ENSG00000167232") %>%
+  dplyr::select(-c(1:3)) %>%
+  data.table::transpose(keep.names = "human_id")
+
+expr_znf91 <- expr_znf91[-1, ]
+colnames(expr_znf91) <- c("human_id", "ZNF91")
+head(expr_znf91)
+
+
+mata_date <- fread("src/metadata_geno.tsv")
+mata_date$human_id <- as.character(mata_date$human_id)
+dim(mata_date)
+head(mata_date)
+length(unique(mata_date$human_id))
+
+expr_znf91_age <- merge(mata_date[, -1], expr_znf91, by = "human_id")
+head(expr_znf91_age)
+
+# Plot ZNF91 expression vs age
+ggplot(expr_znf91_age, aes(x = age, y = as.numeric(ZNF91))) +
+  geom_point(color = "blue", size = 2, alpha = 0.7) +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "ZNF91 Expression vs Age in Vestibular Samples",
+    x = "Age",
+    y = "ZNF91 Expression (tpm)"
+  ) +
+  theme_classic()
+
+ggsave(
+  last_plot(),
+  filename = "figures/znf91_expression_vs_age_vestibular.png",
+  width = 9,
+  height = 7.5,
+  dpi = 300
+)
+
+# Plot ZNF91 expression vs sex
+ggplot(expr_znf91_age, aes(x = sex, y = as.numeric(ZNF91))) +
+  geom_point(color = "blue", size = 2, alpha = 0.7) +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "ZNF91 Expression vs Sex in Vestibular Samples",
+    x = "Sex",
+    y = "ZNF91 Expression (tpm)"
+  ) +
+  theme_classic()
+
+# Plot ZNF91 expression vs sex - violin plot
+ggplot(expr_znf91_age, aes(x = sex, y = as.numeric(ZNF91), fill = sex)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.1, position = position_dodge(0.9), outlier.shape = NA) +
+  labs(
+    title = "ZNF91 Expression vs Sex in Vestibular Samples",
+    x = "Sex",
+    y = "ZNF91 Expression (tpm)"
+  ) +
+  theme_classic() +
+  theme(legend.position = "none") 
+
+ggsave(
+  last_plot(),
+  filename = "figures/znf91_expression_vs_sex_vestibular.png",
+  width = 9,
+  height = 7.5,
+  dpi = 300
+)

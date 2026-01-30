@@ -4,6 +4,8 @@ rm(list = ls())
 
 library(tidyverse)
 library(patchwork)
+library(readr)
+library(forcats)
 
 modalities <- c(
     expression = "Expression",
@@ -83,9 +85,9 @@ View(qtls)
 
 qtls_per_gene <- qtls |>
     dplyr::count(gene_id)  |>
-    mutate(n_qtls = pmin(n, 8) |>
+    mutate(n_qtls = pmin(n, 5) |>
     as.character() |>
-    str_replace("8", "8+"))
+    str_replace("5", "5+"))
 
 data_2b <- qtls_per_gene |>
     dplyr::count(n_qtls) |>

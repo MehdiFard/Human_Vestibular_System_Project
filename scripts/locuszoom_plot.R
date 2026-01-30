@@ -52,6 +52,7 @@ ensDb_v113@tables
 # Extracting a subset of the data around gene or region of interest
 loc_meta <- locus(data = gwas_meta_cln,
                   # gene = 'ZNF91',
+                  # flank = 2.5e5,
                   index_snp = "rs695017",
                   flank = 2.5e5,
                   ens_db = ensDb_v113
@@ -80,13 +81,13 @@ str(loc_meta_ld_recom_eqtls$LDexp)
 table(loc_meta_ld_recom_eqtls$LDexp$Gene_Symbol)
 table(loc_meta_ld_recom_eqtls$LDexp$Tissue)
 
-
+# From fine-mapping of isoform mapping results: rs426564 and rs10415081
 # GWAS plot
-png("figures/locuszoom_gwas_2.png",
+png("figures/locuszoom_gwas.png",
     width = 12, height = 10, units = "in", res = 300)
 
 locus_plot(loc_meta_ld_recom_eqtls, 
-          labels = c("index", "rs167154", "rs428549", "rs426564"), # rs612285
+          labels = c("index", "rs167154"), # rs612285, rs426564
           label_x = c(2, -5),
           highlight = c("ZNF724", "ZNF91", "ZNF675"),
           # filter_gene_biotype = "protein_coding",
