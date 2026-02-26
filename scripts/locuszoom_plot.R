@@ -37,7 +37,7 @@ head(gwas_meta_cln)
 gwas_meta[which(gwas_meta$SNP == "19_23421111_A_G"), ]
 # rs695017
 gwas_meta[which(gwas_meta$SNP == "19_23307401_A_G"), ]
-# rs167154 - isoform QTL
+# rs167154 - colocalized variant - isoform
 gwas_meta[which(gwas_meta$SNP == "19_23359488_A_G"), ]
 # rs428549 - RNA_Editing QTL
 

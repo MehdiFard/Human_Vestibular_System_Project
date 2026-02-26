@@ -11,7 +11,8 @@ modalities <- c(
     splicing = "Intron excision",
     alt_TSS = "Alt. TSS",
     alt_polyA = "Alt. polyA",
-    stability = "RNA stability"
+    stability = "RNA stability",
+    RNA_editing = "RNA editing"
 )
 
 modality_colors <- c(
@@ -20,32 +21,34 @@ modality_colors <- c(
     `Intron excision` = "#4daf4a",
     `Alt. TSS` = "#984ea3",
     `Alt. polyA` = "#ff7f00",
-    `RNA stability` = "#fdc11c"
+    `RNA stability` = "#fdc11c",
+    `RNA editing` = "#984210"
 )
 
 combine_categories <- function(df, grouping) {
     df |>
         mutate(category = if_else(category %in% names(grouping), grouping[category], category)) |>
         summarise(count_qtls = sum(count_qtls),
-                  total_qtls = unique(total_qtls),
-                  count_bg = sum(count_bg),
-                  total_bg = unique(total_bg),
-                  .by = c(tissue, modality, category)) |>
+                    total_qtls = unique(total_qtls),
+                    count_bg = sum(count_bg),
+                    total_bg = unique(total_bg),
+                    .by = c(tissue, modality, category)) |>
         mutate(frac_qtls = count_qtls / total_qtls,
-               frac_bg = count_bg / total_bg,
-               log2_enrich = log2(frac_qtls / frac_bg))
+                frac_bg = count_bg / total_bg,
+                log2_enrich = log2(frac_qtls / frac_bg))
 }
+
 
 add_pseudocounts <- function(df, amount) {
     df |>
-        rename(count_qtls_raw = count_qtls,
-               total_qtls_raw = total_qtls,
-               frac_qtls_raw = frac_qtls,
-               log2_enrich_raw = log2_enrich) |>
+        dplyr::rename(count_qtls_raw = count_qtls,
+                total_qtls_raw = total_qtls,
+                frac_qtls_raw = frac_qtls,
+                log2_enrich_raw = log2_enrich) |>
         mutate(count_qtls = count_qtls_raw + amount,
-               total_qtls = total_qtls_raw + amount / frac_bg,
-               frac_qtls = count_qtls / total_qtls,
-               log2_enrich = log2(frac_qtls / frac_bg))
+                total_qtls = total_qtls_raw + amount / frac_bg,
+                frac_qtls = count_qtls / total_qtls,
+                log2_enrich = log2(frac_qtls / frac_bg))
 }
 
 categories <- c(
@@ -70,21 +73,27 @@ categories <- c(
     truncating = "Truncating"
 )
 
-enrich_all <- read_tsv("data/processed/enrich.gtex.comb.tsv", col_types = "ccciiiiddd") |>
+dim(enrich_all)
+View(enrich_all[1:20, ])
+
+enrich_all <- read_tsv("figures/data_tables/enrich.vestibular.comb.tsv", col_types = "ccciiiiddd") |>
     combine_categories(c(frameshift_variant_d = "truncating",
-                         stop_gained_d = "truncating",
-                         splice_acceptor_variant_d = "splicing",
-                         splice_donor_variant_d = "splicing",
-                         splice_region_variant_d = "splicing")) |>
+                            stop_gained_d = "truncating",
+                            splice_acceptor_variant_d = "splicing",
+                            splice_donor_variant_d = "splicing",
+                            splice_region_variant_d = "splicing")) |>
     mutate(modality = factor(modalities[modality], levels = modalities)) |>
     filter(count_qtls >= 2) |>
     add_pseudocounts(0.5)
 
+
+
+
 enrich <- enrich_all |>
     summarise(log2_enrich_mean = mean(log2_enrich),
-              log2_enrich_sd = sd(log2_enrich),
-              frac_qtls_mean = mean(frac_qtls),
-              .by = c(modality, category)) |>
+                log2_enrich_sd = sd(log2_enrich),
+                frac_qtls_mean = mean(frac_qtls),
+                .by = c(modality, category)) |>
     mutate(category = factor(categories[category]) |> fct_reorder(log2_enrich_mean, var))
 
 stripes <- tibble(y = seq(1, length(levels(enrich$category)), by = 2) - 0.5)
@@ -92,22 +101,23 @@ stripes <- tibble(y = seq(1, length(levels(enrich$category)), by = 2) - 0.5)
 p1 <- enrich |>
     mutate(category = as.integer(category) + (7/20) - (1/10) * as.integer(modality)) |>
     ggplot(aes(x = log2_enrich_mean,
-               xmin = log2_enrich_mean - log2_enrich_sd,
-               xmax = log2_enrich_mean + log2_enrich_sd,
-               y = category, color = modality, shape = modality)) +
+                xmin = log2_enrich_mean - log2_enrich_sd,
+                xmax = log2_enrich_mean + log2_enrich_sd,
+                y = category, color = modality, shape = modality)) +
     geom_rect(aes(ymin = y, ymax = y + 1, xmin = -Inf, xmax = Inf, color = NULL,
-                  shape = NULL, x = NULL, y = NULL),
-              fill = "#eeeeee",
-              data = stripes, show.legend = FALSE) +
+                    shape = NULL, x = NULL, y = NULL),
+                fill = "#eeeeee",
+                data = stripes, show.legend = FALSE) +
     geom_vline(xintercept = 0, lty = 2) +
     geom_linerange(linewidth = 0.6) +
     geom_point(size = 1.5, stroke = 0.75) +
     scale_color_manual(values = modality_colors) +
-    scale_shape_manual(values = c(16, 17, 15, 4, 8, 5)) +
+    # scale_shape_manual(values = c(16, 17, 15, 4, 8, 5)) +
+    scale_shape_manual(values = c(16, 17, 15, 4, 8, 5, 3)) + # Cause I have 7 modalities in vestibular data
     expand_limits(x = 5.9) +
     scale_y_continuous(breaks = 1:length(levels(enrich$category)),
-                       labels = levels(enrich$category),
-                       expand = c(0, 0)) +
+                        labels = levels(enrich$category),
+                        expand = c(0, 0)) +
     coord_cartesian(ylim = c(1 - 0.6, length(levels(enrich$category)) + 0.6)) +
     theme_classic() +
     theme(
@@ -147,12 +157,13 @@ p2 <- enrich |>
 p1 + p2 + plot_layout(widths = c(0.5, 0.4))
 
 # ggsave("figures/figure2/figure2e.png", width = 5.4, height = 5, device = png)
-ggsave("figures/figure2/figure2e.pdf", width = 5.4, height = 5)
+ggsave("figures/paper/figure2e.pdf", width = 6.50, height = 6.50)
 
 data_2e <- enrich_all |>
     select(category, modality, tissue, log2_enrichment = log2_enrich, freq_in_xvariants = frac_qtls) |>
     mutate(category = categories[category],
-           log2_enrichment = sprintf("%g", log2_enrichment),
-           freq_in_xvariants = sprintf("%g", freq_in_xvariants))
+            log2_enrichment = sprintf("%g", log2_enrichment),
+            freq_in_xvariants = sprintf("%g", freq_in_xvariants))
 
-write_tsv(data_2e, "figures/source_data/Figure_2e.txt")
+# Save the data used for Figure 2e
+write_tsv(data_2e, "figures/data_tables/Figure_2e.txt")

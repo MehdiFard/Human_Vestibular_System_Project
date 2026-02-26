@@ -10,7 +10,7 @@ library(rtracklayer)
 library(jsonlite)
 
 # define pseudocount
-pseudocount = 0.1
+pseudocount = 1
 
 # Getting protein coding and lncRNAs gene IDs
 gtf <- readGFF("Pantry/phenotyping/input/ref/Homo_sapiens.GRCh38.110.chr.gtf")
@@ -102,6 +102,7 @@ for (i in seq_along(tissue_names)) {
 
 }
 
+
 ### Candidate tissue specific genes.
 # ENSG00000274012  chr 14:49862551_49862849, Gene = RN7SL2, Type = scRNA, RNA component of signal recognition particle 7SL2
 # ENSG00000283293, chr 6:52995620-52995951,  Gene = RN7SK,  Type = snRNA, RNA component of 7SK nuclear ribonucleoprotein
@@ -187,7 +188,6 @@ median_expr_vest <- data.table(
     )
 )
 
-
 # Reading GTEx tissue expression
 for (i in seq_along(tissue_names)) {
 
@@ -222,8 +222,7 @@ for (i in seq_along(tissue_names)) {
 dim(expr_tabal_log2_median)
 expr_tabal_log2_median[1:5, 1:5]
 
-
-###---------------- Running t-test
+## Running t-test
 dt <- copy(expr_tabal_log2_median)
 
 # Removing genes with zero expression
@@ -244,6 +243,8 @@ fwrite(df_all_other_zero,
 
 # keeping the other genes and removing "all_other_zero" column
 dt_filtered <- dt[all_other_zero == FALSE, -"all_other_zero"]
+dim(dt_filtered)
+View(dt_filtered[1:5, 1:5])
 
 # Getting tissue names
 tissue_cols <- setdiff(names(dt), "gene_id")
@@ -262,8 +263,8 @@ res <- dt_filtered[, {
     p_two  <- t.test(others, mu = vestib, alternative = "two.sided")$p.value
     .(
         VESTIB = vestib,
-        mean_other = mean(others),
-        diff = vestib - mean(others),
+        mean_other = median(others),
+        diff = vestib - median(others),
         p_vestib_higher = p_more,
         p_vestib_lower  = p_less,
         p_two_sided     = p_two
@@ -280,7 +281,7 @@ res[order(padj_two_sided)][1:20]
 fwrite(res,
     file = "figures/data_tables/vestib_vs_gtex_t_tests.tsv",
     sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
-
+head(res)
 
 # Plotting t-test results
 thr = 0.01/nrow(res)
@@ -290,14 +291,15 @@ ggplot(res, aes(x = mean_other, y = VESTIB, color = signif)) +
     geom_point(alpha = 0.7, size = 1.5) +
     scale_color_manual(
         values = c("FALSE" = "grey70", "TRUE" = "red"),
-        name = "padj < 0.01"
+        name = "padj < 2.8e-7"
     ) +
     theme_classic() +
     labs(
-        x = "Median Expression Across GTEx Tissues",
-        y = "Median Expression in Vestibular Tissue",
+        x = "Median Expression Across GTEx Tissues (TPM)",
+        y = "Median Expression in Vestibular Tissue (TPM)",
         title = "Vestibular vs GTEx Median Gene Expression"
     )
+
 
 # Another coloring scheme
 res$class <- "NS"
@@ -305,26 +307,42 @@ res$class[res$padj_two_sided < thr & res$diff > 0] <- "Vestib > GTEx"
 res$class[res$padj_two_sided < thr & res$diff < 0] <- "Vestib < GTEx"
 
 p <- ggplot(res, aes(mean_other, VESTIB, color = class)) +
-    geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey60") +
+    geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
     geom_point(alpha = 0.75, size = 1.5) +
     scale_color_manual(
         values = c(
-        "Vestib > GTEx" = "red",
-        "Vestib < GTEx" = "blue",
+        "Vestib > GTEx" = "chocolate",
+        "Vestib < GTEx" = "cadetblue4",
         "NS" = "grey75"
         )
     ) +
     theme_classic() +
     labs(
-        x = "Median Expression (log2) Across GTEx Tissues",
-        y = "Median Expression (log2) in Vestibular Tissue",
-        color = "Category"
+        x = "Median Expression (log2 TPM) Across GTEx Tissues",
+        y = "Median Expression (log2 TPM) in Vestibular Tissue (TPM)",
+        color = "P-adj < 2.8e-7",
+        title = "Vestibular vs GTEx Median Gene Expression"
+    )
+p
+
+p <- p +
+    theme(
+        legend.position = c(0.9, 0.5)   # (x, y) in npc coordinates (0–1)
     )
 
+p <- p +
+    theme(
+        legend.title = element_text(size = 8),
+        legend.text  = element_text(size = 8),
+        axis.title.x = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        plot.title = element_text(size = 10, face = "bold")
+    )
+p
 
 # Save it
 ggsave(p, file = "figures/VESTIB_vs_all_GTEx_expr_comparison.png",
-        width = 10, height = 10, dpi = 300)
+        width = 6, height = 6, dpi = 300)
 
 
 
@@ -344,7 +362,7 @@ gtex_annot <- bind_rows(lapply(names(gtex_colors), function(tissue) {
 
 # Making a vector of tissues and colors
 gtex_palette <- setNames(gtex_annot$tissue_color_hex, gtex_annot$tissue_abbrv)
-vestib_color <- "#000000"  # black — common choice for new tissue
+vestib_color <- "deepskyblue4"  # black — common choice for new tissue
 gtex_palette <- c( VESTIB = vestib_color, gtex_palette)
 
 # Function for ploting
@@ -370,19 +388,57 @@ plot_gene_bar <- function(gene, dt_filtered, gtex_palette) {
         labs(
         title = gene,
         x = NULL,
-        y = "log2(median TPM + pseudocount)"
+        y = "log2(median TPM)"
     )
 }
 
 # Plot
 p = plot_gene_bar("ENSG00000167232", dt_filtered, gtex_palette); p
+p
 
+
+
+plot_gene_bar <- function(gene, gene_symbol, dt_filtered, gtex_palette) {
+
+    x <- dt_filtered[gene_id == gene]
+
+    long <- melt(
+        x,
+        id.vars = "gene_id",
+        variable.name = "tissue",
+        value.name = "expr"
+    )
+
+    ggplot(long, aes(x = reorder(tissue, -expr), y = expr, fill = tissue)) +
+        geom_col() +
+        scale_fill_manual(values = gtex_palette, drop = FALSE) +
+        theme_classic() +
+        theme(
+            axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+            legend.position = "none"
+        ) +
+        labs(
+            title = paste0(gene, " (", gene_symbol, ")"),
+            x = NULL,
+            y = "log2(median TPM)"
+        )
+}
+
+
+p <- plot_gene_bar(
+    "ENSG00000167232",
+    "ZNF91",
+    dt_filtered,
+    gtex_palette
+)
+
+p
 # Save the plot
 ggsave(
     filename = "figures/expr_across_gtex_ENSG00000167232.png",
     plot = p,
-    width = 10,
-    height = 8,
+    width = 8,
+    height = 6.4,
     dpi = 100
 )
 

@@ -3,6 +3,9 @@
 rm(list = ls())
 
 library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(readr)
 
 modalities <- c(
     expression = "Expression",
@@ -55,8 +58,8 @@ data_2d <- ggplot_build(p)$data[[1]] |>
     as_tibble() |>
     dplyr::select(modality = fill, xmin, xmax, n_qtls = count) |>
     mutate(modality = setNames(names(modality_colors), modality_colors)[modality],
-           xmin = sprintf("%g", xmin),
-           xmax = sprintf("%g", xmax))
+            xmin = sprintf("%g", xmin),
+            xmax = sprintf("%g", xmax))
 
 write_tsv(data_2d, "figures/data_tables/Figure_2d_vestibular.txt")
 
@@ -74,11 +77,11 @@ ylims <- tribble(
 qtls_pos |>
     ggplot(aes(x = rel_pos_TSS, fill = modality)) +
     facet_wrap(~ modality, ncol = 1, scales = "free") +
-    geom_blank(mapping = aes(x = 0, y = ylim), data = ylims) +
+    # geom_blank(mapping = aes(x = 0, y = ylim), data = ylims) +
     geom_histogram(bins = 50, show.legend = FALSE) +
     scale_fill_manual(values = modality_colors) +
     scale_x_continuous(limits = c(-5e4, 5e4), expand = c(0, 0), breaks = c(-5e4, 0, 5e4),
-                       labels = c("-50 Kb", "Start", "+50 Kb")) +
+                        labels = c("-50 Kb", "Start", "+50 Kb")) +
     theme_classic() +
     theme(
         axis.line.y = element_blank(),
@@ -96,16 +99,16 @@ qtls_pos |>
     ylab(NULL)
 
 # ggsave("figures/figure2/figure2dtss.png", width = 1.2, height = 5.5, device = png)
-ggsave("figures/figure2/figure2dtss.pdf", width = 1.2, height = 5.5)
+ggsave("figures/paper/figure2dtss_vestibular.pdf", width = 1.2, height = 5.5)
 
 qtls_pos |>
     ggplot(aes(x = rel_pos_TES, fill = modality)) +
     facet_wrap(~ modality, ncol = 1, scales = "free") +
-    geom_blank(mapping = aes(x = 0, y = ylim), data = ylims) +
+    # geom_blank(mapping = aes(x = 0, y = ylim), data = ylims) +
     geom_histogram(bins = 50, show.legend = FALSE) +
     scale_fill_manual(values = modality_colors) +
     scale_x_continuous(limits = c(-5e4, 5e4), expand = c(0, 0), breaks = c(-5e4, 0, 5e4),
-                       labels = c("-50 Kb", "End", "+50 Kb")) +
+                        labels = c("-50 Kb", "End", "+50 Kb")) +
     theme_classic() +
     theme(
         axis.line.y = element_blank(),
@@ -123,6 +126,6 @@ qtls_pos |>
     ylab(NULL)
 
 # ggsave("figures/figure2/figure2dtes.png", width = 1.2, height = 5.5, device = png)
-ggsave("figures/figure2/figure2dtes.pdf", width = 1.2, height = 5.5)
+ggsave("figures/paper/figure2dtes_vestibular.pdf", width = 1.2, height = 5.5)
 
 ### END

@@ -1171,10 +1171,6 @@ View(expr[1:5, 1:10])
 names(expr)[1:5]
 
 
-
-
-
-
 expr_znf91 <- expr %>%
   as.data.frame() %>%
   dplyr::filter(phenotype_id == "ENSG00000167232") %>%
@@ -1195,6 +1191,14 @@ length(unique(mata_date$human_id))
 expr_znf91_age <- merge(mata_date[, -1], expr_znf91, by = "human_id")
 head(expr_znf91_age)
 
+# Linear regression to see if ZNF91 expression is associated with age, adjusting for sex
+fit_adj <- lm(
+  as.numeric(ZNF91) ~ age + sex,
+  data = expr_znf91_age
+)
+summary(fit_adj)
+
+
 # Plot ZNF91 expression vs age
 ggplot(expr_znf91_age, aes(x = age, y = as.numeric(ZNF91))) +
   geom_point(color = "blue", size = 2, alpha = 0.7) +
@@ -1205,6 +1209,52 @@ ggplot(expr_znf91_age, aes(x = age, y = as.numeric(ZNF91))) +
     y = "ZNF91 Expression (tpm)"
   ) +
   theme_classic()
+
+
+library(ggplot2)
+
+# Fit model
+fit <- lm(as.numeric(ZNF91) ~ age, data = expr_znf91_age)
+beta <- summary(fit)$coefficients["age", "Estimate"]
+pval <- summary(fit)$coefficients["age", "Pr(>|t|)"]
+r2   <- summary(fit)$r.squared
+
+ggplot(expr_znf91_age,
+        aes(x = age, y = as.numeric(ZNF91))) +
+  geom_point(
+    size = 2,
+    alpha = 0.6,
+    color = "deepskyblue4"
+  ) +
+  geom_smooth(
+    method = "lm",
+    se = TRUE,
+    color = "red",
+    fill = "grey85",
+    linewidth = 0.8
+  ) +
+  annotate(
+    "text",
+    x = Inf, y = Inf,
+    hjust = 1.1, vjust = 1.2,
+    label = paste0(
+      "β = ", round(beta, 3),
+      "\nP = ", signif(pval, 2),
+      "\nR² = ", round(r2, 3)
+    ),
+    size = 4
+  ) +
+  labs(
+    # x = "Age (years)",
+    x = expression(italic("Age (years)")),
+    y = expression(italic("ZNF91 expression (TPM)")~)
+  ) +
+  theme_classic(base_size = 14) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.title = element_text(face = "bold")
+  )
+
 
 ggsave(
   last_plot(),
@@ -1244,3 +1294,323 @@ ggsave(
   height = 7.5,
   dpi = 300
 )
+
+
+###-------------------------------> looking at ZNF91 isoforms ratio for different genotypes
+ENSG00000167232__ENST00000300619
+ENSG00000167232__ENST00000593341
+
+### Load the weights
+load("Pantry/pheast_no_outlier/intermediate/vestibular/twas/isoforms/ENSG00000167232__ENST00000300619.wgt.RDat")
+View(wgt.matrix)
+View(snps)
+View(cv.performance)
+View(hsq)
+View(hsq.pv)
+View(N.tot)
+
+
+### Load isoform expression data
+isoform_expr <- fread("Pantry/phenotyping/output/vestibular/isoforms.bed.gz")
+
+# Extract isoform expression for ENST00000300619
+isoform_expr_cln <- isoform_expr %>%
+  dplyr::select(-c(`#chr`, start, end)) %>%
+  dplyr::filter(phenotype_id == "ENSG00000167232__ENST00000300619") %>%
+  data.table::transpose(keep.names = "human_id") %>%
+  { data.table::setnames(., as.character(unlist(.[1, ]))); .[-1, ] } %>%
+  dplyr::rename(sample = phenotype_id)
+
+
+View(isoform_expr_cln)
+head(isoform_expr_cln)
+
+
+### Extract genotype for SNP 19_23307401_A_G
+system("plink2 \
+  --bfile Pantry/pheast/input/vestibular/vestibular_genotype \
+  --snp 19_23307401_A_G \
+  --export vcf \
+  --out  Pantry/pheast/input/vestibular/19_23307401_A_G_genotype"
+  )
+
+
+# Read vcf
+vcf <- fread("Pantry/pheast/input/vestibular/19_23307401_A_G_genotype.vcf", skip = "#CHROM")
+gt <- tstrsplit(vcf$FORMAT, ":", fixed = TRUE)
+
+geno <- t(vcf[, -(1:9)])   # samples only
+colnames(geno) <- vcf$ID
+
+geno_df <- data.frame(
+  sample = colnames(vcf)[10:ncol(vcf)],
+  genotype = geno[,1]
+)
+
+ref <- vcf$REF
+alt <- vcf$ALT
+
+geno_df$geno_alleles <- dplyr::case_when(
+  geno_df$genotype == "0/0" ~ paste0(ref, ref),
+  geno_df$genotype == "0/1" ~ paste0(ref, alt),
+  geno_df$genotype == "1/1" ~ paste0(alt, alt),
+  TRUE ~ NA_character_
+)
+geno_df$sample <- gsub("^FTL_", "", geno_df$sample)
+View(geno_df)
+
+### Merging isoform expression with genotype
+# Check matching sample IDs
+table(isoform_expr_cln$sample %in% geno_df$sample) #
+
+# Merge
+isoform_expr_geno <- merge(geno_df, isoform_expr_cln, by = "sample")
+View(isoform_expr_geno)
+
+
+
+/data/hps/assoc/private/gdml/user/dmunro/pantry/pheast/KDNCTX/output/qtl/expression.cis_independent_qtl.txt.gz
+
+library(data.table)
+df <- fread("/data/hps/assoc/private/gdml/user/dmunro/pantry/pheast/KDNCTX/output/qtl/expression.cis_independent_qtl.txt.gz")
+View(df[1:10, ])
+
+
+
+#####################################################################
+
+# GTEx tissues median gene expression
+path_to_gtex_expr <- "/data/hps/assoc/private/gdml/user/dmunro/pantry/phenos/"
+# Getting tissue names excluding "ref" and "TESTIS"
+tissue_names <- setdiff(list.dirs(path_to_gtex_expr, recursive = FALSE, full.names = FALSE), c("ref", "TESTIS", "BLDDER", "CVSEND", "CVXECT", "FLLPNT", "KDNMDL")) # Excluding low sample size tissues (< 80 samples): BLDDER(21), CVSEND(10), CVXECT(9), FLLPNT(9), KDNMDL(4)
+
+# Reading in the gtex tpm expression data for each tissue and merging them into one matrix
+for (i in seq_along(tissue_names)) {
+  tissue = tissue_names[i]
+  cat("Looking at:", tissue, "Tissue", "\n")
+  gtex_expr <- fread(paste0(path_to_gtex_expr, tissue,"/output/unnorm/expression.bed")) %>%
+      dplyr::select(-`#chr`, -start, -end) %>%
+      dplyr::rename(gene_id = phenotype_id) %>%
+      filter(gene_id %in% genes_protien_lncRNA)
+
+  l = dim(gtex_expr)[2]
+  gtx_annot <- data.frame(tissue = rep(tissue, l-1), row.names = colnames(gtex_expr)[-1]) # l-1 because first column is gene_id
+
+  if(i == 1) {
+    gtex_expr_all = gtex_expr
+    gtx_annot_all = gtx_annot
+  } else {
+    gtex_expr_all <- merge(gtex_expr_all, gtex_expr, by = "gene_id", sort = F)
+    gtx_annot_all <- rbind(gtx_annot_all, gtx_annot)
+  }
+
+}
+gtx_annot_all$batch <- "gtex" # Adding batch info
+
+dim(gtex_expr_all)
+View(gtex_expr_all[1:5, 1:5])
+
+head(gtx_annot_all)
+dim(gtx_annot_all)
+table(gtx_annot_all$tissue)
+
+table(gtx_annot_all$tissue)[table(gtx_annot_all$tissue) < 80]
+
+
+
+## Reading vestibualar count data
+vestibular_expr_count <- fread("Pantry/phenotyping/output/vestibular/unnorm/expression.bed")[, -1:-3]
+
+# Vestibular tissue, calculating median gene expression
+expr_vest_tpm <- fread("Pantry/phenotyping/output/vestibular/unnorm/expression.bed") %>%
+    dplyr::select(-`#chr`, -start, -end, -"31947386", -"31907773", -"32073088") %>% # Removing outlier samples based on PCA and metadata
+    dplyr::rename(gene_id = phenotype_id) %>%
+    filter(gene_id %in% genes_protien_lncRNA)
+
+
+dim(expr_vest_tpm)
+expr_vest_tpm[1:3, 1:5]
+
+
+## Annotation
+# Read metadata for batch info
+order_vec <- as.vector(colnames(expr_vest_tpm)[-1])
+meta_unique <- fread("src/metadata_rna.tsv")[, c("human_id", "batch")] %>%
+  as_tibble() %>%
+  distinct(human_id, .keep_all = TRUE) %>%
+  mutate(
+    human_id = as.character(human_id),
+    tissue = "VESTIB",
+    human_id = factor(human_id, levels = order_vec)
+  ) %>%
+  filter(!is.na(human_id)) %>%
+  arrange(human_id) %>%
+  mutate(human_id = as.character(human_id)) %>%
+  column_to_rownames("human_id")  %>%
+  dplyr::select(tissue, batch)
+
+head(meta_unique)
+# Check matching
+table(rownames(meta_unique) == colnames(expr_vest_tpm)[-1]) 
+
+# Making final annotation for gtex and vestibular data
+annot_gtex_vest <- rbind(gtx_annot_all, meta_unique)
+
+
+## Merging GTEx and vestibular count data
+# Function to collapse counts by gene_id (sum counts for same gene_id)
+collapse_by_gene <- function(df) {
+  df %>%
+    mutate(gene_id = sub("\\..*$", "", gene_id)) %>%   # remove version suffixes; drop this line if not needed
+    group_by(gene_id) %>%
+    summarise(across(where(is.numeric), ~ sum(.x, na.rm = TRUE)), .groups = "drop")
+}
+
+# Merging by gene_id
+count_mtx_gtex_vest <- gtex_expr_all %>%
+  filter(gene_id %in% genes_protien_lncRNA) %>%  # keep only protein coding and lncRNA genes
+  collapse_by_gene() %>%
+  inner_join(collapse_by_gene(expr_vest_tpm), by = "gene_id") %>%
+  column_to_rownames("gene_id") %>%
+  as.matrix()
+
+# Check
+table(rownames(count_mtx_gtex_vest) %in% genes_protien_lncRNA) # Should be TRUE
+
+
+## Filtering low expression genes and Normalization
+# First round of filtering: Drop all-zero genes immediately
+counts <- count_mtx_gtex_vest[rowSums(count_mtx_gtex_vest) > 0, , drop = FALSE]
+dim(counts)
+
+# Second round of filtering: Filter by SD or select top genes before PCA (using matrixStats library)
+row_sd <- rowSds(counts)
+summary(row_sd)
+keep <- row_sd >= quantile(row_sd, 0.5)
+length(keep)
+table(keep)
+counts_cln <- counts[keep, , drop = FALSE]
+dim(counts_cln)
+
+# Log-transform the counts (log2(count + 1)) for PCA
+counts_cln_log2 <- log2(counts_cln + 1)
+
+
+## PCA
+pca <- prcomp(t(counts_cln_log2), scale. = TRUE)
+save(pca, file = "figures/data_tables/gtex_vest_tpm_normalized_PCs.RData")
+load("figures/data_tables/gtex_vest_tpm_normalized_PCs.RData")
+
+var_expl <- (pca$sdev^2) / sum(pca$sdev^2)
+
+# Preparing PC data frame for plotting
+pc_df <- data.frame(human_id = rownames(pca$x), pca$x, check.names = FALSE)
+
+
+## Adding meta data, batch and tissue
+pc_df_annot <- merge(
+  pc_df,
+  cbind(human_id = rownames(annot_gtex_vest), annot_gtex_vest),
+  by = "human_id",
+  sort = FALSE
+)
+
+# Add VESTIB color
+vestib_color <- "deepskyblue4"  # black — common choice for new tissue
+gtex_palette <- setNames(gtex_annot$tissue_color_hex, gtex_annot$tissue_abbrv)
+gtex_palette <- c(gtex_palette, VESTIB = vestib_color)
+
+# Adding tissue colors
+pc_df_annot <- pc_df_annot %>%
+  mutate(tissue_color_hex = gtex_palette[tissue])
+
+
+# Check
+unique(pc_df_annot$tissue_color_hex[pc_df_annot$tissue == "VESTIB"]) # should show "deepskyblue4"
+pc_df_annot[1:5, c("human_id", "tissue", "batch", "tissue_color_hex")] 
+
+# View(pc_df_annot[pc_df_annot$tissue == "VESTIB", c("human_id", "tissue", "batch", "tissue_color_hex")] )
+
+# indx <- which(pc_df_annot$human_id %in% c("31947386", "31907773", "32073088"))
+
+pc_df_annot[1:5, 1:5]
+# Plot by tissue
+ggplot(pc_df_annot, aes(PC1, PC2, color = tissue)) + # 
+  geom_point(size = 3, alpha = 0.9) +
+  scale_color_manual(values = gtex_palette, name = "Tissue") +
+  labs(
+    title = "PCA of logCPM expression (GTEx + Vestibular)",
+    x = paste0("PC1 (", round(var_expl[1]*100, 1), "%)"),
+    y = paste0("PC2 (", round(var_expl[2]*100, 1), "%)")
+  ) + 
+    theme_classic(base_size = 14)
+
+
+
+
+library(ggplot2)
+library(dplyr)
+library(ggrepel)
+
+
+pc_plot_df <- pc_df_annot |> # pc_df_annot[-indx, ]
+  dplyr::filter(tissue != "TESTIS") |>
+  dplyr::mutate(
+    tissue = case_when(
+      grepl("^BRN", tissue) ~ "BRN_TISSUES",
+      TRUE ~ tissue
+    )
+  )
+label_tissues <- c("VESTIB", "BRN_TISSUES", "PTTARY","WHLBLD", "LCL")
+
+label_df <- pc_plot_df %>%
+  filter(tissue %in% label_tissues) %>%
+  group_by(tissue) %>%
+  summarize(
+    PC1 = median(PC1, na.rm = TRUE),
+    PC2 = median(PC2, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+gtex_palette["BRN_TISSUES"] <- "#EEEE00"   # example purple for brain
+
+
+ggplot(pc_plot_df, aes(PC1, PC2, color = tissue)) +
+  geom_point(size = 1, alpha = 0.9) +
+  scale_color_manual(values = gtex_palette, name = "Tissue") +
+  geom_label_repel(
+    data = label_df,
+    aes(label = tissue),
+    color = "black",
+    fill = "white",
+    label.size = 0.05,
+    size = 1.5,
+    min.segment.length = 0,
+    segment.color = "black",
+    # box.padding = 0.5,      # space around label
+    # point.padding = 0.4,    # space around point
+    force = 2,              # increase push strength
+    label.padding = unit(0.1, "lines")
+  ) +
+  labs(
+    # title = "PCA of logCPM expression (GTEx + Vestibular)",
+    x = paste0("PC1 (", round(var_expl[1]*100, 1), "%)"),
+    y = paste0("PC2 (", round(var_expl[2]*100, 1), "%)")
+  ) +
+  theme_classic(base_size = 14) +
+  theme(legend.position = "none",
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank()
+      )
+
+
+# Save plot
+ggsave(
+  last_plot(),
+  filename = "figures/pca_expression_gtex_vestibular_tissue_Final_cln_TPM.pdf",
+  width = 5,
+  height = 5,
+  dpi = 300
+)
+
+

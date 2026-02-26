@@ -3,9 +3,13 @@ rm(list = ls())
 # install.packages("tidyverse")
 
 library(tidyverse)
+library(dplyr)
 library(patchwork)
 library(readr)
 library(forcats)
+library(ggplot2)
+library(stringr)
+
 
 modalities <- c(
     expression = "Expression",
@@ -72,7 +76,7 @@ ggplot(data_2a, aes(x = thousands, y = modality, fill = n_QTLs)) +
 
 # ggsave("figures/paper/figure2a.png", width = 3.2, height = 1.7, device = png)
 # dir.create("figures/paper")
-ggsave("figures/paper/figure2a_vestibular.pdf", width = 6.4, height = 3.4)
+ggsave("figures/paper/figure2a_vestibular.pdf", width = 3.2, height = 1.7)
 
 
 # Write out data 
@@ -105,7 +109,7 @@ ggplot(data_2b, aes(x = n_qtls, y = thousands)) +
     )
 
 # ggsave("figures/paper/figure2b.png", width = 2.2, height = 2.1, device = png)
-ggsave("figures/paper/figure2b_vestibular.pdf", width = 4.4, height = 4.2)
+ggsave("figures/paper/figure2b_vestibular.pdf", width = 2.2, height = 2.1)
 write_tsv(data_2b, "figures/data_tables/Figure_2b_vestibular.txt")
 
 
@@ -116,7 +120,11 @@ write_tsv(data_2b, "figures/data_tables/Figure_2b_vestibular.txt")
 rank_counts <- qtls |>
     dplyr::count(rank)
 
-qtls |>
+rank_counts <- rank_counts[1:5, ]
+
+
+qtls |> 
+    filter(rank %in% 1:5) |>
     ggplot(aes(x = rank, fill = modality)) +
     geom_bar(position = "fill", width = 0.8) +
     geom_text(aes(x = rank, y = 1.27, label = n, fill = NULL), data = rank_counts,
@@ -125,7 +133,7 @@ qtls |>
     scale_fill_manual(values = modality_colors) +
     scale_y_continuous(breaks = c(0, 0.5, 1)) +
     # coord_cartesian(xlim = c(1, 10), ylim = c(0, 1), clip = "off") + # ylim prevents extension of axis line
-    coord_cartesian(xlim = c(1, 7), ylim = c(0, 1), clip = "off") + 
+    coord_cartesian(xlim = c(1, 5), ylim = c(0, 1), clip = "off") + 
     labs(fill = "Modality") +
     xlab("Rank of xQTL within gene") +
     ylab("Proportion of xQTLs") +
@@ -139,8 +147,8 @@ qtls |>
         plot.margin = margin(30, 5.5, 5.5, 5.5),
     )
 
-# ggsave("figures/paper/figure2c.png", width = 3.5, height = 2.3, device = png)
-ggsave("figures/paper/figure2c_vestibular.pdf", width = 7, height = 4.6)
+ggsave("figures/paper/figure2c_vestibular.png", width = 3.5, height = 2.3, device = png)
+ggsave("figures/paper/figure2c_vestibular.pdf", width = 3.5, height = 2.3)
 
 data_2c <- qtls |>
     dplyr::count(rank, modality) |>

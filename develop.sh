@@ -1,6 +1,6 @@
 #!/bin/bash
 # sesmae@login-2.hpc.childrens.sea.kids
-srun -p cpu-gdml-investor -N 1 -n 1 -c 16 --mem=64g --time=8:00:00 -A cpu-gdml-investor --pty bash -i
+srun -p cpu-gdml-investor -N 1 -n 1 -c 24 --mem=128g --time=8:00:00 -A cpu-gdml-investor --pty bash -i
 mamba activate Env1
 
 
@@ -387,11 +387,13 @@ scp username@remote:/path/to/remote/file /path/to/local/destination
 scp sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/pca_expression_count_tissue.png .
 scp sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/pca_expression_count_batch.png .
 
-# From local to rempte
+# From local to remote
 rsync -avz --partial --progress \
         -e "ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=20" \
-        ./balance_meta_EUR.tbl.sorted.tab.gz \
-        sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/gwas_sumstats_prep/just_for_liftover/
+        ./balance_meta_all_151.tab \
+        sesmae@login-2.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/gwas_sumstats_prep/just_for_liftover/just_for_test/
+
+
 
 # From remote to local - run on local
 rsync -avz --progress \
@@ -399,8 +401,7 @@ rsync -avz --progress \
         .
         
 rsync -avz --progress \
-        sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/VESTIB_vs_all_GTEx_expr_comparison.png \
-        .
+        sesmae@login-2.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/paper/figure2e.pdf .
 
 
 bcftools view -v snps phasing_imputation/results/phased_vcf/geno_lifted_phased_hg38_chr22.vcf.gz | grep -v "##" | head

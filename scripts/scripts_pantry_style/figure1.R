@@ -7,6 +7,11 @@ library(tidyverse)
 library(patchwork)
 library(forcats)
 library(tidyr)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(stringr)
+
 
 get_phenotypes <- function(modality) {
     # df <- read_tsv(str_glue("data/geuvadis/phenotypes/{modality}.bed.gz"),
@@ -88,9 +93,9 @@ class(phenos)
 ggplot(data_1b, aes(x = thousands, y = modality, fill = modality, alpha = gene_biotype)) +
     geom_col(width = 0.8, show.legend = FALSE) +
     annotate("segment", x = pos1, xend = pos1, y = 7.4, yend = 7.7, linewidth = 0.3) +
-    annotate("text", x = pos1 - 3, y = 7.8, hjust = 0, vjust = 0, size = 2.5, label = "protein-coding") +
-    annotate("segment", x = pos2, xend = pos2, y = 7.4, yend = 7.7, linewidth = 0.3) +
-    annotate("text", x = pos2 - 2, y = 7.8, hjust = 0, vjust = 0, size = 2.5, label = "lincRNA") +
+    annotate("text", x = pos1 - 3, y = 7.75, hjust = 0, vjust = 0, size = 1.5, label = "protein-coding") +
+    annotate("segment", x = pos2, xend = pos2, y = 7.4, yend = 7.5, linewidth = 0.3) +
+    annotate("text", x = pos2 - 2, y = 7.55, hjust = 0, vjust = 0, size = 1.5, label = "lncRNA") +
     scale_fill_manual(values = modality_colors) +
     scale_alpha_manual(values = c(0.5, 1)) +
     expand_limits(y = 8) +
@@ -101,14 +106,18 @@ ggplot(data_1b, aes(x = thousands, y = modality, fill = modality, alpha = gene_b
         axis.text = element_text(color = "black"),
     )
 
+dir.create("figures/paper/", recursive = TRUE)
+
 # ggsave("figures/figure1/figure1b.png", width = 3.2, height = 1.6, device = png)
 # ggsave("figures/figure1/figure1b.pdf", width = 3.2, height = 1.6)
-# dir.create("figures/paper/", recursive = TRUE)
-ggsave("figures/paper/figure1a_vestibular.pdf", width = 7.6, height = 3.2)
+# ggsave("figures/paper/figure1a_vestibular.pdf", width = 7.6, height = 3.2)
+
+# Save plot
+ggsave("figures/paper/figure1a_vestibular.pdf", width = 4.16, height = 2.08)
 
 # Save data
 # dir.create("figures/data_tables/", recursive = TRUE)
-write_tsv(data_1b, "figures/data_tables/Figure_1b_vestibular.txt")
+write_tsv(data_1b, "figures/data_tables/Figure_1a_vestibular.txt")
 
 #############
 ## Panel C ## Number of phenotypes per gene per modality
@@ -142,10 +151,12 @@ ggplot(data_1c, aes(x = thousands, y = modality, fill = n_phenos)) +
 
 # ggsave("figures/figure1/figure1c.png", width = 3.8, height = 1.6, device = png)
 # ggsave("figures/figure1/figure1c.pdf", width = 3.8, height = 1.6)
-ggsave("figures/paper/figure1b_vestibular.pdf", width = 7.6, height = 3.2)
+# ggsave("figures/paper/figure1b_vestibular.pdf", width = 7.6, height = 3.2)
+ggsave("figures/paper/figure1b_vestibular.pdf", width = 4.16, height = 2.08)
+
 
 # Save data
-write_tsv(data_1c, "figures/data_tables/Figure_1c_vestibular.txt")
+write_tsv(data_1c, "figures/data_tables/Figure_1b_vestibular.txt")
 
 
 ### END
