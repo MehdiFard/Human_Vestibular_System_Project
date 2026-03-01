@@ -396,9 +396,9 @@ rsync -avz --partial --progress \
 
 
 # From remote to local - run on local
+FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/pca_expression_gtex_vestibular_tissue_Final_cln.pdf"
 rsync -avz --progress \
-        sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/gwas_sumstats_prep/just_for_liftover/UKB_EUR_balance_P_INF_lifted_hg38.tsv.gz \
-        .
+        sesmae@login-2.hpc.childrens.sea.kids:$FILE .
         
 rsync -avz --progress \
         sesmae@login-2.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/paper/figure2e.pdf .

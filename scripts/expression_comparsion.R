@@ -23,9 +23,10 @@ genes_protien_lncRNA <- gtf %>%
 
 # Vestibular tissue, calculating median gene expression
 expr_vest_tpm <- fread("Pantry/phenotyping/output/vestibular/unnorm/expression.bed") %>%
-    dplyr::select(-`#chr`, -start, -end) %>%
+    dplyr::select(-`#chr`, -start, -end, -"31947386", -"31907773", -"32073088") %>%
     dplyr::rename(gene_id = phenotype_id) %>%
     filter(gene_id %in% genes_protien_lncRNA)
+dim(expr_vest_tpm)
 
 # Convert numeric columns to matrix and compute row medians
 median_expr_vest <- data.table(

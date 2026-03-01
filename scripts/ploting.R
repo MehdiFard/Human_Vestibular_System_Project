@@ -1379,238 +1379,183 @@ View(df[1:10, ])
 
 #####################################################################
 
-# GTEx tissues median gene expression
-path_to_gtex_expr <- "/data/hps/assoc/private/gdml/user/dmunro/pantry/phenos/"
-# Getting tissue names excluding "ref" and "TESTIS"
-tissue_names <- setdiff(list.dirs(path_to_gtex_expr, recursive = FALSE, full.names = FALSE), c("ref", "TESTIS", "BLDDER", "CVSEND", "CVXECT", "FLLPNT", "KDNMDL")) # Excluding low sample size tissues (< 80 samples): BLDDER(21), CVSEND(10), CVXECT(9), FLLPNT(9), KDNMDL(4)
+# define pseudocount
+pseudocount = 1
 
-# Reading in the gtex tpm expression data for each tissue and merging them into one matrix
-for (i in seq_along(tissue_names)) {
-  tissue = tissue_names[i]
-  cat("Looking at:", tissue, "Tissue", "\n")
-  gtex_expr <- fread(paste0(path_to_gtex_expr, tissue,"/output/unnorm/expression.bed")) %>%
-      dplyr::select(-`#chr`, -start, -end) %>%
-      dplyr::rename(gene_id = phenotype_id) %>%
-      filter(gene_id %in% genes_protien_lncRNA)
+# Getting protein coding and lncRNAs gene IDs
+gtf <- readGFF("Pantry/phenotyping/input/ref/Homo_sapiens.GRCh38.110.chr.gtf")
 
-  l = dim(gtex_expr)[2]
-  gtx_annot <- data.frame(tissue = rep(tissue, l-1), row.names = colnames(gtex_expr)[-1]) # l-1 because first column is gene_id
-
-  if(i == 1) {
-    gtex_expr_all = gtex_expr
-    gtx_annot_all = gtx_annot
-  } else {
-    gtex_expr_all <- merge(gtex_expr_all, gtex_expr, by = "gene_id", sort = F)
-    gtx_annot_all <- rbind(gtx_annot_all, gtx_annot)
-  }
-
-}
-gtx_annot_all$batch <- "gtex" # Adding batch info
-
-dim(gtex_expr_all)
-View(gtex_expr_all[1:5, 1:5])
-
-head(gtx_annot_all)
-dim(gtx_annot_all)
-table(gtx_annot_all$tissue)
-
-table(gtx_annot_all$tissue)[table(gtx_annot_all$tissue) < 80]
-
-
-
-## Reading vestibualar count data
-vestibular_expr_count <- fread("Pantry/phenotyping/output/vestibular/unnorm/expression.bed")[, -1:-3]
+# Getting a list of genes that are protein coding or lncRNA
+genes_protien_lncRNA <- gtf %>%
+    dplyr::filter(type == "gene") %>% 
+    dplyr::filter(gene_biotype %in% c("protein_coding", "lncRNA")) %>%
+    dplyr::pull("gene_id")
 
 # Vestibular tissue, calculating median gene expression
 expr_vest_tpm <- fread("Pantry/phenotyping/output/vestibular/unnorm/expression.bed") %>%
-    dplyr::select(-`#chr`, -start, -end, -"31947386", -"31907773", -"32073088") %>% # Removing outlier samples based on PCA and metadata
+    dplyr::select(-`#chr`, -start, -end, -"31947386", -"31907773", -"32073088") %>%
     dplyr::rename(gene_id = phenotype_id) %>%
     filter(gene_id %in% genes_protien_lncRNA)
-
-
 dim(expr_vest_tpm)
-expr_vest_tpm[1:3, 1:5]
 
-
-## Annotation
-# Read metadata for batch info
-order_vec <- as.vector(colnames(expr_vest_tpm)[-1])
-meta_unique <- fread("src/metadata_rna.tsv")[, c("human_id", "batch")] %>%
-  as_tibble() %>%
-  distinct(human_id, .keep_all = TRUE) %>%
-  mutate(
-    human_id = as.character(human_id),
-    tissue = "VESTIB",
-    human_id = factor(human_id, levels = order_vec)
-  ) %>%
-  filter(!is.na(human_id)) %>%
-  arrange(human_id) %>%
-  mutate(human_id = as.character(human_id)) %>%
-  column_to_rownames("human_id")  %>%
-  dplyr::select(tissue, batch)
-
-head(meta_unique)
-# Check matching
-table(rownames(meta_unique) == colnames(expr_vest_tpm)[-1]) 
-
-# Making final annotation for gtex and vestibular data
-annot_gtex_vest <- rbind(gtx_annot_all, meta_unique)
-
-
-## Merging GTEx and vestibular count data
-# Function to collapse counts by gene_id (sum counts for same gene_id)
-collapse_by_gene <- function(df) {
-  df %>%
-    mutate(gene_id = sub("\\..*$", "", gene_id)) %>%   # remove version suffixes; drop this line if not needed
-    group_by(gene_id) %>%
-    summarise(across(where(is.numeric), ~ sum(.x, na.rm = TRUE)), .groups = "drop")
-}
-
-# Merging by gene_id
-count_mtx_gtex_vest <- gtex_expr_all %>%
-  filter(gene_id %in% genes_protien_lncRNA) %>%  # keep only protein coding and lncRNA genes
-  collapse_by_gene() %>%
-  inner_join(collapse_by_gene(expr_vest_tpm), by = "gene_id") %>%
-  column_to_rownames("gene_id") %>%
-  as.matrix()
-
-# Check
-table(rownames(count_mtx_gtex_vest) %in% genes_protien_lncRNA) # Should be TRUE
-
-
-## Filtering low expression genes and Normalization
-# First round of filtering: Drop all-zero genes immediately
-counts <- count_mtx_gtex_vest[rowSums(count_mtx_gtex_vest) > 0, , drop = FALSE]
-dim(counts)
-
-# Second round of filtering: Filter by SD or select top genes before PCA (using matrixStats library)
-row_sd <- rowSds(counts)
-summary(row_sd)
-keep <- row_sd >= quantile(row_sd, 0.5)
-length(keep)
-table(keep)
-counts_cln <- counts[keep, , drop = FALSE]
-dim(counts_cln)
-
-# Log-transform the counts (log2(count + 1)) for PCA
-counts_cln_log2 <- log2(counts_cln + 1)
-
-
-## PCA
-pca <- prcomp(t(counts_cln_log2), scale. = TRUE)
-save(pca, file = "figures/data_tables/gtex_vest_tpm_normalized_PCs.RData")
-load("figures/data_tables/gtex_vest_tpm_normalized_PCs.RData")
-
-var_expl <- (pca$sdev^2) / sum(pca$sdev^2)
-
-# Preparing PC data frame for plotting
-pc_df <- data.frame(human_id = rownames(pca$x), pca$x, check.names = FALSE)
-
-
-## Adding meta data, batch and tissue
-pc_df_annot <- merge(
-  pc_df,
-  cbind(human_id = rownames(annot_gtex_vest), annot_gtex_vest),
-  by = "human_id",
-  sort = FALSE
+# Convert numeric columns to matrix and compute row medians
+median_expr_vest <- data.table(
+    gene_id = expr_vest_tpm$gene_id,
+    VESTIB = rowMedians(as.matrix(expr_vest_tpm[, -1]))
 )
+dim(median_expr_vest)
+head(median_expr_vest)
 
-# Add VESTIB color
-vestib_color <- "deepskyblue4"  # black — common choice for new tissue
-gtex_palette <- setNames(gtex_annot$tissue_color_hex, gtex_annot$tissue_abbrv)
-gtex_palette <- c(gtex_palette, VESTIB = vestib_color)
+# GTEx tissues median gene expression
+path_to_gtex_expr <- "/data/hps/assoc/private/gdml/user/dmunro/pantry/phenos/"
+# Getting tissue names excluding "ref" and "TESTIS"
+tissue_names <- setdiff(list.dirs(path_to_gtex_expr, recursive = FALSE, full.names = FALSE), c("ref", "TESTIS"))
 
-# Adding tissue colors
-pc_df_annot <- pc_df_annot %>%
-  mutate(tissue_color_hex = gtex_palette[tissue])
+median_expr_tbl = median_expr_vest
+
+for (i in seq_along(tissue_names)) {
+    tissue = tissue_names[i]
+    cat("Looking at:", tissue, "Tissue", "\n")
+    expr_gtex <- fread(paste0(path_to_gtex_expr, tissue,"/output/unnorm/expression.bed")) %>%
+        dplyr::select(-`#chr`, -start, -end) %>%
+        dplyr::rename(gene_id = phenotype_id) %>%
+        filter(gene_id %in% genes_protien_lncRNA)
+
+    # Convert numeric columns to matrix and compute row medians
+    median_expr_gtex <- data.table(
+        gene_id = expr_gtex$gene_id,
+        gtex_tissue = rowMedians(as.matrix(expr_gtex[, -1])))
+
+    # Compare median expression between vestibular and GTEx tissue
+    col = paste0(tissue)
+    median_expr_tbl <- median_expr_tbl %>%
+        inner_join(median_expr_gtex, by = "gene_id") %>%
+        # remove genes basically off in both tissues
+        filter(VESTIB >= 0.1 | gtex_tissue >= 0.1) %>%
+        dplyr::rename(!!col := gtex_tissue)
+
+}
+dim(median_expr_tbl)
+median_expr_tbl[1:5, 1:5]
 
 
-# Check
-unique(pc_df_annot$tissue_color_hex[pc_df_annot$tissue == "VESTIB"]) # should show "deepskyblue4"
-pc_df_annot[1:5, c("human_id", "tissue", "batch", "tissue_color_hex")] 
 
-# View(pc_df_annot[pc_df_annot$tissue == "VESTIB", c("human_id", "tissue", "batch", "tissue_color_hex")] )
+library(data.table)
 
-# indx <- which(pc_df_annot$human_id %in% c("31947386", "31907773", "32073088"))
+dt <- copy(median_expr_tbl)
 
-pc_df_annot[1:5, 1:5]
-# Plot by tissue
-ggplot(pc_df_annot, aes(PC1, PC2, color = tissue)) + # 
-  geom_point(size = 3, alpha = 0.9) +
-  scale_color_manual(values = gtex_palette, name = "Tissue") +
-  labs(
-    title = "PCA of logCPM expression (GTEx + Vestibular)",
-    x = paste0("PC1 (", round(var_expl[1]*100, 1), "%)"),
-    y = paste0("PC2 (", round(var_expl[2]*100, 1), "%)")
-  ) + 
-    theme_classic(base_size = 14)
+# all tissue columns except gene_id and VESTIB
+tissue_cols <- setdiff(names(dt), c("gene_id", "VESTIB"))
 
-
-
+dt_max <- dt[, {
+  
+  # log2 transform
+  vestib_log  <- log2(VESTIB + 1)
+  vals_log    <- log2(unlist(.SD, use.names = FALSE) + 1)
+  
+  j <- which.max(vals_log)
+  
+  .(
+    VESTIB = vestib_log,
+    max_other = vals_log[j],
+    max_tissue = tissue_cols[j]
+  )
+  
+}, by = gene_id, .SDcols = tissue_cols]
+head(dt_max)
 
 library(ggplot2)
-library(dplyr)
-library(ggrepel)
 
-
-pc_plot_df <- pc_df_annot |> # pc_df_annot[-indx, ]
-  dplyr::filter(tissue != "TESTIS") |>
-  dplyr::mutate(
-    tissue = case_when(
-      grepl("^BRN", tissue) ~ "BRN_TISSUES",
-      TRUE ~ tissue
-    )
-  )
-label_tissues <- c("VESTIB", "BRN_TISSUES", "PTTARY","WHLBLD", "LCL")
-
-label_df <- pc_plot_df %>%
-  filter(tissue %in% label_tissues) %>%
-  group_by(tissue) %>%
-  summarize(
-    PC1 = median(PC1, na.rm = TRUE),
-    PC2 = median(PC2, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-gtex_palette["BRN_TISSUES"] <- "#EEEE00"   # example purple for brain
-
-
-ggplot(pc_plot_df, aes(PC1, PC2, color = tissue)) +
-  geom_point(size = 1, alpha = 0.9) +
-  scale_color_manual(values = gtex_palette, name = "Tissue") +
-  geom_label_repel(
-    data = label_df,
-    aes(label = tissue),
-    color = "black",
-    fill = "white",
-    label.size = 0.05,
-    size = 1.5,
-    min.segment.length = 0,
-    segment.color = "black",
-    # box.padding = 0.5,      # space around label
-    # point.padding = 0.4,    # space around point
-    force = 2,              # increase push strength
-    label.padding = unit(0.1, "lines")
-  ) +
+p <- ggplot(dt_max, aes(x = max_other, y = VESTIB)) + # , color = max_tissue
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  geom_point(alpha = 0.7, size = 1.5) +
+  theme_classic() +
   labs(
-    # title = "PCA of logCPM expression (GTEx + Vestibular)",
-    x = paste0("PC1 (", round(var_expl[1]*100, 1), "%)"),
-    y = paste0("PC2 (", round(var_expl[2]*100, 1), "%)")
-  ) +
-  theme_classic(base_size = 14) +
-  theme(legend.position = "none",
-      axis.text.x = element_blank(),
-      axis.text.y = element_blank()
-      )
+    x = "Highest median expression across GTEx tissues (TPM)",
+    y = "Median expression in VESTIB (TPM)",
+    # color = "Max tissue",
+    title = "VESTIB vs highest-expressing GTEx tissue (per gene)"
+  )
+
+p
 
 
-# Save plot
+
+# Keep genes expressed in at least N GTEx tissues
+dt_filt <- median_expr_tbl[
+  rowSums(.SD > 3) >= 5,   # expressed >1 TPM in ≥5 tissues
+  .SDcols = tissue_cols
+]
+
+tissue_cols <- setdiff(names(median_expr_tbl), c("gene_id", "VESTIB"))
+keep <- rowSums(as.matrix(median_expr_tbl[, ..tissue_cols]) > 3) >= 5
+dt_filt <- median_expr_tbl[keep]
+dim(dt_filt)
+dt_filt[1:5, 1:5]
+
+# Then compute max tissue (with log2 transform)
+dt_max <- dt_filt[, {
+
+  vestib_log <- log2(VESTIB + 1)
+  vals_log   <- log2(unlist(.SD, use.names = FALSE) + 1)
+
+  j <- which.max(vals_log)
+
+  .(
+    VESTIB = vestib_log,
+    max_other = vals_log[j],
+    max_tissue = tissue_cols[j]
+  )
+
+}, by = gene_id, .SDcols = tissue_cols]
+
+# remove genes where max_other is still zero
+dt_max <- dt_max[max_other > 0]
+
+### Plot expression of a gene across all tissues
+# Getting GTEx tissue color
+gtex_colors <- fromJSON("https://raw.githubusercontent.com/broadinstitute/gtex-viz/master/boxplot/dev/colors.json")
+
+# Convert to data frame
+gtex_annot <- bind_rows(lapply(names(gtex_colors), function(tissue) {
+    data.frame(
+        tissue_name = tissue,
+        tissue_abbrv = gtex_colors[[tissue]]$tissue_abbrv,
+        tissue_color_hex = paste0("#", gtex_colors[[tissue]]$tissue_color_hex),
+        stringsAsFactors = FALSE
+    )
+}))
+
+# Making a vector of tissues and colors
+gtex_palette <- setNames(gtex_annot$tissue_color_hex, gtex_annot$tissue_abbrv)
+vestib_color <- "deepskyblue4"  # black — common choice for new tissue
+gtex_palette <- c( VESTIB = vestib_color, gtex_palette)
+
+# Adding tissue colors
+dt_max[, tissue_color := gtex_palette[max_tissue]]
+
+# Plotting with tissue colors
+ggplot(dt_max, aes(x = max_other, y = VESTIB, color = max_tissue)) + # , color = max_tissue
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", col = "red") +
+  geom_point(alpha = 0.7, size = 1.5) +
+  scale_color_manual(values = gtex_palette) +
+  theme_classic() +
+  theme(legend.position = "none") +
+  labs(
+    x = "Highest median expression across GTEx tissues (TPM)",
+    y = "Median expression in VESTIB (TPM)",
+    # color = "Max tissue",
+    title = "VESTIB vs highest-expressing GTEx tissue (per gene)"
+  )
+
+
 ggsave(
   last_plot(),
-  filename = "figures/pca_expression_gtex_vestibular_tissue_Final_cln_TPM.pdf",
-  width = 5,
-  height = 5,
+  filename = "figures/vestibular_vs_gtex_max_tissue_expression.pdf",
+  width = 6,
+  height = 6,
   dpi = 300
 )
 
 
+###----------------------------------------
