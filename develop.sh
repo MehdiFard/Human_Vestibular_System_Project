@@ -394,9 +394,15 @@ rsync -avz --partial --progress \
         sesmae@login-2.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/gwas_sumstats_prep/just_for_liftover/just_for_test/
 
 
+rsync -avz --partial --progress \
+        /Users/sesmae/Downloads/All_MVP_Trpchevska_De-Angelis_BBJ.N.txt.gz \
+        sesmae@login-2.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/data/gwas_raw_sumstats/
+
+
+
 
 # From remote to local - run on local
-FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/pca_expression_gtex_vestibular_tissue_Final_cln.pdf"
+FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/vestibular_vs_gtex_max_tissue_expression.pdf"
 rsync -avz --progress \
         sesmae@login-2.hpc.childrens.sea.kids:$FILE .
         
@@ -552,7 +558,8 @@ scripts/prepare_phenotypes_updated072225.py \
 mamba activate pantry_pheast
 
 #  Dry run
-snakemake --configfile config.yml --config dataset=vestibular --cores 16 --printshellcmds -n
+snakemake --configfile config.yml --config dataset=vestibular --cores 24 --printshellcmds -n
+snakemake --configfile config.yml --config dataset=vestibular -n
 
 # Submit on gpu
 sbatch --export=ALL,DATASET=vestibular --job-name=pheast_vestibular run_pheast_gpu_wrapper.slurm
@@ -571,6 +578,8 @@ snakemake --profile slurm \
 sbatch run_snakemake_profile.slurm
 4945407
 4950958
+6210584
+
 # ~/.config/snakemake/slurm/config.yaml
 
 # executor: slurm
@@ -602,7 +611,7 @@ sacct -j 2816964 --format=JobID,State,Partition,AllocTRES,ReqTRES,AllocCPUS,Node
 
 ###---------------------- TWAS after removing outliers
 cd Pantry/pheast_no_outlier/twas
-mamba activate pantry_pheast
+mamba install -c conda-forge fastparquet
 
 # Dry run
 snakemake -s run_twas_with_tissue.smk --jobs 2 --printshellcmds --rerun-incomplete -n
@@ -610,6 +619,7 @@ snakemake -s run_twas_with_tissue.smk --jobs 2 --printshellcmds --rerun-incomple
 # Submit the job
 sbatch run_twas_assoc.slurm
 5004182
+6210288
 
 
 

@@ -164,3 +164,29 @@ snakemake -j 24 --printshellcmds --scheduler greedy output/vertigo_hg38_twas_inp
 
 sbatch run_job.slurm
 5215027
+
+
+###
+
+LDSC="/data/hps/assoc/private/gdml/user/sesmae/tools/ldsc/munge_sumstats.py" # to check run $LDSC -h
+mamba run -n ldsc python "$LDSC" --sumstats data/gwas_raw_sumstats/All_MVP_Trpchevska_De-Angelis_BBJ.N.txt.gz \
+                                --out gwas_sumstats_prep/output/All_MVP_Trpchevska_De-Angelis_BBJ.N_twas_input.sumstats \
+                                --maf-min 0 \
+                                --N 1510447
+
+8005736 SNPs remain.
+
+# Remained after running Rscript
+9,494,480
+
+
+mamba run -n ldsc python "$LDSC" --sumstats gwas_sumstats_prep/formatted_sumstats/All_MVP_Trpchevska_De-Angelis_BBJ.N_ChrPosId.tsv.gz \
+                                --out gwas_sumstats_prep/output/MVP_hearing_loss_hg38_twas_input.sumstats \
+                                --maf-min 0 \
+                                --snp SNP \
+                                --ignore  rsID,HETISQT,HETCHISQ,HETPVAL \
+                                --N 1510447
+
+8005378 SNPs remain.
+
+

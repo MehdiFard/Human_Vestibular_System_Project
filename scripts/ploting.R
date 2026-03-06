@@ -1438,55 +1438,6 @@ for (i in seq_along(tissue_names)) {
 dim(median_expr_tbl)
 median_expr_tbl[1:5, 1:5]
 
-
-
-library(data.table)
-
-dt <- copy(median_expr_tbl)
-
-# all tissue columns except gene_id and VESTIB
-tissue_cols <- setdiff(names(dt), c("gene_id", "VESTIB"))
-
-dt_max <- dt[, {
-  
-  # log2 transform
-  vestib_log  <- log2(VESTIB + 1)
-  vals_log    <- log2(unlist(.SD, use.names = FALSE) + 1)
-  
-  j <- which.max(vals_log)
-  
-  .(
-    VESTIB = vestib_log,
-    max_other = vals_log[j],
-    max_tissue = tissue_cols[j]
-  )
-  
-}, by = gene_id, .SDcols = tissue_cols]
-head(dt_max)
-
-library(ggplot2)
-
-p <- ggplot(dt_max, aes(x = max_other, y = VESTIB)) + # , color = max_tissue
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  geom_point(alpha = 0.7, size = 1.5) +
-  theme_classic() +
-  labs(
-    x = "Highest median expression across GTEx tissues (TPM)",
-    y = "Median expression in VESTIB (TPM)",
-    # color = "Max tissue",
-    title = "VESTIB vs highest-expressing GTEx tissue (per gene)"
-  )
-
-p
-
-
-
-# Keep genes expressed in at least N GTEx tissues
-dt_filt <- median_expr_tbl[
-  rowSums(.SD > 3) >= 5,   # expressed >1 TPM in ≥5 tissues
-  .SDcols = tissue_cols
-]
-
 tissue_cols <- setdiff(names(median_expr_tbl), c("gene_id", "VESTIB"))
 keep <- rowSums(as.matrix(median_expr_tbl[, ..tissue_cols]) > 3) >= 5
 dt_filt <- median_expr_tbl[keep]
@@ -1496,18 +1447,31 @@ dt_filt[1:5, 1:5]
 # Then compute max tissue (with log2 transform)
 dt_max <- dt_filt[, {
 
-  vestib_log <- log2(VESTIB + 1)
-  vals_log   <- log2(unlist(.SD, use.names = FALSE) + 1)
-
-  j <- which.max(vals_log)
-
+  # log2 transform all tissues
+  vals_log <- log2(c(VESTIB, unlist(.SD, use.names = FALSE)) + 1)
+  
+  vestib_log <- vals_log[1]
+  others_log <- vals_log[-1]
+  
+  j <- which.max(others_log)
+  
+  max_other_log <- others_log[j]
+  
+  diff <- vestib_log - max_other_log   # log2 difference
+  lfc  <- diff                         # already log2 fold-change
+  
   .(
     VESTIB = vestib_log,
-    max_other = vals_log[j],
-    max_tissue = tissue_cols[j]
+    max_other = max_other_log,
+    max_tissue = tissue_cols[j],
+    diff = diff,
+    log2FC = lfc
   )
 
 }, by = gene_id, .SDcols = tissue_cols]
+head(dt_max)
+dim(dt_max)
+
 
 # remove genes where max_other is still zero
 dt_max <- dt_max[max_other > 0]
@@ -1543,19 +1507,31 @@ ggplot(dt_max, aes(x = max_other, y = VESTIB, color = max_tissue)) + # , color =
   theme(legend.position = "none") +
   labs(
     x = "Highest median expression across GTEx tissues (TPM)",
-    y = "Median expression in VESTIB (TPM)",
+    y = "Median expression in VESTIB tissue (TPM)",
     # color = "Max tissue",
-    title = "VESTIB vs highest-expressing GTEx tissue (per gene)"
+    # title = "VESTIB vs highest-expressing GTEx tissue (per gene)"
   )
 
 
 ggsave(
   last_plot(),
   filename = "figures/vestibular_vs_gtex_max_tissue_expression.pdf",
-  width = 6,
-  height = 6,
+  width = 5,
+  height = 5,
   dpi = 300
 )
+dev.off()
 
-
+ggsave("test.pdf", width = 5, height = 5)
 ###----------------------------------------
+
+###------ Getting genes with highest expression in VESTIBULAR compared to GTEx tissues to run enrichment analysis 
+# Better: require meaningful enrichment:
+lfc_cut <- 1      # 2-fold
+dt_max_filt <- dt_max[log2FC > lfc_cut]
+dim(dt_max_filt)
+head(dt_max_filt)
+
+sum(dt_max_filt$max_tissue == "GEUVADIS")  # example: how many VESTIB-specific genes are highest in LIVER?
+
+write.table(dt_max_filt[, "gene_id"], "figures/data_tables/vestibular_high_expressed_genes.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
