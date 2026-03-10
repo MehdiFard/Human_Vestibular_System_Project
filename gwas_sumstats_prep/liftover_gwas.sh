@@ -180,12 +180,12 @@ mamba run -n ldsc python "$LDSC" --sumstats data/gwas_raw_sumstats/All_MVP_Trpch
 9,494,480
 
 
-mamba run -n ldsc python "$LDSC" --sumstats gwas_sumstats_prep/formatted_sumstats/All_MVP_Trpchevska_De-Angelis_BBJ.N_ChrPosId.tsv.gz \
-                                --out gwas_sumstats_prep/output/MVP_hearing_loss_hg38_twas_input.sumstats \
+mamba run -n ldsc python "$LDSC" --sumstats gwas_sumstats_prep/formatted_sumstats/UKB_EUR_balance_formatted_hg38_ChrPosId.tsv.gz \
+                                --out gwas_sumstats_prep/output/UKB_EUR_balance_hg38_twas_input \
                                 --maf-min 0 \
                                 --snp SNP \
                                 --ignore  rsID,HETISQT,HETCHISQ,HETPVAL \
-                                --N 1510447
+                                --N 364034
 
 8005378 SNPs remain.
 

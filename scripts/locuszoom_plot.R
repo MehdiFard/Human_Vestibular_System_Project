@@ -51,10 +51,10 @@ ensDb_v113@tables
 
 # Extracting a subset of the data around gene or region of interest
 loc_meta <- locus(data = gwas_meta_cln,
-                  # gene = 'ZNF91',
+                  gene = 'ZNF91',
+                  flank = 1e6,
+                  # index_snp = "rs695017",
                   # flank = 2.5e5,
-                  index_snp = "rs695017",
-                  flank = 2.5e5,
                   ens_db = ensDb_v113
                   )
 summary(loc_meta)
@@ -83,17 +83,17 @@ table(loc_meta_ld_recom_eqtls$LDexp$Tissue)
 
 # From fine-mapping of isoform mapping results: rs426564 and rs10415081
 # GWAS plot
-png("figures/locuszoom_gwas.png",
-    width = 12, height = 10, units = "in", res = 300)
+pdf("figures/locuszoom_gwas.pdf",
+    width = 8, height = 6)
 
-locus_plot(loc_meta_ld_recom_eqtls, 
+locus_plot(loc_meta_ld_recom, 
           labels = c("index", "rs167154"), # rs612285, rs426564
           label_x = c(2, -5),
           highlight = c("ZNF724", "ZNF91", "ZNF675"),
           # filter_gene_biotype = "protein_coding",
-          gene_col = 'grey',
-          exon_col = 'orange',
-          exon_border = 'darkgrey'
+          # gene_col = 'grey',
+          # exon_col = 'orange',
+          # exon_border = 'darkgrey'
           )
 
 dev.off()
@@ -135,19 +135,32 @@ dev.off()
 
 #------- Our isoformQTLs
 qtl <- fread("Pantry/pheast_no_outlier/output/vestibular/qtl/isoforms.cis_qtl.txt.gz")  # change to your file
-head(qtl)
+qtl <- fread("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/isoforms.cis_qtl_all_signif.txt.gz")  # change to your file
 dim(qtl)
+head(qtl)
+View(qtl[1:10, ])
+names(qtl)
+
+
+
+
+###-------------------------- Isoform
+library(arrow)
+qtl_isoform <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/isoforms/vestibular_isoforms.cis_qtl_pairs.19.parquet")
+dim(qtl_isoform)
+View(qtl_isoform[1:10, ])
+head(qtl_isoform)
 
 
 # Check if our TWAS top SNP is present
-which(qtl$variant_id == "19_23307401_A_G")
+which(qtl_isoform$variant_id == "19_23307401_A_G")
 # Not present in isoform QTLs
 
 
 library(tidyr)
-qtl_cln <- qtl %>%
-  select(SNP = variant_id, beta = slope, se = slope_se, p = qval) %>%
-  # select(phenotype_id, group_id, snp_chr_pos = variant_id, p = qval) %>%
+qtl_cln_isoform <- qtl_isoform %>%
+  # select(SNP = variant_id, beta = slope, se = slope_se, p = qval) %>%
+  select(SNP = variant_id, beta = slope, se = slope_se, p = pval_nominal) %>%
   separate(col = SNP, into  = c("chr", "pos", "A1", "A2"), sep   = "_", remove = FALSE) %>%
   mutate(
     pos = as.integer(pos)) %>%
@@ -155,39 +168,560 @@ qtl_cln <- qtl %>%
     gwas_meta[, c("SNP", "rsID")], by = "SNP") %>%
   select(rsID, chr, pos, A1, A2, beta, se, p)   # enforce final order
 
-dim(qtl_cln)
-head(qtl_cln)
-which(qtl_cln$rsID == "rs167154")
+dim(qtl_cln_isoform)
+head(qtl_cln_isoform)
+which(qtl_cln_isoform$rsID == "rs167154")
+length(unique(qtl_cln_isoform$rsID))
+
+
+# Filtering to keep only the most significant association for each SNP
+qtl_cln_filt_isoform <- qtl_cln_isoform %>%
+    group_by(rsID) %>%
+    slice_min(p, n = 1, with_ties = FALSE) %>%
+    ungroup()
+dim(qtl_cln_filt_isoform)
 
 
 # Extracting a subset of the data around gene or region of interest
-loc_meta <- locus(data = qtl_cln,
+loc_meta_isoform <- locus(data = qtl_cln_filt_isoform,
                   gene = 'ZNF91',
                   # index_snp = "rs167154",
-                  # flank = 2.5e5,
                   flank = 1e6,
                   ens_db = ensDb_v113,
                   )
-summary(loc_meta)
+summary(loc_meta_isoform)
 
-png("figures/locuszoom_isoform.png",
-    width = 12, height = 10, units = "in", res = 300)
+# Ploting
+pdf("figures/locuszoom_isoform.pdf",
+    width = 8, height = 2)
 
-locus_plot(loc_meta,
-                  labels = c("rs426564"),
-                  label_x = c(2, -5),
-                  ylab = expression(-log[10]~qvalue),
-                  highlight = "ZNF91",
-                  )
+# locus_plot(
+#   loc_meta_isoform,
+#   labels = c("rs167154"),
+#   # label_x = c(2, -5),
+#   ylab = expression(-log[10]~pvalue),
+#   highlight = "ZNF91",   # highlight = c("ZNF724", "ZNF91", "ZNF675"),
+#   cex = 0.5,           # control dot size
+#   filter_gene_biotype = "protein_coding",
+#   # gene_col = 'grey',
+#   # exon_col = 'orange',
+#   # exon_border = 'darkgrey',
+#   cex.text = .5, # control label size
+#   col = "#377eb8", # outline
+#   bg = "#377eb8",      # dot fill color
+#   pcutoff = NULL,
+# )
+
+
+scatter_plot(loc_meta_isoform,
+              labels = c("rs167154"),
+              ylab = expression(-log[10]~pvalue),
+              cex = 0.5,           # control dot size
+              col = "#377eb8", # outline
+              bg = "#377eb8",      # dot fill color
+              pcutoff = NULL,
+              xticks = FALSE
+              )
+
 
 dev.off()
+
+pdf("figures/locuszoom_qtls_gene_track.pdf",
+    width = 8, height = 2)
+
+genetracks(loc_meta_isoform,
+            highlight = "ZNF91",
+            filter_gene_biotype = "protein_coding",
+            
+            )
+dev.off()
+
+
+###-------------------------- expression
+library(arrow)
+qtl_expr <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/expression/vestibular_expression.cis_qtl_pairs.19.parquet")
+dim(qtl_expr)
+View(qtl_expr[1:10, ])
+
+
+# Check if our TWAS top SNP is present
+which(qtl_expr$variant_id == "19_23307401_A_G")
+
+
+qtl_cln_expr <- qtl_expr %>%
+  # select(SNP = variant_id, beta = slope, se = slope_se, p = qval) %>%
+  select(SNP = variant_id, beta = slope, se = slope_se, p = pval_nominal) %>%
+  separate(col = SNP, into  = c("chr", "pos", "A1", "A2"), sep   = "_", remove = FALSE) %>%
+  mutate(
+    pos = as.integer(pos)) %>%
+  inner_join(
+    gwas_meta[, c("SNP", "rsID")], by = "SNP") %>%
+  select(rsID, chr, pos, A1, A2, beta, se, p)   # enforce final order
+
+dim(qtl_cln_expr)
+head(qtl_cln_expr)
+which(qtl_cln_expr$rsID == "rs167154")
+length(unique(qtl_cln_expr$rsID))
+
+
+# Filtering to keep only the most significant association for each SNP
+qtl_cln_filt_expr <- qtl_cln_expr %>%
+    group_by(rsID) %>%
+    slice_min(p, n = 1, with_ties = FALSE) %>%
+    ungroup()
+dim(qtl_cln_filt_expr)
+
+
+# Extracting a subset of the data around gene or region of interest
+loc_meta_expr <- locus(data = qtl_cln_filt_expr,
+                  gene = 'ZNF91',
+                  # index_snp = "rs167154",
+                  flank = 1e6,
+                  ens_db = ensDb_v113,
+                  )
+summary(loc_meta_expr)
+
+# Ploting
+pdf("figures/locuszoom_expression.pdf",
+    width = 8, height = 2)
+
+# locus_plot(
+#   loc_meta_expr,
+#   # labels = c("rs167154"),
+#   # label_x = c(2, -5),
+#   ylab = expression(-log[10]~pvalue),
+#   highlight = "ZNF91",   # highlight = c("ZNF724", "ZNF91", "ZNF675"),
+#   cex = 0.5,           # control dot size
+#   filter_gene_biotype = "protein_coding",
+#   # gene_col = 'grey',
+#   # exon_col = 'orange',
+#   # exon_border = 'darkgrey',
+#   cex.text = .5, # control label size
+#   col = "#377eb8", # outline
+#   bg = "#377eb8",      # dot fill color
+#   # maxrows = 0,
+# )
+
+# Alternative: scatter plot without gene tracks
+scatter_plot(loc_meta_expr,
+              # labels = c("rs167154"),
+              ylab = expression(-log[10]~pvalue),
+              cex = 0.5,           # control dot size
+              col = "#e41a1c", # outline
+              bg = "#e41a1c",      # dot fill color
+              pcutoff = NULL,
+              xticks = FALSE
+              )
+
+
+dev.off()
+
+
+###-------------------------- alternative polyA QTLs
+library(arrow)
+qtl_alt_polyA <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/alt_polyA/vestibular_alt_polyA.cis_qtl_pairs.19.parquet")
+dim(qtl_alt_polyA)
+View(qtl_alt_polyA[1:10, ])
+
+
+# Check if our TWAS top SNP is present
+which(qtl_alt_polyA$variant_id == "19_23307401_A_G")
+
+
+qtl_cln_alt_polyA <- qtl_alt_polyA %>%
+  # select(SNP = variant_id, beta = slope, se = slope_se, p = qval) %>%
+  select(SNP = variant_id, beta = slope, se = slope_se, p = pval_nominal) %>%
+  separate(col = SNP, into  = c("chr", "pos", "A1", "A2"), sep   = "_", remove = FALSE) %>%
+  mutate(
+    pos = as.integer(pos)) %>%
+  inner_join(
+    gwas_meta[, c("SNP", "rsID")], by = "SNP") %>%
+  select(rsID, chr, pos, A1, A2, beta, se, p)   # enforce final order
+
+dim(qtl_cln_alt_polyA)
+head(qtl_cln_alt_polyA)
+which(qtl_cln_alt_polyA$rsID == "rs167154")
+length(unique(qtl_cln_alt_polyA$rsID))
+
+
+# Filtering to keep only the most significant association for each SNP
+qtl_cln_filt_alt_polyA <- qtl_cln_alt_polyA %>%
+    group_by(rsID) %>%
+    slice_min(p, n = 1, with_ties = FALSE) %>%
+    ungroup()
+dim(qtl_cln_filt_alt_polyA)
+
+
+# Extracting a subset of the data around gene or region of interest
+loc_meta_alt_polyA <- locus(data = qtl_cln_filt_alt_polyA,
+                  gene = 'ZNF91',
+                  # index_snp = "rs167154",
+                  flank = 1e6,
+                  ens_db = ensDb_v113,
+                  )
+summary(loc_meta_alt_polyA)
+
+# Ploting
+pdf("figures/locuszoom_alt_polyA.pdf",
+    width = 8, height = 2)
+
+# Alternative: scatter plot without gene tracks
+scatter_plot(loc_meta_alt_polyA,
+              # labels = c("rs167154"),
+              ylab = expression(-log[10]~pvalue),
+              cex = 0.5,           # control dot size
+              col = "#ff7f00", # outline
+              bg = "#ff7f00",      # dot fill color
+              pcutoff = NULL,
+              xticks = FALSE
+              )
+
+
+# locus_plot(
+#   loc_meta_alt_polyA,
+#   # labels = c("rs167154"),
+#   ylab = expression(-log[10]~pvalue),
+#   highlight = "ZNF91",   # highlight = c("ZNF724", "ZNF91", "ZNF675"),
+#   cex = 0.5,           # control dot size
+#   filter_gene_biotype = "protein_coding",
+#   cex.text = .5, # control label size
+#   col = "#ff7f00", # outline
+#   bg = "#ff7f00",      # dot fill color
+# )
+
+dev.off()
+
+
+
+###-------------------------- alternative TSS QTLs
+library(arrow)
+qtl_alt_TSS <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/alt_TSS/vestibular_alt_TSS.cis_qtl_pairs.19.parquet")
+dim(qtl_alt_TSS)
+View(qtl_alt_TSS[1:10, ])
+
+
+# Check if our TWAS top SNP is present
+which(qtl_alt_TSS$variant_id == "19_23307401_A_G")
+
+
+qtl_cln_alt_TSS <- qtl_alt_TSS %>%
+  # select(SNP = variant_id, beta = slope, se = slope_se, p = qval) %>%
+  select(SNP = variant_id, beta = slope, se = slope_se, p = pval_nominal) %>%
+  separate(col = SNP, into  = c("chr", "pos", "A1", "A2"), sep   = "_", remove = FALSE) %>%
+  mutate(
+    pos = as.integer(pos)) %>%
+  inner_join(
+    gwas_meta[, c("SNP", "rsID")], by = "SNP") %>%
+  select(rsID, chr, pos, A1, A2, beta, se, p)   # enforce final order
+
+dim(qtl_cln_alt_TSS)
+head(qtl_cln_alt_TSS)
+which(qtl_cln_alt_TSS$rsID == "rs167154")
+length(unique(qtl_cln_alt_TSS$rsID))
+
+
+# Filtering to keep only the most significant association for each SNP
+qtl_cln_filt_alt_TSS <- qtl_cln_alt_TSS %>%
+    group_by(rsID) %>%
+    slice_min(p, n = 1, with_ties = FALSE) %>%
+    ungroup()
+dim(qtl_cln_filt_alt_TSS)
+
+
+# Extracting a subset of the data around gene or region of interest
+loc_meta_alt_TSS <- locus(data = qtl_cln_filt_alt_TSS,
+                  gene = 'ZNF91',
+                  # index_snp = "rs167154",
+                  flank = 1e6,
+                  ens_db = ensDb_v113,
+                  )
+summary(loc_meta_alt_TSS)
+
+# Ploting
+pdf("figures/locuszoom_alt_TSS.pdf",
+    width = 8, height = 2)
+
+# Alternative: scatter plot without gene tracks
+scatter_plot(loc_meta_alt_TSS,
+              # labels = c("rs167154"),
+              ylab = expression(-log[10]~pvalue),
+              cex = 0.5,           # control dot size
+              col = "#984ea3", # outline
+              bg = "#984ea3",      # dot fill color
+              pcutoff = NULL,
+              xticks = FALSE,
+              )
+
+
+# locus_plot(
+#   loc_meta_alt_TSS,
+#   # labels = c("rs167154"),
+#   ylab = expression(-log[10]~pvalue),
+#   highlight = "ZNF91",   # highlight = c("ZNF724", "ZNF91", "ZNF675"),
+#   cex = 0.5,           # control dot size
+#   filter_gene_biotype = "protein_coding",
+#   cex.text = .5, # control label size
+#   col = "#984ea3", # outline
+#   bg = "#984ea3",      # dot fill color
+# )
+
+dev.off()
+
+
+
+###-------------------------- RNA editing QTLs
+library(arrow)
+qtl_rna_editing <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/RNA_editing/vestibular_RNA_editing.cis_qtl_pairs.19.parquet")
+dim(qtl_rna_editing)
+View(qtl_rna_editing[1:10, ])
+
+
+# Check if our TWAS top SNP is present
+which(qtl_rna_editing$variant_id == "19_23307401_A_G")
+
+
+qtl_cln_rna_editing <- qtl_rna_editing %>%
+  # select(SNP = variant_id, beta = slope, se = slope_se, p = qval) %>%
+  select(SNP = variant_id, beta = slope, se = slope_se, p = pval_nominal) %>%
+  separate(col = SNP, into  = c("chr", "pos", "A1", "A2"), sep   = "_", remove = FALSE) %>%
+  mutate(
+    pos = as.integer(pos)) %>%
+  inner_join(
+    gwas_meta[, c("SNP", "rsID")], by = "SNP") %>%
+  select(rsID, chr, pos, A1, A2, beta, se, p)   # enforce final order
+
+dim(qtl_cln_rna_editing)
+head(qtl_cln_rna_editing)
+which(qtl_cln_rna_editing$rsID == "rs167154")
+length(unique(qtl_cln_rna_editing$rsID))
+
+
+# Filtering to keep only the most significant association for each SNP
+qtl_cln_filt_rna_editing <- qtl_cln_rna_editing %>%
+    group_by(rsID) %>%
+    slice_min(p, n = 1, with_ties = FALSE) %>%
+    ungroup()
+dim(qtl_cln_filt_rna_editing)
+
+
+# Extracting a subset of the data around gene or region of interest
+loc_meta_rna_editing <- locus(data = qtl_cln_filt_rna_editing,
+                  gene = 'ZNF91',
+                  # index_snp = "rs167154",
+                  flank = 1e6,
+                  ens_db = ensDb_v113,
+                  )
+summary(loc_meta_rna_editing)
+
+# Ploting
+pdf("figures/locuszoom_rna_editing.pdf",
+    width = 8, height = 2)
+
+# Alternative: scatter plot without gene tracks
+scatter_plot(loc_meta_rna_editing,
+              # labels = c("rs167154"),
+              ylab = expression(-log[10]~pvalue),
+              cex = 0.5,           # control dot size
+              col = "#984210", # outline
+              bg = "#984210",      # dot fill color
+              pcutoff = NULL,
+              xticks = FALSE,
+              )
+
+
+# locus_plot(
+#   loc_meta_rna_editing,
+#   # labels = c("rs167154"),
+#   ylab = expression(-log[10]~pvalue),
+#   highlight = "ZNF91",   # highlight = c("ZNF724", "ZNF91", "ZNF675"),
+#   cex = 0.5,           # control dot size
+#   filter_gene_biotype = "protein_coding",
+#   cex.text = .5, # control label size
+#   col = "#984210", # outline
+#   bg = "#984210",      # dot fill color
+# )
+
+dev.off()
+
+
+
+
+###-------------------------- splicing QTLs
+library(arrow)
+qtl_splicing <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/splicing/vestibular_splicing.cis_qtl_pairs.19.parquet")
+dim(qtl_splicing)
+View(qtl_splicing[1:10, ])
+
+
+# Check if our TWAS top SNP is present
+which(qtl_splicing$variant_id == "19_23307401_A_G")
+
+library(tidyr)
+qtl_cln_splicing <- qtl_splicing %>%
+  # select(SNP = variant_id, beta = slope, se = slope_se, p = qval) %>%
+  select(SNP = variant_id, beta = slope, se = slope_se, p = pval_nominal) %>%
+  separate(col = SNP, into  = c("chr", "pos", "A1", "A2"), sep   = "_", remove = FALSE) %>%
+  mutate(
+    pos = as.integer(pos)) %>%
+  inner_join(
+    gwas_meta[, c("SNP", "rsID")], by = "SNP") %>%
+  select(rsID, chr, pos, A1, A2, beta, se, p)   # enforce final order
+
+dim(qtl_cln_splicing)
+head(qtl_cln_splicing)
+which(qtl_cln_splicing$rsID == "rs167154")
+length(unique(qtl_cln_splicing$rsID))
+
+
+# Filtering to keep only the most significant association for each SNP
+qtl_cln_filt_splicing <- qtl_cln_splicing %>%
+    group_by(rsID) %>%
+    slice_min(p, n = 1, with_ties = FALSE) %>%
+    ungroup()
+dim(qtl_cln_filt_splicing)
+
+
+# Extracting a subset of the data around gene or region of interest
+loc_meta_splicing <- locus(data = qtl_cln_filt_splicing,
+                  gene = 'ZNF91',
+                  # index_snp = "rs167154",
+                  flank = 1e6,
+                  ens_db = ensDb_v113,
+                  )
+summary(loc_meta_splicing)
+
+# Ploting
+pdf("figures/locuszoom_splicing.pdf",
+    width = 8, height = 2)
+
+# Alternative: scatter plot without gene tracks
+scatter_plot(loc_meta_splicing,
+              # labels = c("rs167154"),
+              ylab = expression(-log[10]~pvalue),
+              cex = 0.5,           # control dot size
+              col = "#4daf4a", # outline
+              bg = "#4daf4a",      # dot fill color
+              pcutoff = NULL,
+              xticks = FALSE,
+              )
+
+
+# locus_plot(
+#   loc_meta_splicing,
+#   # labels = c("rs167154"),
+#   ylab = expression(-log[10]~pvalue),
+#   highlight = "ZNF91",   # highlight = c("ZNF724", "ZNF91", "ZNF675"),
+#   cex = 0.5,           # control dot size
+#   filter_gene_biotype = "protein_coding",
+#   cex.text = .5, # control label size
+#   col = "#4daf4a", # outline
+#   bg = "#4daf4a",      # dot fill color
+# )
+
+dev.off()
+
+
+
+###-------------------------- stability QTLs
+library(arrow)
+qtl_stability <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/stability/vestibular_stability.cis_qtl_pairs.19.parquet")
+dim(qtl_stability)
+View(qtl_stability[1:10, ])
+
+
+# Check if our TWAS top SNP is present
+which(qtl_stability$variant_id == "19_23307401_A_G")
+
+
+qtl_cln_stability <- qtl_stability %>%
+  # select(SNP = variant_id, beta = slope, se = slope_se, p = qval) %>%
+  select(SNP = variant_id, beta = slope, se = slope_se, p = pval_nominal) %>%
+  separate(col = SNP, into  = c("chr", "pos", "A1", "A2"), sep   = "_", remove = FALSE) %>%
+  mutate(
+    pos = as.integer(pos)) %>%
+  inner_join(
+    gwas_meta[, c("SNP", "rsID")], by = "SNP") %>%
+  select(rsID, chr, pos, A1, A2, beta, se, p)   # enforce final order
+
+dim(qtl_cln_stability)
+head(qtl_cln_stability)
+which(qtl_cln_stability$rsID == "rs167154")
+length(unique(qtl_cln_stability$rsID))
+
+
+# Filtering to keep only the most significant association for each SNP
+qtl_cln_filt_stability <- qtl_cln_stability %>%
+    group_by(rsID) %>%
+    slice_min(p, n = 1, with_ties = FALSE) %>%
+    ungroup()
+dim(qtl_cln_filt_stability)
+
+
+# Extracting a subset of the data around gene or region of interest
+loc_meta_stability <- locus(data = qtl_cln_filt_stability,
+                  gene = 'ZNF91',
+                  # index_snp = "rs167154",
+                  flank = 1e6,
+                  ens_db = ensDb_v113,
+                  )
+summary(loc_meta_stability)
+
+# Ploting
+pdf("figures/locuszoom_stability.pdf",
+    width = 8, height = 2)
+
+# Alternative: scatter plot without gene tracks
+scatter_plot(loc_meta_stability,
+              # labels = c("rs167154"),
+              ylab = expression(-log[10]~pvalue),
+              cex = 0.5,           # control dot size
+              col = "#fdc11c", # outline
+              bg = "#fdc11c",      # dot fill color
+              pcutoff = NULL,
+              xticks = FALSE,
+              )
+
+
+# locus_plot(
+#   loc_meta_stability,
+#   # labels = c("rs167154"),
+#   ylab = expression(-log[10]~pvalue),
+#   highlight = "ZNF91",   # highlight = c("ZNF724", "ZNF91", "ZNF675"),
+#   cex = 0.5,           # control dot size
+#   filter_gene_biotype = "protein_coding",
+#   cex.text = .5, # control label size
+#   col = "#fdc11c", # outline
+#   bg = "#fdc11c",      # dot fill color
+# )
+
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # SNP from TWAS
 # 19_23307401_A_G, rs167154
 
 
 # FROM isoform QTL mapping
-$index_snp
+# index_snp
 [1] "rs426564"
 19:23314211 (GRCh38)
 ENSG00000167232
@@ -307,3 +841,11 @@ dev.off()
 
 
 ### END
+
+
+
+library(arrow)
+chr1 <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/expression/vestibular_expression.cis_qtl_pairs.1.parquet")
+dim(chr1)
+View(chr1[1:10, ])
+head(chr1)

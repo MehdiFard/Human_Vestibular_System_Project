@@ -15,6 +15,7 @@ G <- BEDMatrix(bed)         # samples x SNPs (lazy / memory-mapped)
 bim <- read.table("Pantry/pheast_no_outlier/input/LDREF/1kg_ldref_hg38_chr19.bim", sep = "\t", stringsAsFactors = FALSE)
 fam <- read.table("Pantry/pheast_no_outlier/input/LDREF/1kg_ldref_hg38_chr19.fam", sep = "\t", stringsAsFactors = FALSE)
 colnames(bim) <- c("chr","id","cm","pos","a1","a2")
+head(bim)
 
 # choose locus
 chr <- 19
@@ -53,6 +54,7 @@ R[1:5, 1:5]
 ## Read GWAS sumstats
 ss <- read.table("gwas_sumstats_prep/output/balance_meta1_hg38_twas_input.sumstats.gz", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
 head(ss)
+
 
 ## Get the SNP IDs in the LD matrix order
 snps_ld <- bim$id[idx]   # same order as columns in X and in R
@@ -134,8 +136,20 @@ z[ match(cs_df$SNP[1:10], snps_ld2) ]
 gwas_res <- fread("gwas_sumstats_prep/formatted_sumstats/balance_meta1_formatted_hg38_ChrPosId.tsv.gz")
 
 # Merge
-cs_df_rsid <- merge(cs_df, gwas_res[, c("SNP", "rsID", "CHR", "BP", "A1", "A2", "FRQ", "BETA", "P")], by = "SNP", sort = F)
-head(cs_df_rsid)
+# cs_df_rsid <- merge(cs_df, gwas_res[, c("SNP", "rsID", "CHR", "BP", "A1", "A2", "FRQ", "BETA", "P")], by = "SNP", sort = F)
+
+cs_df_rsid <- cs_df %>%
+    left_join(
+        gwas_res %>%
+        select(SNP, rsID, CHR, BP, A1, A2, FRQ, BETA, P) %>%
+        dplyr::rename(
+            FRQ_gwas  = FRQ,
+            BETA_gwas = BETA,
+            P_gwas    = P
+        ),
+        by = "SNP"
+    )
+View(cs_df_rsid)
 
 # Save
 fwrite(cs_df_rsid, file = "fine_mapping/results/susie_results_balance_meta1.tsv", sep = "\t")

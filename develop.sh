@@ -395,14 +395,14 @@ rsync -avz --partial --progress \
 
 
 rsync -avz --partial --progress \
-        /Users/sesmae/Downloads/All_MVP_Trpchevska_De-Angelis_BBJ.N.txt.gz \
-        sesmae@login-2.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/data/gwas_raw_sumstats/
+        /Users/sesmae/Downloads/OneDrive_1_3-9-2026/*.gz \
+        sesmae@login-2.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/data/gwas_raw_sumstats/Royce_files/
 
 
 
 
 # From remote to local - run on local
-FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/vestibular_vs_gtex_max_tissue_expression.pdf"
+FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/fine_mapping/results/susie_results_balance_UKB_EUR_chr19_23.18M-23.65M.tsv"
 rsync -avz --progress \
         sesmae@login-2.hpc.childrens.sea.kids:$FILE .
         
