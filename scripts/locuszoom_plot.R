@@ -22,24 +22,25 @@ summary(loc)
 locus_plot(loc)
 
 
-
 ### My data - balance_meta1
 gwas_meta <- fread("gwas_sumstats_prep/formatted_sumstats/balance_meta1_formatted_hg38_ChrPosId.tsv.gz")
 head(gwas_meta)
 
 # Clean GWAS data
 gwas_meta_cln <- gwas_meta %>%
-                  select(rsID, chr = CHR, pos = BP, A1, A2, beta = BETA, se = SE, p = P)
+                  select(SNP, rsID, chr = CHR, pos = BP, A1, A2, beta = BETA, se = SE, p = P) %>%
+                  arrange(p)
 head(gwas_meta_cln)
 
+# Top snp in gwas
+# 19_23421337_G_A   rs612285
 
 # Finding lead snp rsIDs
-gwas_meta[which(gwas_meta$SNP == "19_23421111_A_G"), ]
-# rs695017
-gwas_meta[which(gwas_meta$SNP == "19_23307401_A_G"), ]
-# rs167154 - colocalized variant - isoform
-gwas_meta[which(gwas_meta$SNP == "19_23359488_A_G"), ]
-# rs428549 - RNA_Editing QTL
+# 19_23421111_A_G: colocalized gwas snp (in twas) 
+gwas_meta[which(gwas_meta_cln$SNP == "19_23421111_A_G"), ] # rs695017
+
+# 19_23307401_A_G: colocalized isoform qtl (in twas)
+gwas_meta[which(gwas_meta$SNP == "19_23307401_A_G"), ] # rs167154
 
 
 # Using AnnotationHub to get EnsDb objects
@@ -52,9 +53,9 @@ ensDb_v113@tables
 # Extracting a subset of the data around gene or region of interest
 loc_meta <- locus(data = gwas_meta_cln,
                   gene = 'ZNF91',
-                  flank = 1e6,
+                  # flank = 1e6,
                   # index_snp = "rs695017",
-                  # flank = 2.5e5,
+                  flank = 2.5e5,
                   ens_db = ensDb_v113
                   )
 summary(loc_meta)
@@ -87,8 +88,8 @@ pdf("figures/locuszoom_gwas.pdf",
     width = 8, height = 6)
 
 locus_plot(loc_meta_ld_recom, 
-          labels = c("index", "rs167154"), # rs612285, rs426564
-          label_x = c(2, -5),
+          labels = c("rs695017", "rs167154"), # rs612285: gwas top snp (= "index", ), - rs695017: gwas snp coloced in twas, - rs167154: Isoform qtl coloced in twas
+          label_x = c(-1, -5),
           highlight = c("ZNF724", "ZNF91", "ZNF675"),
           # filter_gene_biotype = "protein_coding",
           # gene_col = 'grey',
@@ -98,66 +99,62 @@ locus_plot(loc_meta_ld_recom,
 
 dev.off()
 
-
-# Overlay GWAS and eQTL plot
-png("figures/locuszoom_gwas_gtex_eqtl_Brain_Cortex.png",
-    width = 12, height = 10, units = "in", res = 300)
-
-# overlay eqtl plot
-overlay_plot(loc_meta_ld_recom_eqtls, tissue = "Brain - Cortex",  eqtl_gene = "ZNF91",
-          labels = c("index", "rs167154", "rs428549"),
-          label_x = c(2, -5),
-          highlight = "ZNF91",
-          # gene_col = 'grey',
-          # exon_col = 'orange',
-          # exon_border = 'darkgrey'
-          )
-dev.off()
-
-###------
+# Ploting
+pdf("figures/locuszoom_isoform.pdf",
+    width = 8, height = 2)
 
 
-### Stacked plots butt not working with overlay_plot 
-pdf("figures/myplot_test.pdf", width = 6, height = 8)
-oldpar <- set_layers(2)  # number of stacked panels
-scatter_plot(loc_meta_ld_recom_eqtls, xticks = FALSE,
-          labels = c("index", "rs167154", "rs428549"),
-          label_x = c(2, -5))
+# Extracting a subset of the data around gene or region of interest
+loc_meta_scatter <- locus(data = gwas_meta_cln,
+                  gene = 'ZNF91',
+                  flank = 1e6,
+                  # index_snp = "rs695017",
+                  ens_db = ensDb_v113
+                  )
 
-line_plot(loc_meta_ld_recom_eqtls, col = "orange", xticks = FALSE)
+pdf("figures/locuszoom_gwas_scatter.pdf",
+    width = 8, height = 2)
 
-genetracks(loc_meta_ld_recom_eqtls,
-          highlight = c("ZNF724", "ZNF91", "ZNF675"))  # automatically goes to bottom track
+scatter_plot(loc_meta_scatter,
+              labels = c("rs695017", "rs167154"),
+              label_x = c(-3, -5),
+              ylab = expression(-log[10]~pvalue),
+              cex = 0.5,           # control dot size
+              col = "black", # outline
+              bg = "black",      # dot fill color
+              pcutoff = NULL,
+              xticks = FALSE,
+              # ylim = c(0, 20)
+              )
 
-par(oldpar)      # IMPORTANT: restore original par()
 dev.off()
 
 
-#------- Our isoformQTLs
-qtl <- fread("Pantry/pheast_no_outlier/output/vestibular/qtl/isoforms.cis_qtl.txt.gz")  # change to your file
-qtl <- fread("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/isoforms.cis_qtl_all_signif.txt.gz")  # change to your file
-dim(qtl)
-head(qtl)
-View(qtl[1:10, ])
-names(qtl)
+###-------------------------- Gene track
+pdf("figures/locuszoom_qtls_gene_track.pdf",
+    width = 8, height = 2)
 
-
+genetracks(loc_meta_isoform,
+            highlight = "ZNF91",
+            filter_gene_biotype = "protein_coding",
+            
+            )
+dev.off()
 
 
 ###-------------------------- Isoform
 library(arrow)
+library(tidyr)
+
 qtl_isoform <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/isoforms/vestibular_isoforms.cis_qtl_pairs.19.parquet")
 dim(qtl_isoform)
-View(qtl_isoform[1:10, ])
 head(qtl_isoform)
 
 
 # Check if our TWAS top SNP is present
 which(qtl_isoform$variant_id == "19_23307401_A_G")
-# Not present in isoform QTLs
 
 
-library(tidyr)
 qtl_cln_isoform <- qtl_isoform %>%
   # select(SNP = variant_id, beta = slope, se = slope_se, p = qval) %>%
   select(SNP = variant_id, beta = slope, se = slope_se, p = pval_nominal) %>%
@@ -195,6 +192,20 @@ summary(loc_meta_isoform)
 pdf("figures/locuszoom_isoform.pdf",
     width = 8, height = 2)
 
+scatter_plot(loc_meta_isoform,
+              labels = c("rs167154"),
+              ylab = expression(-log[10]~pvalue),
+              cex = 0.5,           # control dot size
+              col = "#377eb8", # outline
+              bg = "#377eb8",      # dot fill color
+              pcutoff = NULL,
+              xticks = FALSE,
+              ylim = c(0, 8)
+              )
+
+dev.off()
+
+
 # locus_plot(
 #   loc_meta_isoform,
 #   labels = c("rs167154"),
@@ -213,32 +224,7 @@ pdf("figures/locuszoom_isoform.pdf",
 # )
 
 
-scatter_plot(loc_meta_isoform,
-              labels = c("rs167154"),
-              ylab = expression(-log[10]~pvalue),
-              cex = 0.5,           # control dot size
-              col = "#377eb8", # outline
-              bg = "#377eb8",      # dot fill color
-              pcutoff = NULL,
-              xticks = FALSE
-              )
-
-
-dev.off()
-
-pdf("figures/locuszoom_qtls_gene_track.pdf",
-    width = 8, height = 2)
-
-genetracks(loc_meta_isoform,
-            highlight = "ZNF91",
-            filter_gene_biotype = "protein_coding",
-            
-            )
-dev.off()
-
-
 ###-------------------------- expression
-library(arrow)
 qtl_expr <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/expression/vestibular_expression.cis_qtl_pairs.19.parquet")
 dim(qtl_expr)
 View(qtl_expr[1:10, ])
@@ -285,6 +271,21 @@ summary(loc_meta_expr)
 pdf("figures/locuszoom_expression.pdf",
     width = 8, height = 2)
 
+
+# Alternative: scatter plot without gene tracks
+scatter_plot(loc_meta_expr,
+              # labels = c("rs167154"),
+              ylab = expression(-log[10]~pvalue),
+              cex = 0.5,           # control dot size
+              col = "#e41a1c", # outline
+              bg = "#e41a1c",      # dot fill color
+              pcutoff = NULL,
+              xticks = FALSE,
+              ylim = c(0, 8)
+              )
+
+dev.off()
+
 # locus_plot(
 #   loc_meta_expr,
 #   # labels = c("rs167154"),
@@ -302,23 +303,8 @@ pdf("figures/locuszoom_expression.pdf",
 #   # maxrows = 0,
 # )
 
-# Alternative: scatter plot without gene tracks
-scatter_plot(loc_meta_expr,
-              # labels = c("rs167154"),
-              ylab = expression(-log[10]~pvalue),
-              cex = 0.5,           # control dot size
-              col = "#e41a1c", # outline
-              bg = "#e41a1c",      # dot fill color
-              pcutoff = NULL,
-              xticks = FALSE
-              )
-
-
-dev.off()
-
 
 ###-------------------------- alternative polyA QTLs
-library(arrow)
 qtl_alt_polyA <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/alt_polyA/vestibular_alt_polyA.cis_qtl_pairs.19.parquet")
 dim(qtl_alt_polyA)
 View(qtl_alt_polyA[1:10, ])
@@ -373,9 +359,11 @@ scatter_plot(loc_meta_alt_polyA,
               col = "#ff7f00", # outline
               bg = "#ff7f00",      # dot fill color
               pcutoff = NULL,
-              xticks = FALSE
+              xticks = FALSE,
+              ylim = c(0, 8)
               )
 
+dev.off()
 
 # locus_plot(
 #   loc_meta_alt_polyA,
@@ -389,12 +377,8 @@ scatter_plot(loc_meta_alt_polyA,
 #   bg = "#ff7f00",      # dot fill color
 # )
 
-dev.off()
-
-
 
 ###-------------------------- alternative TSS QTLs
-library(arrow)
 qtl_alt_TSS <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/alt_TSS/vestibular_alt_TSS.cis_qtl_pairs.19.parquet")
 dim(qtl_alt_TSS)
 View(qtl_alt_TSS[1:10, ])
@@ -450,8 +434,10 @@ scatter_plot(loc_meta_alt_TSS,
               bg = "#984ea3",      # dot fill color
               pcutoff = NULL,
               xticks = FALSE,
+              ylim = c(0, 8)
               )
 
+dev.off()
 
 # locus_plot(
 #   loc_meta_alt_TSS,
@@ -465,12 +451,9 @@ scatter_plot(loc_meta_alt_TSS,
 #   bg = "#984ea3",      # dot fill color
 # )
 
-dev.off()
-
 
 
 ###-------------------------- RNA editing QTLs
-library(arrow)
 qtl_rna_editing <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/RNA_editing/vestibular_RNA_editing.cis_qtl_pairs.19.parquet")
 dim(qtl_rna_editing)
 View(qtl_rna_editing[1:10, ])
@@ -526,8 +509,10 @@ scatter_plot(loc_meta_rna_editing,
               bg = "#984210",      # dot fill color
               pcutoff = NULL,
               xticks = FALSE,
+              ylim = c(0, 8)
               )
 
+dev.off()
 
 # locus_plot(
 #   loc_meta_rna_editing,
@@ -541,13 +526,9 @@ scatter_plot(loc_meta_rna_editing,
 #   bg = "#984210",      # dot fill color
 # )
 
-dev.off()
-
-
 
 
 ###-------------------------- splicing QTLs
-library(arrow)
 qtl_splicing <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/splicing/vestibular_splicing.cis_qtl_pairs.19.parquet")
 dim(qtl_splicing)
 View(qtl_splicing[1:10, ])
@@ -556,7 +537,7 @@ View(qtl_splicing[1:10, ])
 # Check if our TWAS top SNP is present
 which(qtl_splicing$variant_id == "19_23307401_A_G")
 
-library(tidyr)
+
 qtl_cln_splicing <- qtl_splicing %>%
   # select(SNP = variant_id, beta = slope, se = slope_se, p = qval) %>%
   select(SNP = variant_id, beta = slope, se = slope_se, p = pval_nominal) %>%
@@ -603,8 +584,10 @@ scatter_plot(loc_meta_splicing,
               bg = "#4daf4a",      # dot fill color
               pcutoff = NULL,
               xticks = FALSE,
+              ylim = c(0, 8)
               )
 
+dev.off()
 
 # locus_plot(
 #   loc_meta_splicing,
@@ -618,12 +601,9 @@ scatter_plot(loc_meta_splicing,
 #   bg = "#4daf4a",      # dot fill color
 # )
 
-dev.off()
-
 
 
 ###-------------------------- stability QTLs
-library(arrow)
 qtl_stability <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/stability/vestibular_stability.cis_qtl_pairs.19.parquet")
 dim(qtl_stability)
 View(qtl_stability[1:10, ])
@@ -679,7 +659,10 @@ scatter_plot(loc_meta_stability,
               bg = "#fdc11c",      # dot fill color
               pcutoff = NULL,
               xticks = FALSE,
+              ylim = c(0, 8)
               )
+
+dev.off()
 
 
 # locus_plot(
@@ -694,7 +677,6 @@ scatter_plot(loc_meta_stability,
 #   bg = "#fdc11c",      # dot fill color
 # )
 
-dev.off()
 
 
 
@@ -711,10 +693,7 @@ dev.off()
 
 
 
-
-
-
-
+#########################
 
 # SNP from TWAS
 # 19_23307401_A_G, rs167154
@@ -849,3 +828,39 @@ chr1 <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/exp
 dim(chr1)
 View(chr1[1:10, ])
 head(chr1)
+
+
+
+
+# Overlay GWAS and eQTL plot
+png("figures/locuszoom_gwas_gtex_eqtl_Brain_Cortex.png",
+    width = 12, height = 10, units = "in", res = 300)
+
+# overlay eqtl plot
+overlay_plot(loc_meta_ld_recom_eqtls, tissue = "Brain - Cortex",  eqtl_gene = "ZNF91",
+          labels = c("index", "rs167154", "rs428549"),
+          label_x = c(2, -5),
+          highlight = "ZNF91",
+          # gene_col = 'grey',
+          # exon_col = 'orange',
+          # exon_border = 'darkgrey'
+          )
+dev.off()
+
+###------
+
+
+### Stacked plots butt not working with overlay_plot 
+pdf("figures/myplot_test.pdf", width = 6, height = 8)
+oldpar <- set_layers(2)  # number of stacked panels
+scatter_plot(loc_meta_ld_recom_eqtls, xticks = FALSE,
+          labels = c("index", "rs167154", "rs428549"),
+          label_x = c(2, -5))
+
+line_plot(loc_meta_ld_recom_eqtls, col = "orange", xticks = FALSE)
+
+genetracks(loc_meta_ld_recom_eqtls,
+          highlight = c("ZNF724", "ZNF91", "ZNF675"))  # automatically goes to bottom track
+
+par(oldpar)      # IMPORTANT: restore original par()
+dev.off()
