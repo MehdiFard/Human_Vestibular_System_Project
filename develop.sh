@@ -402,7 +402,7 @@ rsync -avz --partial --progress \
 
 
 # From remote to local - run on local
-FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/fine_mapping/results/susie_results_balance_UKB_EUR_chr19_23.18M-23.65M.tsv"
+FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/znf91_expression_vs_age_vestibular.png"
 rsync -avz --progress \
         sesmae@login-2.hpc.childrens.sea.kids:$FILE .
         
