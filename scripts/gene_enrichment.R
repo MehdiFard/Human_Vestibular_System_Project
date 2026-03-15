@@ -1,3 +1,5 @@
+### Gene enrichment analysis for the vestibular high expressed genes across all GTEx tissues
+
 rm(list = ls())
 
 library(clusterProfiler)
@@ -47,6 +49,9 @@ go_bp  <- enrichGO(
 BP <- as.data.frame(go_bp)
 View(BP)
 
+# Save output
+fwrite(BP, "figures/data_tables/enrichment_BP.tsv", row.names = F, quote = F, sep = "\t")
+
 # Plotting
 dotplot(go_bp, showCategory = 23)
 barplot(go_bp, showCategory = 23)
@@ -61,6 +66,8 @@ bp_plot <- BP %>%
     Description = factor(Description, levels = rev(Description)),
     GeneRatio_num = Count / as.numeric(sub(".*/", "", GeneRatio))
   )
+View(bp_plot)
+
 
 ggplot(bp_plot, aes(x = GeneRatio_num, y = Description)) +
   geom_point(aes(size = Count, color = -log10(p.adjust))) +
@@ -82,20 +89,21 @@ ggplot(bp_plot, aes(x = GeneRatio_num, y = Description)) +
     # legend.key.size = unit(0.4, "cm")
   ) +
   scale_size_continuous(
-  name = "Gene count",
-  guide = guide_legend(keyheight = unit(0.4, "cm"),
-                        keywidth  = unit(0.4, "cm"))
+    name = "Gene count",
+    breaks = c(5, 10, 15, 20, 25, 30),
+    guide = guide_legend(keyheight = unit(0.4, "cm"),
+                          keywidth  = unit(0.4, "cm"))
 )
 
 # Save
 ggsave(
-  "figures/GO_BP_enrichment.pdf",
-  width = 6,
-  height = 6
+  "figures/enrichment_GO_BP.pdf",
+  width = 5,
+  height = 5
 )
 
 
-# GO Biological Process
+# GO Molecular Function
 go_mf  <- enrichGO(
   gene          = genes_sig,
   universe      = genes_back,
@@ -112,7 +120,7 @@ MF <- as.data.frame(go_mf)
 View(MF)
 
 
-# GO Biological Process
+# GO Cellular Component
 go_cc  <- enrichGO(
   gene          = genes_sig,
   universe      = genes_back,
@@ -162,35 +170,15 @@ ekegg <- enrichKEGG(
 )
 
 kegg <- as.data.frame(ekegg)
-View(kegg)
+
 
 
 
 ### From cytoscape
 gsea_cyto <- fread("src/new_enrichment_all_databases.csv")
-head(gsea_cyto[, -c(4,7,9,11,14)])
-View(gsea_cyto)
+fwrite(gsea_cyto, "figures/data_tables/enrichment_cytoscape.tsv", row.names = F, quote = F, sep = "\t")
 
-
-
-gsea_plot <- as.data.frame(gsea_cyto) %>%
-  dplyr::rename(
-    bg_genes = `background genes`,
-    gene_count = genes,
-    category_name = category,
-    term = description,
-    FDR = `FDR value`,
-    pval = `p-value`
-  ) %>%
-  dplyr::filter(category_name == "GO Biological Process") %>%
-  dplyr::filter(FDR < 0.05) %>%
-  dplyr::arrange(FDR) %>%
-  dplyr::slice_head(n = 15) %>%
-  dplyr::mutate(
-    term = factor(term, levels = rev(term))
-  )
-
-
+# Filter
 gsea_plot <- as.data.frame(gsea_cyto) %>%
   dplyr::rename(
     bg_genes = `background genes`,
@@ -213,26 +201,50 @@ gsea_plot <- as.data.frame(gsea_cyto) %>%
   ) %>%
   dplyr::filter(FDR < 0.05) %>%
   dplyr::arrange(FDR) %>%
-  dplyr::slice_head(n = 15) %>%
+  # dplyr::slice_head(n = 15) %>%
   dplyr::mutate(
-    term = factor(term, levels = rev(unique(term)))
+    term = factor(term, levels = rev(unique(term))),
+    category_name = sub(" .*", "", category_name),
+    term_category = paste0(term, " (", category_name, ")"),
+    gene_ratio = gene_count / bg_genes
   )
 
-View(gsea_plot)
 
-ggplot(gsea_plot, aes(x = gene_count, y = term)) +
+# plot
+ggplot(gsea_plot, aes(x = gene_ratio, y = term_category)) +
   geom_point(aes(size = gene_count, color = -log10(FDR))) +
-  scale_color_viridis_c(name = "-log10(FDR)") +
-  scale_size_continuous(name = "Gene count") +
+  scale_color_viridis_c(
+    name = "-log10(adj. p)",
+    # option = "magma",
+    guide = guide_colorbar(order = 2)
+  ) +
+  scale_size_continuous(
+    name = "Gene count",
+    breaks = c(5, 10, 15, 20, 25, 30),
+    guide = guide_legend(
+      order = 1,
+      keyheight = unit(0.3, "cm"),
+      keywidth  = unit(0.3, "cm")
+    )
+  ) +
   theme_bw() +
   labs(
-    x = "Gene count",
+    x = "Gene Ratio",
     y = NULL
   ) +
   theme(
-    axis.text.y = element_text(size = 8),
-    axis.text.x = element_text(size = 9),
+    axis.text.y = element_text(size = 6),
+    axis.text.x = element_text(size = 10),
     axis.title.x = element_text(size = 10),
-    legend.title = element_text(size = 9),
+    legend.title = element_text(size = 8),
     legend.text = element_text(size = 8)
   )
+
+# Save
+ggsave(
+  "figures/enrichment_Uniprot_and_other.pdf",
+  width = 5,
+  height = 5
+)
+
+### END
