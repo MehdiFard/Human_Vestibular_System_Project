@@ -1189,84 +1189,54 @@ head(mata_date)
 length(unique(mata_date$human_id))
 
 expr_znf91_age <- merge(mata_date[, -1], expr_znf91, by = "human_id")
+expr_znf91_age$ZNF91 <- as.numeric(expr_znf91_age$ZNF91)
+
 head(expr_znf91_age)
+expr_znf91_age <- expr_znf91_age[order(expr_znf91_age$ZNF91, decreasing = TRUE), ]
 
-# Linear regression to see if ZNF91 expression is associated with age, adjusting for sex
-fit_adj <- lm(
-  as.numeric(ZNF91) ~ age + sex,
-  data = expr_znf91_age
-)
-summary(fit_adj)
+# Fit linear regression: ZNF91 ~ age
+lm_znf91 <- lm(as.numeric(ZNF91) ~ age, data = expr_znf91_age)
+lm_sum   <- summary(lm_znf91)
+lm_beta  <- round(coef(lm_znf91)["age"], 4)
+lm_pval  <- round(coef(lm_sum)["age", "Pr(>|t|)"], 4)
+lm_r2    <- round(lm_sum$r.squared, 3)
+lm_label <- paste0("beta = ", lm_beta, "\np = ", lm_pval, "\nR2 = ", lm_r2)
 
+# > lm_label
+# [1] "β = -0.2289\np = 0.2083\nR² = 0.015"
+
+# [1] "β = -0.0991\np = 0.4853\nR² = 0.005"
 
 # Plot ZNF91 expression vs age
-ggplot(expr_znf91_age, aes(x = age, y = as.numeric(ZNF91))) +
-  geom_point(color = "blue", size = 2, alpha = 0.7) +
+ggplot(expr_znf91_age, aes(x = age, y = as.numeric(ZNF91))) + # [-1, ]
+  geom_point(color = "deepskyblue4", size = 1, alpha = 0.7) +
   geom_smooth(method = "lm", color = "red", se = TRUE) +
+  annotate("text", x = Inf, y = Inf, label = lm_label,
+            hjust = 1.1, vjust = 1.5, size = 2.5, color = "black") +
   labs(
     title = "ZNF91 Expression vs Age in Vestibular Samples",
     x = "Age",
     y = "ZNF91 Expression (tpm)"
   ) +
-  theme_classic()
-
-
-library(ggplot2)
-
-# Fit model
-fit <- lm(as.numeric(ZNF91) ~ age, data = expr_znf91_age)
-beta <- summary(fit)$coefficients["age", "Estimate"]
-pval <- summary(fit)$coefficients["age", "Pr(>|t|)"]
-r2   <- summary(fit)$r.squared
-
-ggplot(expr_znf91_age,
-        aes(x = age, y = as.numeric(ZNF91))) +
-  geom_point(
-    size = 2,
-    alpha = 0.6,
-    color = "deepskyblue4"
-  ) +
-  geom_smooth(
-    method = "lm",
-    se = TRUE,
-    color = "red",
-    fill = "grey85",
-    linewidth = 0.8
-  ) +
-  annotate(
-    "text",
-    x = Inf, y = Inf,
-    hjust = 1.1, vjust = 1.2,
-    label = paste0(
-      "β = ", round(beta, 3),
-      "\nP = ", signif(pval, 2),
-      "\nR² = ", round(r2, 3)
-    ),
-    size = 4
-  ) +
-  labs(
-    # x = "Age (years)",
-    x = expression(italic("Age (years)")),
-    y = expression(italic("ZNF91 expression (TPM)")~)
-  ) +
-  theme_classic(base_size = 14) +
+  theme_classic() +
   theme(
-    plot.title = element_text(hjust = 0.5),
-    axis.title = element_text(face = "bold")
+    axis.title = element_text(size = 8),
+    axis.text  = element_text(size = 8),
+    plot.title = element_blank(),
   )
-
 
 ggsave(
   last_plot(),
-  filename = "figures/znf91_expression_vs_age_vestibular.png",
-  width = 9,
-  height = 7.5,
+  filename = "figures/znf91_expression_vs_age_vestibular.pdf",
+  units = "mm",
+  width = 80,
+  height = 80,
   dpi = 300
 )
 
 # Plot ZNF91 expression vs sex
 ggplot(expr_znf91_age, aes(x = sex, y = as.numeric(ZNF91))) +
-  geom_point(color = "blue", size = 2, alpha = 0.7) +
+  geom_point(color = "deepskyblue4", size = 2, alpha = 0.7) +
   geom_smooth(method = "lm", color = "red", se = TRUE) +
   labs(
     title = "ZNF91 Expression vs Sex in Vestibular Samples",
@@ -1365,13 +1335,31 @@ table(isoform_expr_cln$sample %in% geno_df$sample) #
 
 # Merge
 isoform_expr_geno <- merge(geno_df, isoform_expr_cln, by = "sample")
+class(isoform_expr_geno)
 View(isoform_expr_geno)
+head(isoform_expr_geno)
 
 
+names(isoform_expr_geno)[4] <- "ENST00000300619"
+names(isoform_expr_geno)
 
-/data/hps/assoc/private/gdml/user/dmunro/pantry/pheast/KDNCTX/output/qtl/expression.cis_independent_qtl.txt.gz
 
-library(data.table)
-df <- fread("/data/hps/assoc/private/gdml/user/dmunro/pantry/pheast/KDNCTX/output/qtl/expression.cis_independent_qtl.txt.gz")
-View(df[1:10, ])
+ggplot(isoform_expr_geno, aes(x = genotype, y = as.numeric(ENST00000300619), fill = genotype)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.1, position = position_dodge(0.9), outlier.shape = NA) +
+  labs(
+    title = "ENST00000300619 Expression vs Genotype at 19_23307401_A_G",
+    x = "genotype",
+    y = "ENST00000300619 Expression (tpm)"
+  ) +
+  theme_classic() +
+  theme(legend.position = "none") 
+
+ggsave(
+  last_plot(),
+  filename = "figures/znf91_expression_vs_sex_vestibular.png",
+  width = 9,
+  height = 7.5,
+  dpi = 300
+)
 

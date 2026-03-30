@@ -269,6 +269,7 @@ dge <- DGEList(counts = counts) # Build DGEList object
 dge <- calcNormFactors(dge, method = "TMM") # Compute TMM normalization factors
 logCPM <- cpm(dge, log = TRUE, prior.count = 1) # Get normalized log2 CPM matrix
 save(logCPM, file = "figures/data_tables/gtex_vest_logCPM_normalized_vestib_gtex_same_pipeline.RData") # Save normalized logCPM matrix
+logCPM <- load("figures/data_tables/gtex_vest_logCPM_normalized_vestib_gtex_same_pipeline.RData") # Load it back when needed
 
 # Second round of filtering: Filter by SD or select top genes before PCA (using matrixStats library)
 row_sd <- rowSds(logCPM)

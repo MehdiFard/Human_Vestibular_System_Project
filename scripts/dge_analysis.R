@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
+### DGE analysis for  utricle vs saccule
 
 rm(list = ls())
-getwd()
 
 # Load packages
 suppressMessages({
@@ -35,7 +35,6 @@ genes_protien_lncRNA <- gtf %>%
 
 # Read Saccule 
 saccule_expr_count <- fread("Pantry/phenotyping/output/saccule/unnorm/expression_count.bed")[, -1:-3]
-saccule_expr_count[1:4, 1:4]
 sac_name <- names(saccule_expr_count) [-1]
 names(saccule_expr_count)[-1] <- paste0(names(saccule_expr_count)[-1], "_sac") # Add tissue suffix
 
@@ -57,20 +56,8 @@ meta <- fread("src/metadata_rna.tsv")[, c("human_id", "tissue", "age", "sex", "b
 meta_sac_utr_unique <- unique(meta, by = "human_id")
 meta_sac_utr_unique$human_id <- as.character(meta_sac_utr_unique$human_id)
 
-
-# Counts matrix (genes x samples)
-counts = sac_utr_expr_count
-counts[1:3,1:3]
-# stopifnot("gene_id" %in% names(counts))
-# samples <- setdiff(names(counts), "gene_id")
-# count_mtx <- as.matrix(counts[, ..samples]) # To matrix
-# rownames(count_mtx) <- counts$gene_id
-# count_mtx[1:5,1:5]
-
-
 # Identify paired subjects
 paired_subjects <- intersect(sac_name, utr_name)
-length(paired_subjects)
 
 # Keep only columns for paired subjects
 counts = sac_utr_expr_count
@@ -85,7 +72,7 @@ length(keep_cols)   # should be 74*2 = 148 samples
 count_mtx_paired <- as.matrix(counts[, ..keep_cols])
 rownames(count_mtx_paired) <- counts$gene_id
 count_mtx_paired <- round(count_mtx_paired)
-count_mtx_paired[1:3,1:3]
+
 
 # Build accurate sample_info (colData)
 sample_info_extratc <- data.frame(
@@ -108,61 +95,46 @@ rownames(sample_info) <- sample_info$sample
 all(rownames(sample_info) == colnames(count_mtx_paired))
 
 
-# Standard deviation for each gene across samples
-gene_sd <- matrixStats::rowSds(count_mtx_paired)
-sd_cutoff <- quantile(gene_sd, 0.25) # 25th percentile cutoff
-# summary(gene_sd)
-# hist(gene_sd)
-sd_cutoff # example: maybe ~ 5–20 depending on counts
-keep_sd <- gene_sd >= sd_cutoff
-count_mtx_filtered <- count_mtx_paired[keep_sd, ]
-dim(count_mtx_filtered)
-count_mtx_filtered[1:5, 1:5]
+# Make sure sample_info matches count matrix columns
+# sample_info$human_id <- factor(sample_info$human_id)
+sample_info$tissue   <- factor(sample_info$tissue)
+sample_info$batch    <- factor(sample_info$batch)
 
-# Build DESeq2 object with paired design
-design = ~ batch + tissue # human_id
+# Optional: check order
+stopifnot(all(colnames(count_mtx_paired) == rownames(sample_info)))
 
-sample_info$human_id <- as.factor(sample_info$human_id)
-sample_info$tissue <- as.factor(sample_info$tissue)
-sample_info$batch <- as.factor(sample_info$batch)
-head(sample_info)
+# Filter low-count genes before building DESeq2 object
+# Keep genes with count >= 10 in at least 10 samples
+keep <- rowSums(count_mtx_paired >= 10) >= 10
+count_mtx_filtered <- count_mtx_paired[keep, ]
 
+# Build DESeq2 object
 dds <- DESeqDataSetFromMatrix(
-    countData = count_mtx_filtered,
-    colData = sample_info,
-    design = ~ batch + tissue
+  countData = round(count_mtx_filtered),
+  colData   = sample_info,
+  design    = ~ batch + tissue
 )
-# batch + 
-colData(dds)
-counts(dds)[1:3]
 
-
-# Filter low-count genes
-keep <- rowSums(counts(dds) >= 10) >= 3
-dds  <- dds[keep, ]
-dds
-
-
+### Run DESeq2 with parallel processing
 library(BiocParallel)
-register(MulticoreParam(32)) # or
+register(MulticoreParam(16)) # or
 # register(SerialParam())  # important
 dea_obj_batch_fitted <- DESeq(dds, parallel = TRUE)
-saveRDS(dea_obj_batch_fitted, "Pantry/phenotyping/intermediate/vestibular/dea_obj_batch_fitted_afterDESeq.rds")
-dea_obj_batch_fitted = readRDS("Pantry/phenotyping/intermediate/vestibular/dea_obj_batch_fitted_afterDESeq.rds")
+saveRDS(dea_obj_batch_fitted, "figures/data_tables/DEA_obj_DESeq_normalized.rds")
+dea_obj_batch_fitted = readRDS("figures/data_tables/DEA_obj_DESeq_normalized.rds")
 
 # Extract results: utricle vs saccule
 resultsNames(dea_obj_batch_fitted)
 res <- results(dea_obj_batch_fitted, contrast = c("tissue", "utricle", "saccule"))
-View(res)
 
+# Save results to a data frame and write to TSV
 res_df <- as.data.frame(res)
 res_df$gene_id <- rownames(res_df)
 res_df <- res_df[!is.na(res_df$padj), ]
 res_df <- res_df[order(res_df$padj), ]
-dim(res_df)
-head(res_df)
-write_tsv(res_df[, c(7, 1:6)], "Pantry/phenotyping/intermediate/vestibular/deg_res.tsv")
+write_tsv(res_df[, c(7, 1:6)], "figures/data_tables/DEA_result_vestibular.tsv")
 
+# Filter significant DEGs (padj < 0.05 and |log2FC| >= 1)
 results_utr_vs_sac_signif <- res_df %>%
   filter(padj < 0.05) %>%
   filter(log2FoldChange >= 1 | log2FoldChange <= -1) %>%
@@ -170,76 +142,53 @@ results_utr_vs_sac_signif <- res_df %>%
   # mutate(tissue = rep("saccule",dim(.)[1])) %>%
   mutate(comparision = rep("utr_vs_sac",dim(.)[1])) %>%
   dplyr::select(gene_id, comparision, log2FoldChange, padj, up_down)
-dim(results_utr_vs_sac_signif)
-
-# # Optional shrink:
-# library(apeglm)
-# res_shrink <- lfcShrink(
-#   dds,
-#   coef = "tissue_utricle_vs_saccule",
-#   type = "apeglm"
-# )
 
 
-# Volcano plot (clean version)
-library(ggplot2)
-library(dplyr)
-
-volcano_df <- res_df %>%
-  mutate(
-    neglog10_padj = -log10(padj),
-    sig = case_when(
-      padj < 0.05 & log2FoldChange > 1  ~ "Up in utricle",
-      padj < 0.05 & log2FoldChange < -1 ~ "Up in saccule",
-      TRUE ~ "Not significant"
-    )
-  )
-
-ggplot(volcano_df, aes(log2FoldChange, neglog10_padj, color = sig)) +
-  geom_point(alpha = 0.7, size = 1.2) +
-  scale_color_manual(values = c(
-    "Up in utricle" = "red",
-    "Up in saccule" = "blue",
-    "Not significant" = "grey"
-  )) +
-  theme_bw() +
-  xlab("log2 Fold Change (utricle vs saccule)") +
-  ylab("-log10 adjusted p-value") +
-  ggtitle("Volcano plot: Paired DE between utricle and saccule")
-
-
-
-### END
-
-head(res_df)
-
-# Visualizing - Volcano plots (https://biocorecrg.github.io/CRG_RIntroduction/volcano-plots.html)
-library(ggrepel)
-library(ggplot2)
+### Visualizing
+# Volcano plots (https://biocorecrg.github.io/CRG_RIntroduction/volcano-plots.html)
 
 DegResUtrVsSac <- data.frame(gene_symbol = res_df$gene_id, log2FoldChange = res_df$log2FoldChange, pvalue_adj = res_df$padj)
 # add a column of NAs
 DegResUtrVsSac$Annotation <- "NO"
-# if log2Foldchange > 1 and pvalue_adj < 0.05, set as "UP" 
-DegResUtrVsSac$Annotation[DegResUtrVsSac$log2FoldChange > 1 & DegResUtrVsSac$pvalue_adj < 0.05] <- "UP"
-# if log2Foldchange < -1 and pvalue_adj < 0.05, set as "DOWN"
-DegResUtrVsSac$Annotation[DegResUtrVsSac$log2FoldChange < -1 & DegResUtrVsSac$pvalue_adj < 0.05] <- "DOWN"
+# if log2Foldchange > 2 and pvalue_adj < 0.05, set as "UP" 
+DegResUtrVsSac$Annotation[DegResUtrVsSac$log2FoldChange > 2 & DegResUtrVsSac$pvalue_adj < 0.05] <- "UP"
+# if log2Foldchange < -2 and pvalue_adj < 0.05, set as "DOWN"
+DegResUtrVsSac$Annotation[DegResUtrVsSac$log2FoldChange < -2 & DegResUtrVsSac$pvalue_adj < 0.05] <- "DOWN"
 
 # plot and color the points with "Annotation"
 mycolors <- c("blue", "red", "black")
 names(mycolors) <- c("DOWN", "UP", "NO")
 
+# Filter out rows with NA in pvalue_adj
 DegResUtrVsSac_clean <- DegResUtrVsSac[!is.na(DegResUtrVsSac$pvalue_adj), ]
 
+# Volcano plot
 p <- ggplot(data=DegResUtrVsSac_clean) +
-    geom_point(aes(x=log2FoldChange, y=-log10(pvalue_adj), col=Annotation)) +
+    geom_point(aes(x=log2FoldChange, y=-log10(pvalue_adj)), color = "deepskyblue4") + # , col=Annotation
     theme_minimal() +
-    labs(title = "Utricle vs Saccule - Human") +
-    geom_vline(xintercept=c(-1, 1), col="red") +
-    geom_hline(yintercept=-log10(0.05), col="red") +
+    # labs(title = "Utricle vs Saccule") +
+    xlab(expression(log[2]("FC"))) +
+    ylab(expression(-log[10]*"pvalue")) +
+    scale_x_continuous(limits = c(-4, 4), breaks = c(-4, -2, 0, 2, 4)) +
+    scale_y_continuous(limits = c(0, 4)) +
+    geom_vline(xintercept = c(-2, 2), color = "grey50", linetype = "dashed", linewidth = 0.4) +
+    geom_hline(yintercept = -log10(0.05), color = "grey50", linetype = "dashed", linewidth = 0.4) +
     theme_classic() +
-    scale_colour_manual(values = mycolors); p
+    # scale_colour_manual(values = mycolors) +
+    theme(legend.position = "none",
+    axis.title = element_text(size = 8),
+    axis.text = element_text(size = 6)
+    ); p
 
-# vol_plots = grid.arrange(p3_saccule, p3_utricle, ncol = 2); vol_plots
-ggsave(filename = "VolcanoPlot_utricle_vs_saccule_batch_fitted.jpeg", plot = p,
-        path = "figures/", dpi = 300)
+# Save the plot
+ggsave(filename = "VolcanoPlot_utricle_vs_saccule_batch_corrected.pdf",
+        plot = p,
+        units = "mm",
+        width = 80,
+        height = 80,
+        path = "figures/",
+        dpi = 300)
+
+
+### END
+

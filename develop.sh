@@ -1,6 +1,27 @@
 #!/bin/bash
+
+# $ sacctmgr show assoc user=$USER format=User,Account,Partition
+#       User    Account  Partition 
+# ---------- ---------- ---------- 
+#     sesmae       core         cpu-core 
+#     sesmae       core         cpu-test 
+#     sesmae       core         gpu-core 
+#     sesmae       core         gpu-test 
+#     sesmae       cpu-gdml-+   cpu-gdml-+ 
+#     sesmae       gdml         cpu-core 
+#     sesmae       gdml         cpu-gdml 
+#     sesmae       gdml         cpu-pwb 
+#     sesmae       gdml         cpu-pwb_s+ 
+#     sesmae       gdml         gpu-core 
+#     sesmae       gdml         gpu-gdml 
+#     sesmae       gdml         gpu-pwb 
+#     sesmae       gpu-gdml-+   gpu-gdml-+ 
+
 # sesmae@login-2.hpc.childrens.sea.kids
-srun -p cpu-gdml-investor -N 1 -n 1 -c 24 --mem=128g --time=8:00:00 -A cpu-gdml-investor --pty bash -i
+# srun -p cpu-gdml-investor -N 1 -n 1 -c 16 --mem=64g --time=8:00:00 -A cpu-gdml-investor --pty bash -i
+srun -p cpu-gdml -N 1 -n 1 -c 16 --mem=64g --time=8:00:00 -A gdml --pty bash -i
+srun -p cpu-core -N 1 -n 1 -c 16 --mem=64g --time=8:00:00 -A core --pty bash -i
+
 mamba activate Env1
 
 
@@ -399,10 +420,8 @@ rsync -avz --partial --progress \
         sesmae@login-2.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/data/gwas_raw_sumstats/Royce_files/
 
 
-
-
 # From remote to local - run on local
-FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/data_tables/enrichment_*.tsv"
+FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/VolcanoPlot_utricle_vs_saccule_batch_corrected.pdf"
 rsync -avz --progress \
         sesmae@login-2.hpc.childrens.sea.kids:$FILE .
         

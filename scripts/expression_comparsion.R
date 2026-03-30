@@ -393,10 +393,9 @@ plot_gene_bar <- function(gene, dt_filtered, gtex_palette) {
     )
 }
 
+
 # Plot
 p = plot_gene_bar("ENSG00000167232", dt_filtered, gtex_palette); p
-p
-
 
 
 plot_gene_bar <- function(gene, gene_symbol, dt_filtered, gtex_palette) {
@@ -422,6 +421,11 @@ plot_gene_bar <- function(gene, gene_symbol, dt_filtered, gtex_palette) {
             title = paste0(gene, " (", gene_symbol, ")"),
             x = NULL,
             y = "log2(median TPM)"
+        ) +
+        theme(
+            axis.title = element_text(size = 6),
+            axis.text = element_text(size = 4),
+            plot.title = element_text(size = 6)
         )
 }
 
@@ -433,14 +437,14 @@ p <- plot_gene_bar(
     gtex_palette
 )
 
-p
 # Save the plot
 ggsave(
-    filename = "figures/expr_across_gtex_ENSG00000167232.png",
+    filename = "figures/expr_across_gtex_ENSG00000167232.pdf",
     plot = p,
-    width = 8,
-    height = 6.4,
-    dpi = 100
+    units = "mm",
+    width = 90,
+    height = 80,
+    dpi = 300
 )
 
 

@@ -13,14 +13,20 @@ library(qqman)
 gwas_hg38 <- fread("gwas_sumstats_prep/formatted_sumstats/balance_meta1_formatted_hg38_ChrPosId.tsv.gz")
 gwas_cln_hg38 <- gwas_hg38 %>%
     select(CHR = CHR, BP = BP, P = P, SNP = SNP) %>%
-    filter(P < 1e-2) %>%
+    filter(CHR %in% 1:22) %>%
+    filter(P < 0.01) %>%
     mutate(CHR = as.integer(CHR))
+dim(gwas_cln_hg38)
+unique(gwas_cln_hg38$CHR)
 
 # Threshold
 fdr_threshold <- 0.05/dim(gwas_hg38)[1]
 
 # Manhattan plot
-pdf("figures/man_plot_meta_balance_hg38.pdf", height = 6, width = 10)
+w_mm <- 188
+h_mm <- 94
+
+pdf("figures/man_plot_meta_balance_hg38.pdf", height = h_mm/25.4, width = w_mm/25.4) # 4H * 8W
 
 manhattan(
     gwas_cln_hg38, # subset for plotting
@@ -30,7 +36,7 @@ manhattan(
     snp = "SNP",
     col = c("gray60", "lightpink3"),
     genomewideline = -log10(fdr_threshold), # -log10(5e-8),
-    suggestiveline = -log10(1e-5)
+    suggestiveline = FALSE # -log10(1e-5)
 )
 
 dev.off()
