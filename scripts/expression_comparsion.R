@@ -397,7 +397,7 @@ plot_gene_bar <- function(gene, dt_filtered, gtex_palette) {
 # Plot
 p = plot_gene_bar("ENSG00000167232", dt_filtered, gtex_palette); p
 
-
+# Function for ploting with gene symbol
 plot_gene_bar <- function(gene, gene_symbol, dt_filtered, gtex_palette) {
 
     x <- dt_filtered[gene_id == gene]

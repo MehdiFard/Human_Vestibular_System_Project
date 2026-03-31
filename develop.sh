@@ -21,7 +21,6 @@
 # srun -p cpu-gdml-investor -N 1 -n 1 -c 16 --mem=64g --time=8:00:00 -A cpu-gdml-investor --pty bash -i
 srun -p cpu-gdml -N 1 -n 1 -c 16 --mem=64g --time=8:00:00 -A gdml --pty bash -i
 srun -p cpu-core -N 1 -n 1 -c 16 --mem=64g --time=8:00:00 -A core --pty bash -i
-
 mamba activate Env1
 
 
@@ -421,7 +420,7 @@ rsync -avz --partial --progress \
 
 
 # From remote to local - run on local
-FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/VolcanoPlot_utricle_vs_saccule_batch_corrected.pdf"
+FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/man_plot_balance_ukb_hg38.pdf"
 rsync -avz --progress \
         sesmae@login-2.hpc.childrens.sea.kids:$FILE .
         

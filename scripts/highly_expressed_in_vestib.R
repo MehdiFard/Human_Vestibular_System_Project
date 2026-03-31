@@ -153,24 +153,37 @@ ggplot(dt_plot, aes(x = max_other, y = VESTIB, color = -log10(padj_two_sided))) 
     geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
     geom_point(alpha = 0.7, size = 0.5) +
     # scale_color_viridis_c(name = "-log10(p)") +
-    scale_color_viridis_c(option = "plasma", name = "-log10(p t-test)") +
+    scale_color_viridis_c(name = expression(-log[10](p))) +
+    guides(color = guide_colorbar(barheight = grid::unit(8, "mm"),
+                                    barwidth = grid::unit(2, "mm"),
+                                    ticks = FALSE,
+                                    title.position = "top")) +
     labs(
-        x = "Highest median expression across GTEx tissues (log2 tpm)",
-        y = "Median expression in VESTIB tissue (log2 tpm)"
+        x = expression("Highest median expression across GTEx tissues ("*log[2]*"tpm)"),
+        y = expression("Median expression in VESTIB tissue ("*log[2]*"tpm)")
     ) +
+    theme_classic() + # base_size = 6
     theme(
-        axis.title = element_text(size = 7),
-        axis.text  = element_text(size = 7),
-        legend.title = element_text(size = 7)
-    ) +
-    theme_classic()
+        axis.title = element_text(size = 8),
+        axis.text  = element_text(size = 8),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7),
+        legend.key.height = grid::unit(5, "mm"),
+        legend.key.width = grid::unit(2.2, "mm"),
+        legend.spacing.y = grid::unit(0.6, "mm"),
+        legend.box.spacing = grid::unit(0, "mm"),
+        legend.margin = margin(0, 0, 0, 0),
+        legend.position = c(0.99, 0.4),
+        legend.justification = c(1, 0.5)
+    )
 
 
 ggsave(
     last_plot(),
     filename = "figures/vestibular_vs_gtex_max_tissue_expression_new.pdf",
-    width = 5,
-    height = 5,
+    units = "mm",
+    width = 90,
+    height = 90,
     dpi = 300
 )
 

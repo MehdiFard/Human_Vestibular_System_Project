@@ -16,7 +16,7 @@
 #SBATCH --mail-user=mehdi.esmaeilifard@seattlechildrens.org
 
 
-# Activating env to use apptainer
+# Activating env
 MAMBA="/data/hps/assoc/private/gdml/user/sesmae/miniforge3/etc/profile.d/mamba.sh"
 source $MAMBA
 mamba activate pantry_pheast
