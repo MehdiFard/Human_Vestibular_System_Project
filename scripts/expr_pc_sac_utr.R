@@ -138,14 +138,57 @@ ggplot(pc_df_merged, aes(x = PC1, y = PC2, color = Tissue)) +
   ) +
   theme_classic(base_size = 14)
 
+
 # Save plot
 ggsave(
   last_plot(),
   filename = "figures/pca_expression_tmm_logcpm_sac_utr_tissue.png",
-  width = 6,
-  height = 6,
+  units = "mm",
+  width = 60,
+  height = 60,
   dpi = 300
 )
+
+
+
+# Plot by tissue
+p_tissue <- ggplot(pc_df_merged, aes(x = PC1, y = PC2, color = Tissue)) +
+  geom_point(size = 1.6, alpha = 0.9) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50", linewidth = 0.4) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50", linewidth = 0.4) +
+  scale_color_manual(values = c("Saccule" = "#1b9e77", "Utricle" = "#d95f02")) +
+  labs(
+    title = NULL,
+    x = paste0("PC1 (", round(var_expl[1] * 100, 1), "%)"),
+    y = paste0("PC2 (", round(var_expl[2] * 100, 1), "%)"),
+    color = "Tissue"
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 1.2, alpha = 1))) +
+  theme_classic(base_size = 10) +
+  theme(
+    axis.title = element_text(size = 8),
+    axis.text = element_blank(),
+    plot.title = element_blank(),
+    legend.title = element_text(size = 6),
+    legend.text = element_text(size = 6),
+    legend.key.size = grid::unit(2, "mm"),
+    legend.key.height = grid::unit(2, "mm"),
+    legend.key.width = grid::unit(2, "mm"),
+    legend.spacing.y = grid::unit(0.2, "mm"),
+    legend.box.spacing = grid::unit(0.2, "mm"),
+    legend.margin = margin(0, 0, 0, 0)
+  ); p_tissue
+
+
+ggsave(
+  plot = p_tissue,
+  filename = "figures/pca_expression_tmm_logcpm_sac_utr_tissue.pdf",
+  units = "mm",
+  width = 80,
+  height = 80,
+  dpi = 300
+)
+
 
 # Plot by batch
 ggplot(pc_df_merged, aes(x = PC1, y = PC2, color = batch)) + # [-indx, ]

@@ -53,9 +53,9 @@ ensDb_v113@tables
 # Extracting a subset of the data around gene or region of interest
 loc_meta <- locus(data = gwas_meta_cln,
                   gene = 'ZNF91',
-                  # flank = 1e6,
                   # index_snp = "rs695017",
                   flank = 2.5e5,
+                  # flank = 1e6,
                   ens_db = ensDb_v113
                   )
 summary(loc_meta)
@@ -69,7 +69,35 @@ loc_meta_ld <- link_LD(loc_meta,
                         )
 
 # Link recombination rates
-loc_meta_ld_recom <- link_recomb(loc_meta_ld)
+# options(timeout = 300)
+
+
+
+library(rtracklayer)
+
+recomb_gr <- import.bw("src/ucsc_recomb/hg38/recomb1000GAvg.bw")
+
+recomb_gr
+class(recomb_gr)
+
+loc_meta_ld_recom <- link_recomb(
+  loc_meta_ld,
+  genome = "hg38",
+  recomb = recomb_gr
+)
+
+
+
+library(httr)
+
+options(httr.verbose = TRUE)
+httr::set_config(httr::verbose())
+loc_meta_ld_recom <- link_recomb(loc_meta_ld,
+                                genome = "hg38",
+                                # table = "recomb1000GAvg"
+                                )
+
+
 
 # Adding eQTL data
 loc_meta_ld_recom_eqtls <- link_eqtl(loc_meta_ld_recom,
@@ -84,10 +112,19 @@ table(loc_meta_ld_recom_eqtls$LDexp$Tissue)
 
 # From fine-mapping of isoform mapping results: rs426564 and rs10415081
 # GWAS plot
-pdf("figures/locuszoom_gwas.pdf",
-    width = 8, height = 6)
 
-locus_plot(loc_meta_ld_recom, 
+# To see gene biotypes
+ensembldb::listGenebiotypes(ensDb_v113)
+
+
+# Size of the plot
+w_mm <- 180
+h_mm <- 140
+pdf("figures/locuszoom_gwas2.pdf",
+    width = w_mm / 25.4,
+    height = h_mm / 25.4)
+
+locus_plot(loc_meta_ld_recom_eqtls, 
           labels = c("rs695017", "rs167154"), # rs612285: gwas top snp (= "index", ), - rs695017: gwas snp coloced in twas, - rs167154: Isoform qtl coloced in twas
           label_x = c(-1, -5),
           highlight = c("ZNF724", "ZNF91", "ZNF675"),
@@ -98,6 +135,10 @@ locus_plot(loc_meta_ld_recom,
           )
 
 dev.off()
+
+
+
+
 
 # Ploting
 pdf("figures/locuszoom_isoform.pdf",
