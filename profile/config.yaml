@@ -1,0 +1,19 @@
+executor: slurm
+jobs: 100
+cores: 40
+local-cores: 8
+default-resources:
+  slurm_account: "gdml"
+  slurm_partition: "cpu-core"
+  runtime: 5
+  # NB: can't get mem_mb_per_cpu to work with threads
+  mem_mb: threads * 7500
+keep-going: True
+software-deployment-method:
+  - apptainer
+apptainer-args: "--bind=$PWD"
+rerun-incomplete: True
+nolock: True
+max-status-checks-per-second: 1
+notemp: False
+rerun-triggers: "mtime"
