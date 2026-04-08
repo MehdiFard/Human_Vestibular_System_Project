@@ -25,7 +25,7 @@ RUN Rscript -e "\
 
 # Install CRAN packages not already in rocker/tidyverse
 RUN Rscript -e "\
-    install.packages(c('data.table', 'magrittr', 'ggtext', 'ggrepel'), \
+    install.packages(c('data.table', 'magrittr', 'ggtext', 'ggrepel', 'R.utils'), \
         repos = 'https://cloud.r-project.org')"
 
 # Install GitHub R packages

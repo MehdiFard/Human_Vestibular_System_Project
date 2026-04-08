@@ -11,7 +11,7 @@ default-resources:
 keep-going: True
 software-deployment-method:
   - apptainer
-apptainer-args: "--bind=$PWD"
+apptainer-args: "--bind=$PWD --bind=/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/gwas_sumstats_prep/formatted_sumstats"
 rerun-incomplete: True
 nolock: True
 max-status-checks-per-second: 1
