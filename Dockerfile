@@ -30,5 +30,5 @@ RUN Rscript -e "\
 
 # Install GitHub R packages
 RUN Rscript -e "\
-    remotes::install_github('twillis209/tomics', upgrade = 'never'); \
-    remotes::install_github('ajbass/sffdr', upgrade = 'never')"
+    remotes::install_github('twillis209/tomics', ref = 'master', upgrade = 'never'); \
+    remotes::install_github('ajbass/sffdr', ref = 'main', upgrade = 'never')"
