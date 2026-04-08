@@ -70,7 +70,7 @@ rule annotate_lead_snps_with_missense_and_qtl_info:
 
 rule annotate_lead_snps_with_nearest_gene:
     input:
-        lead = rules.annotate_lead_snps_with_missense_and_qtl_info_for_sffdr.output,
+        lead = rules.annotate_lead_snps_with_missense_and_qtl_info.output,
         edb = "resources/gwas/ensembl_113_hsapiens_edb.sqlite"
     output:
         "{window_size}_{threshold}_lead_snps_with_nearest_gene.tsv"
@@ -78,7 +78,7 @@ rule annotate_lead_snps_with_nearest_gene:
 
 rule finalise_lead_snp_annotations:
     input:
-        lead_snps = rules.annotate_lead_snps_with_nearest_gene_for_sffdr.output,
+        lead_snps = rules.annotate_lead_snps_with_nearest_gene.output,
         sffdr = rules.run_sffdr.output.tsv
     output:
         "results/sffdr/{window_size}_{threshold}_annotated_lead_snps.tsv"
@@ -89,7 +89,7 @@ rule finalise_lead_snp_annotations:
 
 rule draw_manhattan_with_lead_snp_annotation:
     input:
-        lead_snps = rules.finalise_lead_snp_annotations_for_sffdr.output,
+        lead_snps = rules.finalise_lead_snp_annotations.output,
         gwas = rules.run_sffdr.output.tsv
     output:
         "results/sffdr/{window_size}_{threshold}_manhattan_plot.png"
