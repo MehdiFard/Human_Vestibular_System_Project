@@ -1,0 +1,16 @@
+sffdr_inputs:
+  primary: "/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/gwas_sumstats_prep/formatted_sumstats/UKB_EUR_balance_formatted_hg38_ChrPosId.tsv.gz"
+  prune: "/data/hps/assoc/private/gdml/user/twil15/1kGP_pipeline/results/1kG/hg38/unrelated/eur/snps_only/005/qc/sans_pars_and_sans_long_range_ld/pruned/1000_1_0_2/merged.prune.in"
+  informative:
+    - "/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/gwas_sumstats_prep/formatted_sumstats/tinnitus_eur_formatted_hg38_ChrPosId.tsv.gz"
+col_names:
+  # NB: looks like the plink naming convention
+  chromosome: "CHR"
+  base_pair_location: "BP"
+  effect_allele: "A1"
+  other_allele: "A2"
+  beta: "BETA"
+  se: "SE"
+  odds_ratio: "OR"
+  p_value: "P"
+  rsid: "rsID"

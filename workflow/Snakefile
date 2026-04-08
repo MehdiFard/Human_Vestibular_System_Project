@@ -7,12 +7,11 @@ import pandas as pd
 
 container: "docker://ghcr.io/twillis209/sffdr_for_dizziness:latest"
 
+configfile: "config/config.yaml"
+
 def script_path(script):
     return os.path.join(workflow.basedir, "scripts", script)
 
-# NB: Needs to create cache when running AnnotationHub for the first time.
-# Pass --apptainer-args "--bind $HOME/.cache/R/AnnotationHub:$HOME/.cache/R/AnnotationHub"
-# (or your cluster's cache equivalent) to persist the AnnotationHub cache across runs.
 rule download_ensembl_db:
     output:
         "resources/ensembl_113_hsapiens_edb.sqlite"
@@ -23,30 +22,24 @@ rule download_ensembl_db:
 
 rule generate_sffdr_input:
     input:
-        # TODO
-        primary = "",
-        # TODO
-        prune = "",
-        # TODO
-        informative = []
+        primary = config['sffdr_inputs']['primary'],
+        prune = config['sffdr_inputs']['prune'],
+        informative = config['sffdr_inputs']['informative']
     output:
-        # TODO
-        ""
+        "results/sffdr/input.tsv"
     threads: 8
     resources:
         runtime = 60
-        # TODO modify this to
     script: script_path("generate_sffdr_input.R")
 
 rule run_sffdr:
     input:
         rules.generate_sffdr_input.output
     output:
-        tsv = "results.tsv.gz",
-        rds = "results.rds",
-        png = "results.png"
+        tsv = "results/sffdr/results.tsv.gz",
+        rds = "results/sffdr/results.rds",
+        png = "results/sffdr/results.png"
     params:
-        # TODO this should be a wildcard
         seed = 145
     threads: 16
     resources:
@@ -57,7 +50,7 @@ checkpoint distance_clump_sffdr:
     input:
         rules.run_sffdr.output
     output:
-        "{window_size}_{threshold}_lead_snps.tsv"
+        "results/sffdr/{window_size}_{threshold}_lead_snps.tsv"
     params:
         mhc = False,
         index_threshold = lambda wildcards: 5e-8 if wildcards.threshold == 'gws' else 1e-5,
@@ -72,7 +65,7 @@ rule annotate_lead_snps_with_missense_and_qtl_info:
     input:
         lead_snps = rules.distance_clump_sffdr.output
     output:
-        "{window_size}_{threshold}_lead_snps_with_missense_and_qtl.tsv"
+        "results/sffdr/{window_size}_{threshold}_lead_snps_with_missense_and_qtl.tsv"
     script: script_path("annotate_with_missense_and_qtl_info.py")
 
 rule annotate_lead_snps_with_nearest_gene:
@@ -88,7 +81,7 @@ rule finalise_lead_snp_annotations:
         lead_snps = rules.annotate_lead_snps_with_nearest_gene_for_sffdr.output,
         sffdr = rules.run_sffdr.output.tsv
     output:
-        "{window_size}_{threshold}_annotated_lead_snps.tsv"
+        "results/sffdr/{window_size}_{threshold}_annotated_lead_snps.tsv"
     threads: 8
     resources:
         runtime = 5
@@ -99,7 +92,7 @@ rule draw_manhattan_with_lead_snp_annotation:
         lead_snps = rules.finalise_lead_snp_annotations_for_sffdr.output,
         gwas = rules.run_sffdr.output.tsv
     output:
-        "{window_size}_{threshold}_manhattan_plot.png"
+        "results/sffdr/{window_size}_{threshold}_manhattan_plot.png"
     params:
         width = 12,
         height = 4,

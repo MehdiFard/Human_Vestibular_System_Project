@@ -38,15 +38,13 @@ theme_set(theme_bw() +
     panel.grid.major.y = element_blank()
   ))
 
-chr_col <- snakemake@config$chr_col
-bp_col <- snakemake@config$bp_col
-
-
+chr_col <- snakemake@config[["col_names"]][["chromosome"]]
+bp_col <- snakemake@config[["col_names"]][["base_pair_location"]]
 
 if (!is.null(snakemake@params$p_col)) {
   p_col <- snakemake@params$p_col
 } else {
-  p_col <- snakemake@config$p_col
+  p_col <- snakemake@config[["col_names"]][["p_value"]]
 }
 
 dat <- fread(snakemake@input$gwas)

@@ -1,14 +1,14 @@
 library(data.table)
 setDTthreads(snakemake@threads)
 
-chr_col <- snakemake@config$chr_col
-bp_col <- snakemake@config$bp_col
-ref_col <- snakemake@config$ref_col
-alt_col <- snakemake@config$alt_col
-beta_col <- snakemake@config$beta_col
-se_col <- snakemake@config$se_col
-p_col <- snakemake@config$p_col
-rsid_col <- snakemake@config$rsid_col
+chr_col <- snakemake@config[["col_names"]][["chromosome"]]
+bp_col <- snakemake@config[["col_names"]][["base_pair_location"]]
+ref_col <- snakemake@config[["col_names"]][["other_allele"]]
+alt_col <- snakemake@config[["col_names"]][["effect_allele"]]
+beta_col <- snakemake@config[["col_names"]][["beta"]]
+se_col <- snakemake@config[["col_names"]][["se"]]
+p_col <- snakemake@config[["col_names"]][["p_value"]]
+rsid_col <- snakemake@config[["col_names"]][["rsid"]]
 
 coord_cols <- c(chr_col, bp_col, ref_col, alt_col)
 stat_cols <- c(beta_col, se_col, p_col)
