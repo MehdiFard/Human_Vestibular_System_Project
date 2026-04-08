@@ -5,13 +5,13 @@ chr_col <- snakemake@config[["col_names"]][["chromosome"]]
 bp_col <- snakemake@config[["col_names"]][["base_pair_location"]]
 ref_col <- snakemake@config[["col_names"]][["other_allele"]]
 alt_col <- snakemake@config[["col_names"]][["effect_allele"]]
-beta_col <- snakemake@config[["col_names"]][["beta"]]
-se_col <- snakemake@config[["col_names"]][["se"]]
+## beta_col <- snakemake@config[["col_names"]][["beta"]]
+## se_col <- snakemake@config[["col_names"]][["se"]]
 p_col <- snakemake@config[["col_names"]][["p_value"]]
 rsid_col <- snakemake@config[["col_names"]][["rsid"]]
 
 coord_cols <- c(chr_col, bp_col, ref_col, alt_col)
-stat_cols <- c(beta_col, se_col, p_col)
+stat_cols <- c(p_col)
 
 primary <- fread(snakemake@input$primary, sep = '\t', header = T, select = c(coord_cols, stat_cols, rsid_col))
 
@@ -20,7 +20,7 @@ primary[, (bp_col) := as.integer(get(bp_col))]
 
 prune <- fread(snakemake@input$prune, header = F, col.names = 'ID')
 
-prune[, c('chromosome', 'base_pair_location', 'other_allele', 'effect_allele') := tstrsplit(ID, split = ':', keep = 1:4)]
+prune[, c(chr_col, bp_col, ref_col, alt_col) := tstrsplit(ID, split = ':', keep = 1:4)]
 prune[, (chr_col) := as.character(get(chr_col))]
 prune[, (bp_col) := as.integer(get(bp_col))]
 

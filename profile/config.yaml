@@ -11,7 +11,7 @@ default-resources:
 keep-going: True
 software-deployment-method:
   - apptainer
-apptainer-args: "--bind=$PWD --bind=/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/gwas_sumstats_prep/formatted_sumstats"
+apptainer-args: "--bind=$PWD --bind=/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/gwas_sumstats_prep/formatted_sumstats --bind=/data/hps/assoc/private/gdml/user/twil15/1kGP_pipeline/results/1kG/hg38/unrelated/eur/snps_only/005/qc/sans_pars_and_sans_long_range_ld/pruned/1000_1_0_2"
 rerun-incomplete: True
 nolock: True
 max-status-checks-per-second: 1

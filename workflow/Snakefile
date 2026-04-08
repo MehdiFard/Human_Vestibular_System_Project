@@ -44,6 +44,7 @@ rule run_sffdr:
     threads: 16
     resources:
         runtime = 120
+    container: "docker://twillis209/sffdr_for_dizziness:latest"
     script: script_path("sffdr.R")
 
 checkpoint distance_clump_sffdr:

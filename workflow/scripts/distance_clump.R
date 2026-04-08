@@ -7,8 +7,8 @@ chr_col <- snakemake@config[["col_names"]][["chromosome"]]
 bp_col <- snakemake@config[["col_names"]][["base_pair_location"]]
 ref_col <- snakemake@config[["col_names"]][["other_allele"]]
 alt_col <- snakemake@config[["col_names"]][["effect_allele"]]
-beta_col <- snakemake@config[["col_names"]][["beta"]]
-se_col <- snakemake@config[["col_names"]][["se"]]
+## beta_col <- snakemake@config[["col_names"]][["beta"]]
+## se_col <- snakemake@config[["col_names"]][["se"]]
 rsid_col <- snakemake@config[["col_names"]][["rsid"]]
 
 if(!is.null(snakemake@params$p_col)) {
@@ -21,9 +21,9 @@ distance_window <- snakemake@params[['distance_window']]
 index_threshold <- snakemake@params[['index_threshold']]
 
 if(p_col != snakemake@config[["col_names"]][["p_value"]]) {
-  dat <- fread(snakemake@input[[1]], sep = '\t', select = c(chr_col, bp_col, ref_col, alt_col, rsid_col, p_col, snakemake@config[["col_names"]][["p_value"]], beta_col, se_col))
+  dat <- fread(snakemake@input[[1]], sep = '\t', select = c(chr_col, bp_col, ref_col, alt_col, rsid_col, p_col, snakemake@config[["col_names"]][["p_value"]]))
 } else {
-  dat <- fread(snakemake@input[[1]], sep = '\t', select = c(chr_col, bp_col, ref_col, alt_col, rsid_col, p_col, beta_col, se_col))
+  dat <- fread(snakemake@input[[1]], sep = '\t', select = c(chr_col, bp_col, ref_col, alt_col, rsid_col, p_col))
 }
 
 if(!snakemake@params$mhc) {
