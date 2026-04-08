@@ -5,7 +5,7 @@ import re
 import os
 import pandas as pd
 
-container: "docker://ghcr.io/twillis209/sffdr_for_dizziness:latest"
+container: "docker://twillis209/sffdr_for_dizziness:latest"
 
 configfile: "config/config.yaml"
 
