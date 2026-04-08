@@ -17,18 +17,25 @@ RUN pip install --no-cache-dir \
     pandas \
     "gql[aiohttp]"
 
-# Install Bioconductor packages
-RUN Rscript -e "\
-    options(repos = BiocManager::repositories()); \
-    BiocManager::install(c('AnnotationHub', 'ensembldb', 'GenomicRanges'), \
-        ask = FALSE, update = FALSE)"
+# Install pak for fast parallel R package installation
+RUN Rscript -e "install.packages('pak', repos = 'https://cloud.r-project.org')"
 
-# Install CRAN packages not already in rocker/tidyverse
+# Bioconductor and CRAN packages (stable — add new ones here)
 RUN Rscript -e "\
-    install.packages(c('data.table', 'magrittr', 'ggtext', 'ggrepel', 'R.utils'), \
-        repos = 'https://cloud.r-project.org')"
+    pak::pak(c( \
+        'AnnotationHub', \
+        'ensembldb', \
+        'GenomicRanges', \
+        'data.table', \
+        'magrittr', \
+        'ggtext', \
+        'ggrepel' \
+    ))"
 
-# Install GitHub R packages
+# GitHub R packages (volatile — add new ones here without touching the layer above)
 RUN Rscript -e "\
-    remotes::install_github('twillis209/tomics', ref = 'master', upgrade = 'never'); \
-    remotes::install_github('ajbass/sffdr', ref = 'main', upgrade = 'never')"
+    pak::pak(c( \
+        'twillis209/tomics', \
+        'ajbass/sffdr' \
+    ))"
+
