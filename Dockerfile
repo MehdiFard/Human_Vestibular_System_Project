@@ -30,6 +30,7 @@ RUN Rscript -e "\
         'magrittr', \
         'ggtext', \
         'ggrepel' \
+        'R.utils'
     ))"
 
 # GitHub R packages (volatile — add new ones here without touching the layer above)
