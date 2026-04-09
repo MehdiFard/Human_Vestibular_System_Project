@@ -15,9 +15,16 @@ I will add:
 """
 base_url = "https://api.platform.opentargets.org/api/v4/graphql"
 
+col_names = snakemake.config["col_names"]
+chr_col = col_names["chromosome"]
+bp_col = col_names["base_pair_location"]
+ref_col = col_names["other_allele"]
+alt_col = col_names["effect_allele"]
+rsid_col = col_names["rsid"]
+
 
 def find_variant_id(row):
-    rsid = row["rsid"]
+    rsid = row[rsid_col]
 
     variant_id = query_snp_id_by_rsid(rsid)
 
@@ -28,7 +35,7 @@ def find_variant_id(row):
         print(f"Variant ID not found for rsid: {rsid}, concatenating...")
         variant_id = "_".join(
             row[
-                ["chromosome", "base_pair_location", "other_allele", "effect_allele"]
+                [chr_col, bp_col, ref_col, alt_col]
             ].astype(str)
         )
 
@@ -39,10 +46,10 @@ def find_variant_id(row):
             variant_id = "_".join(
                 row[
                     [
-                        "chromosome",
-                        "base_pair_location",
-                        "effect_allele",
-                        "other_allele",
+                        chr_col,
+                        bp_col,
+                        alt_col,
+                        ref_col,
                     ]
                 ].astype(str)
             )
@@ -324,7 +331,7 @@ def fetch_genes_using_open_targets_api(daf):
             daf.loc[index, "missense_gene"] = ",".join(list(set(missense_genes)))
 
             reason_dicts.append(
-                {"rsid": row["rsid"], "gene": missense_genes, "reason": "missense"}
+                {"rsid": row[rsid_col], "gene": missense_genes, "reason": "missense"}
             )
 
         if credible_sets is not None:
@@ -332,7 +339,7 @@ def fetch_genes_using_open_targets_api(daf):
 
             daf.loc[index, "qtl_genes"] = ",".join(list(set(cs_genes)))
 
-            reason_dicts.append({"rsid": row["rsid"], "gene": cs_genes, "reason": "cs"})
+            reason_dicts.append({"rsid": row[rsid_col], "gene": cs_genes, "reason": "cs"})
 
         # if len(gene) == 0:
         #     nearest_gene = missense_and_nearest.head(1)[

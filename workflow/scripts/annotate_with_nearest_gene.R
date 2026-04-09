@@ -1,18 +1,22 @@
 library(GenomicRanges)
 library(ensembldb)
 
+chr_col <- snakemake@config[["col_names"]][["chromosome"]]
+bp_col <- snakemake@config[["col_names"]][["base_pair_location"]]
+rsid_col <- snakemake@config[["col_names"]][["rsid"]]
+
 edb <- EnsDb(snakemake@input$edb)
 
 daf <- read.table(snakemake@input$lead, header = TRUE, sep = '\t')
 
-daf$chromosome <- as.character(daf$chromosome)
+daf[[chr_col]] <- as.character(daf[[chr_col]])
 
-daf[daf$chromosome == '23', 'chromosome'] <- 'X'
+daf[daf[[chr_col]] == '23', chr_col] <- 'X'
 
 snps_gr <- GRanges(
-  seqnames = daf$chromosome,
-  ranges = IRanges(start = daf$base_pair_location, width = 1),
-  rsid = daf$rsid
+  seqnames = daf[[chr_col]],
+  ranges = IRanges(start = daf[[bp_col]], width = 1),
+  rsid = daf[[rsid_col]]
 )
 
 genes_gr <- genes(edb, filter = GeneBiotypeFilter("protein_coding"))
@@ -26,8 +30,10 @@ nearest_genes <- data.frame(
   distance_bp    = mcols(nearest_hits)$distance
 )
 
-merged <- merge(daf, nearest_genes, by = 'rsid', all.x = TRUE)
+names(nearest_genes)[names(nearest_genes) == 'rsid'] <- rsid_col
 
-merged[merged$chromosome == 'X', 'chromosome'] <- '23'
+merged <- merge(daf, nearest_genes, by = rsid_col, all.x = TRUE)
+
+merged[merged[[chr_col]] == 'X', chr_col] <- '23'
 
 write.table(merged, file = snakemake@output[[1]], sep = '\t', row.names = FALSE, quote = FALSE)
