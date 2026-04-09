@@ -20,6 +20,17 @@ rule download_ensembl_db:
         genome = "GRCh38",
     script: script_path("download_edb.R")
 
+rule draw_manhattan:
+    input:
+        gwas = "resources/gwas/{trait}_formatted_hg38_ChrPosId.tsv.gz"
+    output:
+        gwas = "results/gwas/{trait}_manhattan_plot.png"
+    params:
+        width = 12,
+        height = 4,
+        p_col = config['col_names']['p_value']
+    script: script_path("plot_gwas_manhattan.R")
+
 rule generate_sffdr_input:
     input:
         primary = config['sffdr_inputs']['primary'],
@@ -40,13 +51,14 @@ rule run_sffdr:
         rds = "results/sffdr/results.rds",
         png = "results/sffdr/results.png"
     params:
-        seed = 145
+        seed = 145,
+        use_indep_snps = False
     threads: 16
     resources:
         runtime = 120
     script: script_path("sffdr.R")
 
-checkpoint distance_clump_sffdr:
+rule distance_clump_sffdr:
     input:
         rules.run_sffdr.output
     output:
@@ -73,7 +85,7 @@ rule annotate_lead_snps_with_nearest_gene:
         lead = rules.annotate_lead_snps_with_missense_and_qtl_info.output,
         edb = "resources/gwas/ensembl_113_hsapiens_edb.sqlite"
     output:
-        "{window_size}_{threshold}_lead_snps_with_nearest_gene.tsv"
+        "results/sffdr/{window_size}_{threshold}_lead_snps_with_nearest_gene.tsv"
     script: script_path("annotate_with_nearest_gene.R")
 
 rule finalise_lead_snp_annotations:

@@ -16,16 +16,27 @@ sumstats <- sumstats %>% filter(if_all(all_of(p_cols), ~ !is.na(.)))
 
 z <- as.matrix(select(sumstats, all_of(informative_cols)))
 
-mpi0 <- pi0_model(
-  z = z,
-  indep_snps = sumstats$prune_in
-)
+if(snakemake@params$use_indep_snps) {
+  mpi0 <- pi0_model(
+    z = z,
+    indep_snps = sumstats$prune_in
+  )
 
-fpi0 <- fpi0est(
-  sumstats[[snakemake@config[["col_names"]][["p_value"]]]],
-  mpi0,
-  indep_snps = sumstats$prune_in
-)
+  fpi0 <- fpi0est(
+    sumstats[[snakemake@config[["col_names"]][["p_value"]]]],
+    mpi0,
+    indep_snps = sumstats$prune_in
+  )
+} else {
+  mpi0 <- pi0_model(
+    z = z
+  )
+
+  fpi0 <- fpi0est(
+    sumstats[[snakemake@config[["col_names"]][["p_value"]]]],
+    mpi0
+  )
+}
 
 sffdr_out <- sffdr(
   p.value = sumstats[[snakemake@config[["col_names"]][["p_value"]]]],
