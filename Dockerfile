@@ -15,7 +15,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --no-cache-dir \
     requests \
     pandas \
-    "gql[aiohttp]"
+    "gql[aiohttp]" \
+    git+https://github.com/twillis209/PRED-LD.git@pip
 
 # Install pak for fast parallel R package installation
 RUN Rscript -e "install.packages('pak', repos = 'https://cloud.r-project.org')"

@@ -9,6 +9,10 @@ container: "docker://twillis209/sffdr_for_dizziness:latest"
 
 configfile: "config/config.yaml"
 
+wildcard_constraints:
+    window_size = r"(1000kb)",
+    threshold = r"(gws|suggestive)"
+
 def script_path(script):
     return os.path.join(workflow.basedir, "scripts", script)
 
@@ -52,7 +56,7 @@ rule run_sffdr:
         png = "results/sffdr/results.png"
     params:
         seed = 145,
-        use_indep_snps = False
+        use_indep_snps = True
     threads: 16
     resources:
         runtime = 120
@@ -83,7 +87,7 @@ rule annotate_lead_snps_with_missense_and_qtl_info:
 rule annotate_lead_snps_with_nearest_gene:
     input:
         lead = rules.annotate_lead_snps_with_missense_and_qtl_info.output,
-        edb = "resources/gwas/ensembl_113_hsapiens_edb.sqlite"
+        edb = rules.download_ensembl_db.output
     output:
         "results/sffdr/{window_size}_{threshold}_lead_snps_with_nearest_gene.tsv"
     script: script_path("annotate_with_nearest_gene.R")

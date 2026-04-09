@@ -2,7 +2,8 @@ sffdr_inputs:
   primary: "resources/gwas/UKB_EUR_balance_formatted_hg38_ChrPosId.tsv.gz"
   prune: "/data/hps/assoc/private/gdml/user/twil15/1kGP_pipeline/results/1kG/hg38/unrelated/eur/snps_only/005/qc/sans_pars_and_sans_long_range_ld/pruned/1000_1_0_2/merged.prune.in"
   informative:
-    - "resources/gwas/tinnitus_eur_formatted_hg38_ChrPosId.tsv.gz"
+    # - "resources/gwas/tinnitus_eur_formatted_hg38_ChrPosId.tsv.gz"
+    - "resources/gwas/hearing_hleur_formatted_hg38_ChrPosId.tsv.gz"
 col_names:
   # NB: looks like the plink naming convention
   chromosome: "CHR"
