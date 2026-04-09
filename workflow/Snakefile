@@ -9,12 +9,15 @@ container: "docker://twillis209/sffdr_for_dizziness:latest"
 
 configfile: "config/config.yaml"
 
+def script_path(script):
+    return os.path.join(workflow.basedir, "scripts", script)
+
 wildcard_constraints:
     window_size = r"(1000kb)",
     threshold = r"(gws|suggestive)"
 
-def script_path(script):
-    return os.path.join(workflow.basedir, "scripts", script)
+# include: "rules/wildcard_constraints.smk"
+include: "rules/pred_ld.smk"
 
 rule download_ensembl_db:
     output:
