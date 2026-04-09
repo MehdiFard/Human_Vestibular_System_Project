@@ -6,9 +6,11 @@ library(ggplot2)
 
 sumstats <- read_tsv(snakemake@input[[1]], show_col_types = FALSE)
 
-informative_cols <- names(sumstats)[grep("p_value.\\d+", names(sumstats))]
+pvalue_regex <- sprintf("%s.\\d+", snakemake@config[["col_names"]][["p_value"]])
 
-p_cols <- c("p_value", informative_cols)
+informative_cols <- names(sumstats)[grep(pvalue_regex, names(sumstats))]
+
+p_cols <- c(snakemake@config[["col_names"]][["p_value"]], informative_cols)
 
 sumstats <- sumstats %>% filter(if_all(all_of(p_cols), ~ !is.na(.)))
 
@@ -20,13 +22,13 @@ mpi0 <- pi0_model(
 )
 
 fpi0 <- fpi0est(
-  sumstats$p_value,
+  sumstats[[snakemake@config[["col_names"]][["p_value"]]]],
   mpi0,
   indep_snps = sumstats$prune_in
 )
 
 sffdr_out <- sffdr(
-  p.value = sumstats$p_value,
+  p.value = sumstats[[snakemake@config[["col_names"]][["p_value"]]]],
   fpi0 = fpi0$fpi0,
 )
 

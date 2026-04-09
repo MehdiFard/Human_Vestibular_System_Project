@@ -20,7 +20,7 @@ primary[, (bp_col) := as.integer(get(bp_col))]
 
 prune <- fread(snakemake@input$prune, header = F, col.names = 'ID')
 
-prune[, c(chr_col, bp_col, ref_col, alt_col) := tstrsplit(ID, split = ':', keep = 1:4)]
+prune[, c(chr_col, bp_col, alt_col, ref_col) := tstrsplit(ID, split = ':', keep = 1:4)]
 prune[, (chr_col) := as.character(get(chr_col))]
 prune[, (bp_col) := as.integer(get(bp_col))]
 
