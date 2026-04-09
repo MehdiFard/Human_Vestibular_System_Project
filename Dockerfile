@@ -29,8 +29,8 @@ RUN Rscript -e "\
         'data.table', \
         'magrittr', \
         'ggtext', \
-        'ggrepel' \
-        'R.utils'
+        'ggrepel', \
+        'R.utils' \
     ))"
 
 # GitHub R packages (volatile — add new ones here without touching the layer above)
