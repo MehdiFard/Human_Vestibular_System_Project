@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     python3-venv \
+    libcblas3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Python virtual environment
@@ -15,6 +16,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --no-cache-dir \
     requests \
     pandas \
+    numpy \
+    scipy \
     "gql[aiohttp]" \
     git+https://github.com/twillis209/PRED-LD.git@pip
 
