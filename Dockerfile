@@ -21,6 +21,10 @@ RUN pip install --no-cache-dir \
     "gql[aiohttp]" \
     git+https://github.com/twillis209/PRED-LD.git@pip
 
+# Install LDSC (Python 3.9+ branch) and its dependencies
+RUN git clone -b ldsc39 https://github.com/CBIIT/ldsc.git /opt/ldsc \
+    && pip install --no-cache-dir -r /opt/ldsc/requirements.txt bitarray
+
 # Install pak for fast parallel R package installation
 RUN Rscript -e "install.packages('pak', repos = 'https://cloud.r-project.org')"
 
