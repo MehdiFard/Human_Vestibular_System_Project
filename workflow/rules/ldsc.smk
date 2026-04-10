@@ -27,6 +27,8 @@ rule extract_ldsc_annotations:
         "resources/ldsc/archives/GRCh38.tgz"
     output:
         touch("resources/ldsc/baselineLD_hg38/.done")
+    resources:
+        runtime = 30
     shell:
         "mkdir -p resources/ldsc/baselineLD_hg38 && tar -xzf {input} -C resources/ldsc/baselineLD_hg38/"
 
@@ -46,6 +48,8 @@ rule extract_ldsc_weights:
         "resources/ldsc/archives/weights.tgz"
     output:
         touch("resources/ldsc/weights/.done")
+    resources:
+        runtime = 15
     shell:
         "mkdir -p resources/ldsc/weights && tar -xzf {input} -C resources/ldsc/weights/"
 
@@ -65,6 +69,8 @@ rule extract_ldsc_frq:
         "resources/ldsc/archives/frq.tgz"
     output:
         touch("resources/ldsc/frq/.done")
+    resources:
+        runtime = 15
     shell:
         "mkdir -p resources/ldsc/frq && tar -xzf {input} -C resources/ldsc/frq/"
 
@@ -148,7 +154,7 @@ rule compute_expected_chi2:
     params:
         annot_prefix = "resources/ldsc/baselineLD_hg38/baselineLD.",
         chroms       = list(range(1, 23))
-    threads: 4
+    threads: 1
     resources:
         runtime = 30
     script: script_path("ldsc/compute_expected_chi2.py")

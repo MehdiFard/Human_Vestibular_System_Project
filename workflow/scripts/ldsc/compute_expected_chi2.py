@@ -24,6 +24,9 @@ assert len(annot_cols) == n_annot, (
 )
 
 # E[chi2_j] = 1 + Σ_c(tau_c * l2_cj)
+# Baseline is 1.0 (assumes LDSC intercept ≈ 1).
+# If your data has substantial population stratification, consider
+# parsing the intercept from the .log file and adding it here instead.
 ld["chi2_expected"] = 1.0 + ld[annot_cols].values @ tau
 
 ld[["SNP", "CHR", "BP", "chi2_expected"]].to_csv(
