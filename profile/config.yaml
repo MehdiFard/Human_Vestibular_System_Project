@@ -11,7 +11,14 @@ default-resources:
 keep-going: True
 software-deployment-method:
   - apptainer
-apptainer-args: "--bind=$PWD --bind=/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/gwas_sumstats_prep/formatted_sumstats --bind=/data/hps/assoc/private/gdml/user/twil15/1kGP_pipeline/results/1kG/hg38/unrelated/eur/snps_only/005/qc/sans_pars_and_sans_long_range_ld/pruned/1000_1_0_2"
+apptainer-args: "--bind=$PWD --bind=/data/hps/assoc/private/gdml/user/twil15/1kGP_pipeline/results/1kG/hg38/unrelated/eur/snps_only/005/qc/sans_pars_and_sans_long_range_ld/pruned/1000_1_0_2"
+groups:
+  - download_topld_reference=pred_ld
+  - download_topld_annotation=pred_ld
+  - convert_gwas_to_pred_ld_format=pred_ld
+  - run_pred_ld_imputation=pred_ld
+# group-components:
+#   - pred_ld=3
 rerun-incomplete: True
 nolock: True
 max-status-checks-per-second: 1
