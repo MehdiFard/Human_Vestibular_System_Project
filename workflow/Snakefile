@@ -18,6 +18,7 @@ wildcard_constraints:
 
 # include: "rules/wildcard_constraints.smk"
 include: "rules/pred_ld.smk"
+include: "rules/ldsc.smk"
 
 rule download_ensembl_db:
     output:
