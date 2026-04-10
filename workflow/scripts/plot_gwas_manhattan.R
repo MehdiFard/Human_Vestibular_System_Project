@@ -54,7 +54,7 @@ if(!is.null(snakemake@input$lead_snps)) {
   setnames(lead_snps, c(snakemake@config[["col_names"]][["chromosome"]], snakemake@config[["col_names"]][["base_pair_location"]], 'genes'), c('chr', 'bp', 'gene'))
 
   ggsave(
-    draw_manhattan(procd_sumstats, lead_snps = lead_snps, stat_col = p_col, y_limits = c(1, 1e-20), repel_args = list(size = 4, angle = 0, colour = "black", min.segment.length = 0)) +
+    draw_manhattan(procd_sumstats, lead_snps = lead_snps, stat_col = p_col, y_limits = c(1, 1e-20), palette = c('black', 'gray'), repel_args = list(size = 4, angle = 0, colour = "black", min.segment.length = 0)) +
     geom_hline(yintercept = 5e-8, linetype = "dashed", color = "black"),
     file = snakemake@output[[1]],
     width = width,
@@ -62,7 +62,7 @@ if(!is.null(snakemake@input$lead_snps)) {
   )
 } else {
   ggsave(
-    draw_manhattan(procd_sumstats, stat_col = p_col, y_limits = c(1, 1e-20), repel_args = list(size = 4, angle = 0, colour = "black", min.segment.length = 0)) +
+    draw_manhattan(procd_sumstats, stat_col = p_col, y_limits = c(1, 1e-20), palette = c('black', 'gray'), repel_args = list(size = 4, angle = 0, colour = "black", min.segment.length = 0)) +
     geom_hline(yintercept = 5e-8, linetype = "dashed", color = "black"),
     file = snakemake@output[[1]],
     width = width,
