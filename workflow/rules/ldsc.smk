@@ -15,10 +15,12 @@ rule download_ldsc_annotations:
     """Download hg38 BaselineLD annotation LD scores from Zenodo."""
     output:
         ensure("resources/ldsc/archives/GRCh38.tgz", md5=lookup_checksum)
+    params:
+        url = f"{_ZENODO}/GRCh38.tgz?download=1"
     resources:
         runtime = 120
     shell:
-        "wget -q -O {output} '{_ZENODO}/GRCh38.tgz?download=1'"
+        "wget -q -O {output} '{params.url}'"
 
 rule extract_ldsc_annotations:
     input:
@@ -32,10 +34,12 @@ rule download_ldsc_weights:
     """Download 1000G Phase3 hm3 (no MHC) regression weights from Zenodo."""
     output:
         ensure("resources/ldsc/archives/weights.tgz", md5=lookup_checksum)
+    params:
+        url = f"{_ZENODO}/1000G_Phase3_weights_hm3_no_MHC.tgz?download=1"
     resources:
         runtime = 30
     shell:
-        "wget -q -O {output} '{_ZENODO}/1000G_Phase3_weights_hm3_no_MHC.tgz?download=1'"
+        "wget -q -O {output} '{params.url}'"
 
 rule extract_ldsc_weights:
     input:
@@ -49,10 +53,12 @@ rule download_ldsc_frq:
     """Download 1000G Phase3 EUR allele frequency files from Zenodo."""
     output:
         ensure("resources/ldsc/archives/frq.tgz", md5=lookup_checksum)
+    params:
+        url = f"{_ZENODO}/1000G_Phase3_frq.tgz?download=1"
     resources:
         runtime = 30
     shell:
-        "wget -q -O {output} '{_ZENODO}/1000G_Phase3_frq.tgz?download=1'"
+        "wget -q -O {output} '{params.url}'"
 
 rule extract_ldsc_frq:
     input:
@@ -66,10 +72,12 @@ rule download_ldsc_snp_list:
     """Download HapMap3 (no MHC) SNP list from Zenodo."""
     output:
         ensure("resources/ldsc/hm3_no_MHC.list.txt", md5=lookup_checksum)
+    params:
+        url = f"{_ZENODO}/hm3_no_MHC.list.txt?download=1"
     resources:
         runtime = 10
     shell:
-        "wget -q -O {output} '{_ZENODO}/hm3_no_MHC.list.txt?download=1'"
+        "wget -q -O {output} '{params.url}'"
 
 rule munge_sumstats:
     """Convert GWAS summary statistics to LDSC .sumstats.gz format."""
