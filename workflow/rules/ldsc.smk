@@ -91,7 +91,7 @@ rule munge_sumstats:
         alt_col  = config['col_names']['effect_allele'],
         ref_col  = config['col_names']['other_allele'],
         beta_col = config['col_names']['beta'],
-        n_col    = config['col_names']['n_col'],
+        n_col    = config['col_names']['sample_size'],
         out_prefix = lambda w, output: str(output[0]).replace('.sumstats.gz', '')
     resources:
         runtime = 30
