@@ -9,7 +9,7 @@ df = pd.concat(dfs, ignore_index=True)
 
 df["p_value"] = 2 * norm.sf(np.abs(df["z"]))
 
-original = pd.read_csv(snakemake.input.original, sep="\t", usecols=[p.n_col], nrows=1)
+original = pd.read_csv(str(snakemake.input.original), sep="\t", usecols=[p.n_col], nrows=1)
 df[p.n_col] = original[p.n_col].iloc[0]
 
 out = df.rename(columns={
