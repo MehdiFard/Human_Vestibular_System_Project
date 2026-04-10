@@ -92,22 +92,24 @@ rule validate_topld_alleles:
 # Rule to concatenate per-chromosome PRED-LD imputation results and return harmonised GWAS columns
 rule convert_pred_ld_to_harmonised_format:
     input:
-        expand(
+        imputed = expand(
             rules.run_pred_ld_imputation.output.imputed,
-            chr=[f"chr{i}" for i in range(21, 22)],
+            chr=[f"chr{i}" for i in range(1, 23)],
             allow_missing=True
-        )
+        ),
+        original = "resources/gwas/{trait_to_impute}_formatted_hg38_ChrPosId.tsv.gz"
     output:
         "results/pred_ld/{trait_to_impute}/imputed/EUR/r2_{r2threshold}/maf_0_{maf}/combined.tsv.gz"
     params:
-        chr_col   = config.get('chr_col'),
-        bp_col    = config.get('bp_col'),
-        ref_col   = config.get('ref_col'),
-        alt_col   = config.get('alt_col'),
-        rsid_col  = config.get('rsid_col'),
-        beta_col  = config.get('beta_col'),
-        se_col    = config.get('se_col'),
-        p_col     = config.get('p_col')
+        chr_col   = config['col_names']['chromosome'],
+        bp_col    = config['col_names']['base_pair_location'],
+        ref_col   = config['col_names']['other_allele'],
+        alt_col   = config['col_names']['effect_allele'],
+        rsid_col  = config['col_names']['rsid'],
+        beta_col  = config['col_names']['beta'],
+        se_col    = config['col_names']['se'],
+        p_col     = config['col_names']['p_value'],
+        n_col     = config['col_names']['n_col']
     threads: 4
     resources:
         runtime = 30
