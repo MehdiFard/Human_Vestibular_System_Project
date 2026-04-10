@@ -9,8 +9,8 @@ df = dd.read_csv(list(snakemake.input.imputed), sep="\t").compute(scheduler="thr
 
 df["p_value"] = 2 * norm.sf(np.abs(df["z"]))
 
-original = pd.read_csv(str(snakemake.input.original), sep="\t", usecols=[p.n_col], nrows=1)
-df[p.n_col] = original[p.n_col].iloc[0]
+# original = pd.read_csv(str(snakemake.input.original), sep="\t", usecols=[p.n_col], nrows=1)
+# df[p.n_col] = original[p.n_col].iloc[0]
 
 out = df.rename(columns={
     "chr":     p.chr_col,
@@ -22,7 +22,7 @@ out = df.rename(columns={
     "SE":      p.se_col,
     "p_value": p.p_col,
 })[[ p.rsid_col, p.chr_col, p.bp_col, p.alt_col, p.ref_col,
-     p.beta_col, p.se_col, p.p_col, p.n_col,
+     p.beta_col, p.se_col, p.p_col, # p.n_col,
      "imputed", "R2" ]]
 
 out = out.sort_values([p.chr_col, p.bp_col])

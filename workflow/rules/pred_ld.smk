@@ -114,3 +114,9 @@ rule convert_pred_ld_to_harmonised_format:
     resources:
         runtime = 30
     script: script_path("pred_ld/convert_to_harmonised_format.py")
+
+use rule draw_manhattan as draw_manhattan_for_imputed_gwas with:
+    input:
+        gwas = rules.convert_pred_ld_to_harmonised_format.output
+    output:
+        "results/pred_ld/{trait_to_impute}/imputed/EUR/r2_{r2threshold}/maf_0_{maf}/combined.png"

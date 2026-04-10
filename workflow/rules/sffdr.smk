@@ -1,0 +1,79 @@
+rule generate_sffdr_input:
+    input:
+        primary = config['sffdr_inputs']['primary'],
+        prune = config['sffdr_inputs']['prune'],
+        informative = config['sffdr_inputs']['informative']
+    output:
+        "results/sffdr/input.tsv"
+    threads: 8
+    resources:
+        runtime = 60
+    script: script_path("generate_sffdr_input.R")
+
+rule run_sffdr:
+    input:
+        rules.generate_sffdr_input.output
+    output:
+        tsv = "results/sffdr/results.tsv.gz",
+        rds = "results/sffdr/results.rds",
+        png = "results/sffdr/results.png"
+    params:
+        seed = 145,
+        use_indep_snps = False
+    threads: 16
+    resources:
+        runtime = 120
+    script: script_path("sffdr.R")
+
+rule distance_clump_sffdr:
+    input:
+        rules.run_sffdr.output
+    output:
+        "results/sffdr/{window_size}_{threshold}_lead_snps.tsv"
+    params:
+        mhc = False,
+        index_threshold = lambda wildcards: 5e-8 if wildcards.threshold == 'gws' else 1e-5,
+        distance_window = lambda w: int(w.window_size.split('kb')[0])*1e3,
+        p_col = 'fp'
+    threads: 16
+    resources:
+        runtime = 5
+    script: script_path("distance_clump.R")
+
+rule annotate_lead_snps_with_missense_and_qtl_info:
+    input:
+        lead_snps = rules.distance_clump_sffdr.output
+    output:
+        "results/sffdr/{window_size}_{threshold}_lead_snps_with_missense_and_qtl.tsv"
+    script: script_path("annotate_with_missense_and_qtl_info.py")
+
+rule annotate_lead_snps_with_nearest_gene:
+    input:
+        lead = rules.annotate_lead_snps_with_missense_and_qtl_info.output,
+        edb = rules.download_ensembl_db.output
+    output:
+        "results/sffdr/{window_size}_{threshold}_lead_snps_with_nearest_gene.tsv"
+    script: script_path("annotate_with_nearest_gene.R")
+
+rule finalise_lead_snp_annotations:
+    input:
+        lead_snps = rules.annotate_lead_snps_with_nearest_gene.output,
+        sffdr = rules.run_sffdr.output.tsv
+    output:
+        "results/sffdr/{window_size}_{threshold}_annotated_lead_snps.tsv"
+    threads: 8
+    resources:
+        runtime = 5
+    script: script_path("merge_lead_snps_and_sffdr_results.R")
+
+rule draw_manhattan_with_lead_snp_annotation:
+    input:
+        lead_snps = rules.finalise_lead_snp_annotations.output,
+        gwas = rules.run_sffdr.output.tsv
+    output:
+        "results/sffdr/{window_size}_{threshold}_manhattan_plot.png"
+    params:
+        width = 12,
+        height = 4,
+        p_col = 'fp'
+    script: script_path("plot_gwas_manhattan.R")
