@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
+import dask.dataframe as dd
 from scipy.stats import norm
 
 p = snakemake.params
 
-dfs = [pd.read_csv(f, sep="\t") for f in snakemake.input.imputed]
-df = pd.concat(dfs, ignore_index=True)
+df = dd.read_csv(list(snakemake.input.imputed), sep="\t").compute(scheduler="threads", num_workers=snakemake.threads)
 
 df["p_value"] = 2 * norm.sf(np.abs(df["z"]))
 
