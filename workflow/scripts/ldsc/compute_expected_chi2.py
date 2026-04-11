@@ -7,6 +7,12 @@ results = pd.read_csv(snakemake.input.results, sep="\t")
 tau = results["Coefficient"].values  # shape: (n_annot,)
 n_annot = len(tau)
 
+# Read median N from the munged sumstats file.
+# The LDSC model is E[chi2_j] = N * Σ_c(tau_c * l2_cj) + intercept,
+# so without N the Coefficient values (~1e-8) produce near-zero signal.
+sumstats = pd.read_csv(snakemake.input.sumstats, sep="\t", usecols=["N"])
+N = float(sumstats["N"].median())
+
 # Read and concatenate per-chromosome annotation LD scores
 # File format: CHR  SNP  BP  <annot1_L2>  <annot2_L2>  ...
 ldscore_dfs = [
@@ -23,11 +29,10 @@ assert len(annot_cols) == n_annot, (
     f"{len(annot_cols)} annotation columns in LD score files"
 )
 
-# E[chi2_j] = 1 + Σ_c(tau_c * l2_cj)
-# Baseline is 1.0 (assumes LDSC intercept ≈ 1).
-# If your data has substantial population stratification, consider
-# parsing the intercept from the .log file and adding it here instead.
-ld["chi2_expected"] = 1.0 + ld[annot_cols].values @ tau
+# E[chi2_j] = N * Σ_c(tau_c * l2_cj) + 1
+# Intercept assumed ≈ 1 (well-controlled GWAS). For studies with substantial
+# population stratification, parse the intercept from the .log file instead.
+ld["chi2_expected"] = 1.0 + N * (ld[annot_cols].values @ tau)
 
 ld[["SNP", "CHR", "BP", "chi2_expected"]].to_csv(
     snakemake.output[0], sep="\t", index=False, compression="gzip"

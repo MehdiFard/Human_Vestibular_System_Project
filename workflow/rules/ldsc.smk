@@ -148,6 +148,7 @@ rule compute_expected_chi2:
     """Compute per-SNP expected chi-squared from LDSC tau coefficients and BaselineLD LD scores."""
     input:
         results    = "results/ldsc/{trait}/ldsc.results",
+        sumstats   = "results/ldsc/sumstats/{trait}.sumstats.gz",
         annot_done = "resources/ldsc/baselineLD_hg38/.done"
     output:
         "results/ldsc/{trait}_expected_chi2.tsv.gz"
