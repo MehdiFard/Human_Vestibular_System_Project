@@ -420,7 +420,7 @@ rsync -avz --partial --progress \
 
 
 # From remote to local - run on local
-FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/man_plot_balance_ukb_hg38.pdf"
+FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/paper/figure4a1_vestibular.pdf"
 rsync -avz --progress \
         sesmae@login-2.hpc.childrens.sea.kids:$FILE .
         
@@ -903,3 +903,50 @@ mamba install -n susie_env2 -c conda-forge r-bigsnpr
 
 
 scp sesmae@login-1.hpc.childrens.sea.kids:/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/pca_expression_tmm_logcpm_sac_utr_* .
+
+
+
+mkdir -p src/ucsc_recomb/hg38/
+cd src/ucsc_recomb/hg38/
+wget http://hgdownload.soe.ucsc.edu/gbdb/hg38/recombRate/recomb1000GAvg.bw
+
+
+
+grep -H "ENSG00000167232__ENST00000300619" \
+Pantry/pheast_no_outlier/twas/twas_gtex/results/*/output/twas_hits.tsv \
+| sed -E 's|.*/results/([^/]+)/output/twas_hits.tsv:|\1\t|' > src/znf91_hits_in_gtex2.tsv
+
+
+
+for f in Pantry/pheast_no_outlier/twas/twas_gtex/results/*/output/twas_hits.tsv; do
+        tissue=$(basename "$(dirname "$(dirname "$f")")")
+        if grep -q "ENSG00000167232__ENST00000300619" "$f"; then
+                grep "ENSG00000167232__ENST00000300619" "$f" | sed "s/^/${tissue}\t/"
+        else
+                echo -e "${tissue}\tNO_HIT"
+        fi
+done > src/znf91_hits_in_gtex.tsv
+
+
+# This one is not much good
+grep -R --exclude="twas_hits.tsv" -n \
+        "ENSG00000167232__ENST00000300619" \
+        Pantry/pheast_no_outlier/twas/twas_gtex/results/*/output/ > tmp/search_res.txt
+
+
+
+### Install claude 
+
+npm install -g @anthropic-ai/claude-code
+curl -fsSL https://claude.ai/install.sh | bash
+
+curl -fsSL https://claude.ai/install.sh | bash
+wget -qO- https://claude.ai/install.sh | bash
+
+conda install -c conda-forge nodejs
+node --version
+npm --version
+npm install -g @anthropic-ai/claude-code
+
+which jq
+ldd $(which jq)

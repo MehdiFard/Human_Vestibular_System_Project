@@ -1,4 +1,6 @@
 rm(list = ls())
+getwd()
+
 
 # Set dir
 setwd("Pantry/")
@@ -230,6 +232,7 @@ vestib_hsq <- tibble(modality = modalities) |>
     filter(gene_id %in% genes)
 dim(vestib_hsq)
 View(vestib_hsq)
+unique(vestib_hsq$)
 
 # Write out the data
 write_tsv(vestib_hsq, "figures/data_tables/vestibular.hsq.tsv")

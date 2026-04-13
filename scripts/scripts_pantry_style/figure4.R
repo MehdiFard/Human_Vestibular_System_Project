@@ -8,6 +8,7 @@ library(ggplot2)
 library(tibble)
 library(forcats)
 
+
 modalities <- c(
     expression = "Expression",
     isoforms = "Isoform ratio",
@@ -75,6 +76,8 @@ d <- twas |>
             fct_relevel("Expression only", "Expr. & other(s)", "Non-expr. only")
     )
 View(d)
+unique(d$trait)
+write_tsv(d, "figures/data_tables/Figure_4a1_vestibular_expr_non-expr.tsv")
 
 d20 <- d |>
     filter(trait %in% levels(fct_infreq(trait))[1:20])
@@ -103,7 +106,8 @@ trait_labels <- c(
         cerebellar_volume = "Cerebellar volume",
         cerebral_volume = "Cerebral volume",
         subcortical_volume = "Subcortical volume",
-        ukbb_falls = "Falls-UKBB"
+        ukbb_falls = "Falls (UKBB)",
+        MVP_hearing_loss = "Hearing loss (MVP)"
 )
 
 trait_labels <- str_glue("{trait_labels} (n={ssize[names(trait_labels)]})") |> purrr::set_names(names(trait_labels))
@@ -123,11 +127,11 @@ d20 |>
         legend.position.inside = c(0.65, 0.35),
     ) +
     xlab("Genes with xTWAS hit(s)") +
-    ylab("Traits (top 20 by # of genes with hits)") +
+    ylab("GWAS Traits") +
     labs(fill = "Gene's xTWAS\nhits include")
 
 
-# ggsave("figures/figure4/figure4a1.png", width = 5.8, height = 3.7, device = png)
+ggsave("figures/paper/figure4a1_vestibular.pdf", width = 5.8, height = 3.7)
 ggsave("figures/paper/figure4a1_vestibular.pdf", width = 8.7, height = 5.55)
 
 ###################
@@ -156,11 +160,11 @@ top_hits |>
         legend.position.inside = c(0.65, 0.5),
     ) +
     xlab("Genes with xTWAS hit(s)") +
-    ylab("Traits (top 20 by # of genes with hits)") +
+    ylab("GWAS Traits") +
     labs(fill = "Modality of\ngene's top hit")
 
 # ggsave("figures/figure4/figure4a2.png", width = 5.8, height = 3.7, device = png)
-ggsave("figures/paper/figure4a2_vestibular.pdf", width = 8.7, height = 5.55)
+ggsave("figures/paper/figure4a2_vestibular.pdf", width = 5.8, height = 3.7)
 
 data_4ab <- full_join(
     d20,

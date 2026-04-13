@@ -74,9 +74,29 @@ ggplot(data_2a, aes(x = thousands, y = modality, fill = n_QTLs)) +
         legend.title = element_text(size = 8),
     )
 
+# Version 2: Just color by modality and ignoring xQTL counts
+ggplot(data_2a, aes(x = thousands, y = modality, fill = modality)) +
+    geom_col(width = 0.8) +
+    # scale_x_continuous(breaks = c(0, 2, 4, 6, 8, 10)) +
+    scale_fill_manual(values = modality_colors) +
+    labs(fill = "Modality") +
+    # xlab("xGenes (×1000)") +
+    xlab("xGenes (×10)") +
+    ylab("Modality") +
+    theme_classic() +
+    theme(
+        axis.text = element_text(color = "black"),
+        legend.position = "none"
+    )
+
+
 # ggsave("figures/paper/figure2a.png", width = 3.2, height = 1.7, device = png)
 # dir.create("figures/paper")
-ggsave("figures/paper/figure2a_vestibular.pdf", width = 3.2, height = 1.7)
+ggsave("figures/paper/figure2a_vestibular.pdf", width = 4.16, height = 2.08)
+
+# ggsave("figures/paper/figure2a_vestibular.pdf",
+#         units = "mm",
+#         width = 70, height = 35)
 
 
 # Write out data 

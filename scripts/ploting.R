@@ -1363,3 +1363,10 @@ ggsave(
   dpi = 300
 )
 
+###----------------- Summarize twas results for all significant genes
+library(readr)
+twas <- fread("Pantry/pheast_no_outlier/twas/vestibular/output/twas_hits_annot.tsv")
+head(twas)
+View(twas[1:5, ])
+length(unique(twas$ID))
+length(unique(twas$ENSG))
