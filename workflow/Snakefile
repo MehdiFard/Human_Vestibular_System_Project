@@ -20,7 +20,7 @@ pathvars:
     onekgp_root="results/1kG/hg38/unrelated/eur/{variant_type}/005/qc/{variant_set}"
 
 module kGP_pipeline:
-    snakefile: github("twillis209/1kGP_pipeline", path = "workflow/Snakefile", commit = "0f77bd1")
+    snakefile: github("twillis209/1kGP_pipeline", path = "workflow/Snakefile", branch = "containers")
     config: config['1kGP_pipeline']
 
 use rule * from kGP_pipeline as kGP_*

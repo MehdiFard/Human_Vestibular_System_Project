@@ -11,6 +11,7 @@ default-resources:
 keep-going: True
 software-deployment-method:
   - apptainer
+  # - conda
 apptainer-args: "--bind=$PWD --bind=/data/hps/assoc/private/gdml/user/twil15/1kGP_pipeline/results/1kG/hg38/unrelated/eur/snps_only/005/qc/sans_pars_and_sans_long_range_ld/pruned/1000_1_0_2"
 groups:
   - download_topld_reference=pred_ld

@@ -100,3 +100,22 @@ use rule draw_manhattan_with_lead_snp_annotation as draw_manhattan_with_lead_snp
         "results/sffdr/{window_size}_{threshold}_manhattan_plot.png"
     params:
         p_col = 'fp'
+
+rule get_pruned_set_from_sffdr_input:
+    input:
+        "results/sffdr/input.tsv"
+    output:
+        temp("results/sffdr/pruned_input.tsv")
+    shell:
+        """
+        head -n 1 {input} > {output}
+        grep "TRUE" {input}  >> {output}
+        """
+
+use rule draw_manhattan_with_lead_snp_annotation as plot_pruned_sffdr_input with:
+    input:
+        gwas = "results/sffdr/pruned_input.tsv"
+    output:
+        "results/sffdr/pruned_input.png"
+
+
