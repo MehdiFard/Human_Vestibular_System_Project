@@ -115,7 +115,7 @@ rule convert_pred_ld_to_harmonised_format:
         runtime = 30
     script: script_path("pred_ld/convert_to_harmonised_format.py")
 
-use rule draw_manhattan as draw_manhattan_for_imputed_gwas with:
+use rule draw_manhattan_with_lead_snp_annotation as draw_manhattan_for_imputed_gwas with:
     input:
         gwas = rules.convert_pred_ld_to_harmonised_format.output
     output:
