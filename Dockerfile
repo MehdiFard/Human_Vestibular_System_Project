@@ -21,8 +21,11 @@ RUN pip install --no-cache-dir \
     "gql[aiohttp]" \
     git+https://github.com/twillis209/PRED-LD.git@pip
 
-# Install LDSC from fork with Python 3 compatibility fix applied
-RUN git clone -b fix/annot-python3-scoping https://github.com/twillis209/ldsc.git /opt/ldsc \
+# Install LDSC from fork with Python 3 compatibility fixes applied.
+# Pin to a specific commit so that updating this SHA both triggers a rebuild
+# and busts the Docker layer cache for this step.
+RUN git clone https://github.com/twillis209/ldsc.git /opt/ldsc \
+    && git -C /opt/ldsc checkout ff09d76a924dc5f21c7d4e1939945cc7af4bb8ef \
     && pip install --no-cache-dir bitarray
 
 # Install pak for fast parallel R package installation
