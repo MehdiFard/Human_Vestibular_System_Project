@@ -10,8 +10,7 @@ n_annot = len(tau)
 # Read median N from the munged sumstats file.
 # The LDSC model is E[chi2_j] = N * Σ_c(tau_c * l2_cj) + intercept,
 # so without N the Coefficient values (~1e-8) produce near-zero signal.
-# sumstats = pd.read_csv(snakemake.input.sumstats, sep="\t", usecols=["N"])
-# N = float(sumstats["N"].median())
+sumstats = pd.read_csv(snakemake.input.sumstats, sep="\t", usecols=["SNP", "A1", "A2"])
 
 # Read and concatenate per-chromosome annotation LD scores
 # File format: CHR  SNP  BP  <annot1_L2>  <annot2_L2>  ...
@@ -35,7 +34,10 @@ assert len(annot_cols) == n_annot, (
 K = snakemake.params.case_proportion
 N = 4 * K * (1 - K) * snakemake.params.samples
 ld["chi2_expected"] = 1.0 + N * (ld[annot_cols].values @ tau)
+# Duplicate for the sake of merging with sffdr
 
-ld[["SNP", "CHR", "BP", "chi2_expected"]].to_csv(
+ld = ld.merge(sumstats, on="SNP")
+
+ld[["SNP", "CHR", "BP", "A1", "A2", "chi2_expected"]].to_csv(
     snakemake.output[0], sep="\t", index=False, compression="gzip"
 )

@@ -113,7 +113,8 @@ rule run_ldsc:
 rule compute_expected_chi2:
     """Compute per-SNP expected chi-squared from LDSC tau coefficients and BaselineLD LD scores."""
     input:
-        results    = rules.run_ldsc.output.results
+        results    = rules.run_ldsc.output.results,
+        sumstats     = rules.munge_sumstats.output[0]
     output:
         "results/ldsc/{trait}/expected_chi2.tsv.gz"
     params:

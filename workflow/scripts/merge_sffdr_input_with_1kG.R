@@ -26,10 +26,14 @@ onekgp[, (bp_col) := as.integer(get(bp_col))]
 primary <- merge(primary, onekgp, by = coord_cols)
 
 for(i in seq_along(snakemake@input$informative)) {
-  informative <- fread(snakemake@input$informative[[i]], select = c(coord_cols, p_col))
+  informative <- fread(snakemake@input$informative[[i]])
 
   informative[, (chr_col) := as.character(get(chr_col))]
   informative[, (bp_col) := as.integer(get(bp_col))]
+
+  if("chi2_expected" %in% names(informative)) {
+    setnames(informative, "chi2_expected", p_col)
+  }
 
   informative <- informative[!is.na(get(p_col))]
 

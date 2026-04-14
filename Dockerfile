@@ -50,3 +50,15 @@ RUN Rscript -e "\
         'twillis209/tomics', \
         'ajbass/sffdr' \
     ))"
+
+# plink2 and plink binaries
+RUN wget -q -O /tmp/plink2.zip \
+        https://s3.amazonaws.com/plink2-assets/plink2_linux_x86_64_20260311.zip \
+    && unzip -j /tmp/plink2.zip plink2 -d /usr/local/bin \
+    && chmod +x /usr/local/bin/plink2 \
+    && rm /tmp/plink2.zip \
+    && wget -q -O /tmp/plink.zip \
+        https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20250819.zip \
+    && unzip -j /tmp/plink.zip plink -d /usr/local/bin \
+    && chmod +x /usr/local/bin/plink \
+    && rm /tmp/plink.zip

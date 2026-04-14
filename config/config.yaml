@@ -55,6 +55,7 @@ sffdr_inputs:
   informative:
     - "results/pred_ld/tinnitus_eur/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
     - "results/pred_ld/hearing_hleur/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
+    - "results/ldsc/balance_meta_eur/expected_chi2.tsv.gz"
 col_names:
   # NB: looks like the plink naming convention
   chromosome: "CHR"
