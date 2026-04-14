@@ -68,14 +68,19 @@ col_names:
   rsid: "rsID"
   sample_size: "N"
 gwas_datasets:
+  balance_meta1:
+    samples: 781387
+    cases: 96574
+    controls: 684813
   balance_meta_eur:
-    samples: 303743
-    cases: 36573
-    controls: 267170
-    case_proportion: 0.1204077
+    samples: 667777
+    cases: 82751
+    controls: 585026
+    case_proportion: 0.123920111055
     pop_prevalence: 0.05
   UKB_EUR_balance:
     samples: 364034
     cases: 46178
     controls: 317856
+    case_proportion: 0.126850788663
     pop_prevalence: 0.05

@@ -1,4 +1,3 @@
-# workflow/rules/ldsc.smk
 import yaml
 import os
 
@@ -104,8 +103,8 @@ rule run_ldsc:
             --frqfile-chr {params.frq_prefix} \
             --ref-ld-chr {params.annot_prefix} \
             --w-ld-chr {params.weights_prefix} \
-            # --samp-prev {params.case_proportion} \
-            # --pop-prev {params.pop_prevalence} \
+            --samp-prev {params.case_proportion} \
+            --pop-prev {params.pop_prevalence} \
             --overlap-annot \
             --print-coefficients \
             --out {params.out_prefix}
@@ -114,15 +113,14 @@ rule run_ldsc:
 rule compute_expected_chi2:
     """Compute per-SNP expected chi-squared from LDSC tau coefficients and BaselineLD LD scores."""
     input:
-        sumstats   = rules.munge_sumstats.output[0],
         results    = rules.run_ldsc.output.results
     output:
         "results/ldsc/{trait}/expected_chi2.tsv.gz"
     params:
         annot_prefix = "resources/ldsc/GRCh38/baselineLD_v2.2/baselineLD.",
         chroms       = list(range(1, 23)),
-        cases = lambda w: config.get('gwas_datasets').get(w.trait).get('cases'),
-        controls = lambda w: config.get('gwas_datasets').get(w.trait).get('controls')
+        samples = lambda w: config.get('gwas_datasets').get(w.trait).get('samples'),
+        case_proportion = lambda w: config.get('gwas_datasets').get(w.trait).get('case_proportion')
     threads: 1
     resources:
         runtime = 30
