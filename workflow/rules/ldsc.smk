@@ -60,7 +60,7 @@ rule munge_sumstats:
         alt_col  = config['col_names']['effect_allele'],
         ref_col  = config['col_names']['other_allele'],
         beta_col = config['col_names']['beta'],
-        n_col    = config['col_names']['sample_size'],
+        samples = lambda w: config.get('gwas_datasets').get(w.trait).get('samples'),
         out_prefix = subpath(output[0], strip_suffix = ".sumstats.gz")
     resources:
         runtime = 30
@@ -72,7 +72,7 @@ rule munge_sumstats:
             --a1 {params.alt_col} \
             --a2 {params.ref_col} \
             --signed-sumstats {params.beta_col},0 \
-            --N-col {params.n_col} \
+            --N {params.samples} \
             --merge-alleles {input.snp_list} \
             --out {params.out_prefix}
         """
@@ -91,7 +91,9 @@ rule run_ldsc:
         annot_prefix   = "resources/ldsc/GRCh38/baselineLD_v2.2/baselineLD.",
         weights_prefix = "resources/ldsc/GRCh38/weights/weights.hm3_noMHC.",
         frq_prefix = "resources/ldsc/1000G_Phase3_frq/1000G.EUR.QC.",
-        out_prefix     = "results/ldsc/{trait}/ldsc"
+        out_prefix     = "results/ldsc/{trait}/ldsc",
+        case_proportion = lambda w: config.get('gwas_datasets').get(w.trait).get('case_proportion'),
+        pop_prevalence = lambda w: config.get('gwas_datasets').get(w.trait).get('pop_prevalence')
     resources:
         runtime = 60,
         mem_mb  = 16000
@@ -102,6 +104,8 @@ rule run_ldsc:
             --frqfile-chr {params.frq_prefix} \
             --ref-ld-chr {params.annot_prefix} \
             --w-ld-chr {params.weights_prefix} \
+            # --samp-prev {params.case_proportion} \
+            # --pop-prev {params.pop_prevalence} \
             --overlap-annot \
             --print-coefficients \
             --out {params.out_prefix}
@@ -116,7 +120,9 @@ rule compute_expected_chi2:
         "results/ldsc/{trait}/expected_chi2.tsv.gz"
     params:
         annot_prefix = "resources/ldsc/GRCh38/baselineLD_v2.2/baselineLD.",
-        chroms       = list(range(1, 23))
+        chroms       = list(range(1, 23)),
+        cases = lambda w: config.get('gwas_datasets').get(w.trait).get('cases'),
+        controls = lambda w: config.get('gwas_datasets').get(w.trait).get('controls')
     threads: 1
     resources:
         runtime = 30

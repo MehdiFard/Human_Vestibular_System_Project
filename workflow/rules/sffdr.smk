@@ -47,7 +47,7 @@ rule run_sffdr:
         png = "results/sffdr/results.png"
     params:
         seed = 145,
-        use_indep_snps = True
+        use_indep_snps = False
     threads: 16
     resources:
         runtime = 120
@@ -117,5 +117,3 @@ use rule draw_manhattan_with_lead_snp_annotation as plot_pruned_sffdr_input with
         gwas = "results/sffdr/pruned_input.tsv"
     output:
         "results/sffdr/pruned_input.png"
-
-
