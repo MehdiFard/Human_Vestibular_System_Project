@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Python virtual environment
 RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/opt/venv/bin:/usr/local/bin:$PATH"
 
 # Install Python packages
 RUN pip install --no-cache-dir \
