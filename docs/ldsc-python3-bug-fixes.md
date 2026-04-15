@@ -76,3 +76,73 @@ def annot_parser(fh, compression, frqfile_full=None, compression_frq=None):
     df_annot = df_annot.drop(['SNP', 'CHR', 'BP', 'CM'], axis=1, errors='ignore').astype(float)
     return df_annot
 ```
+
+---
+
+## Bug 3: `munge_sumstats` silent failure to drop rows with missing values
+
+**Symptom**
+
+The `munge_sumstats.py` log correctly reports the number of SNPs with missing values, but those rows are not removed from the output `.sumstats.gz` file — rows with missing beta, N, or alleles survive with only the SNP column populated.
+
+**Root cause**
+
+In `parse_dat()`, the `dropna` call uses Python 3's lazy `filter()` iterator as the `subset` argument:
+
+```python
+dat = dat.dropna(axis=0, how="any", subset=filter(
+    lambda x: x != 'INFO', dat.columns)).reset_index(drop=True)
+```
+
+In Python 2, `filter()` returned a list. In Python 3, it returns a lazy iterator. Newer pandas versions do not properly consume the iterator as a `subset` argument, effectively treating it as an empty sequence — so no rows are dropped regardless of missing values.
+
+**Fix**
+
+Wrap in `list()` to materialise the iterator before passing it to pandas:
+
+```python
+dat = dat.dropna(axis=0, how="any", subset=list(filter(
+    lambda x: x != 'INFO', dat.columns))).reset_index(drop=True)
+```
+
+---
+
+## Bug 4: NumPy 2.0 incompatibility in `RG.__init__` (`estimate_rg` crash)
+
+**Symptom**
+
+`ldsc.py --rg` fails with:
+
+```
+TypeError: only 0-dimensional arrays can be converted to Python scalars
+```
+
+followed by a secondary error:
+
+```
+TypeError: '>=' not supported between instances of 'TypeError' and 'int'
+```
+
+**Root cause**
+
+Two independent issues:
+
+1. In `ldscore/regressions.py`, the jackknife estimate `rg.jknife_est` has shape `(1, 1)` (per the docstring: `np.matrix with shape (1, p)`). NumPy 2.0 tightened `float()` conversion to require strictly 0-dimensional arrays; a `(1, 1)` array no longer converts implicitly. The same applies to `rg.jknife_se` and `rg_ratio`.
+
+2. In `ldscore/sumstats.py`, the exception handler calls `traceback.format_exc(ex)` passing the caught exception object as the first positional argument. In Python 3, `traceback.format_exc(limit=None)` expects an integer limit, not an exception object. When the primary `TypeError` is caught, passing it as `limit` triggers a second `TypeError` when the traceback module attempts `if limit >= 0`.
+
+**Fix**
+
+In `regressions.py`, use `.item()` to extract a Python scalar from any size-1 array:
+
+```python
+self.rg_jknife = float(rg.jknife_est.item())
+self.rg_se = float(rg.jknife_se.item())
+self.rg_ratio = float(rg_ratio.item())
+```
+
+In `sumstats.py`, call `format_exc()` with no arguments so it reads the current exception from context:
+
+```python
+log.log(traceback.format_exc() + '\n')
+```
