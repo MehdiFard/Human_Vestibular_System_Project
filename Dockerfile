@@ -28,12 +28,12 @@ RUN git clone https://github.com/twillis209/ldsc.git /opt/ldsc \
     && git -C /opt/ldsc checkout 934a94d052fb4c12b713b79f7ffe445b7e303645 \
     && pip install --no-cache-dir bitarray
 
-# Install pak for fast parallel R package installation
-RUN Rscript -e "install.packages('pak', repos = 'https://cloud.r-project.org')"
+# Install BiocManager and remotes for package installation
+RUN Rscript -e "install.packages(c('BiocManager', 'remotes'), repos = 'https://cloud.r-project.org')"
 
 # Bioconductor and CRAN packages (stable — add new ones here)
 RUN Rscript -e "\
-    pak::pak(c( \
+    BiocManager::install(c( \
         'AnnotationHub', \
         'ensembldb', \
         'GenomicRanges', \
@@ -42,11 +42,11 @@ RUN Rscript -e "\
         'ggtext', \
         'ggrepel', \
         'R.utils' \
-    ))"
+    ), ask = FALSE)"
 
 # GitHub R packages (volatile — add new ones here without touching the layer above)
 RUN Rscript -e "\
-    pak::pak(c( \
+    remotes::install_github(c( \
         'twillis209/tomics', \
         'ajbass/sffdr' \
     ))"
