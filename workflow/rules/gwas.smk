@@ -53,7 +53,7 @@ rule draw_manhattan_with_lead_snp_annotation:
         gwas = "resources/gwas/{trait}_formatted_hg38_ChrPosId.tsv.gz",
         lead_snps = rules.finalise_lead_snp_annotations.output
     output:
-        "results/gwas/{trait}/annotated_manhattan.png"
+        "results/gwas/{trait}/{window_size}_{threshold}_annotated_manhattan.png"
     params:
         title = '',
         width = 6,

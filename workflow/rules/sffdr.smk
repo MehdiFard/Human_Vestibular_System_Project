@@ -68,7 +68,7 @@ rule distance_clump_sffdr:
         runtime = 5
     script: script_path("distance_clump.R")
 
-rule annotate_lead_snps_with_missense_and_qtl_info_for_sffdr:
+use rule annotate_lead_snps_with_missense_and_qtl_info as annotate_lead_snps_with_missense_and_qtl_info_for_sffdr with:
     input:
         lead_snps = rules.distance_clump_sffdr.output
     output:

@@ -106,3 +106,17 @@ gwas_datasets:
     samples: 3887532
     cases: 525197
     controls: 3362335
+  subcortical_volume:
+    samples: 27486
+  non_cognitive_skills_ext:
+    samples: 10346
+  fluid_intelligence_eur:
+    samples: 125935
+  frailty_gwas:
+    samples: 386565
+  cerebral_volume:
+    samples: 27486
+  cerebellar_volume:
+    samples: 27486
+  alzheimer:
+    samples: 1

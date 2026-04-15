@@ -13,6 +13,7 @@ I will add:
 - genes for which the lead variants is in a qtl credible set;
 - if none of the above,  nearest gene
 """
+
 base_url = "https://api.platform.opentargets.org/api/v4/graphql"
 
 col_names = snakemake.config["col_names"]
