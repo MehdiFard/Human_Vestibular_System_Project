@@ -269,6 +269,12 @@ def query_snp_missense_and_nearest_gene(variant_id):
 
     response_data = json.loads(r.text)["data"]
 
+    if (
+        response_data["variant"] is None
+        or not response_data["variant"]["transcriptConsequences"]
+    ):
+        return None
+
     daf = pd.json_normalize(
         response_data["variant"], record_path=["transcriptConsequences"]
     )
@@ -317,7 +323,7 @@ def fetch_genes_using_open_targets_api(daf):
 
         missense_and_nearest = query_snp_missense_and_nearest_gene(variant_id)
 
-        if (
+        if missense_and_nearest is not None and (
             missense_and_nearest[
                 missense_and_nearest["variantConsequence"] == "missense_variant"
             ].shape[0]

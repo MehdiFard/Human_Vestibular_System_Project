@@ -124,6 +124,58 @@ rule run_ldsc:
             --out {params.out_prefix}
         """
 
+rule compile_rg:
+    """Compile rg estimates, SEs, p-values, and intercepts from multiple LDSC rg log files."""
+    input:
+        # Placeholder: populate with your trait pairs, e.g.:
+        # expand(
+        #     "results/ldsc/{trait_A}_and_{trait_B}/rg.log",
+        #     zip,
+        #     trait_A = [t[0] for t in config['rg_pairs']],
+        #     trait_B = [t[1] for t in config['rg_pairs']],
+        # )
+        logs = expand(
+            "results/ldsc/{trait_A}_and_{trait_B}/rg.log",
+            zip,
+            trait_A = [t[0] for t in config['rg_pairs']],
+            trait_B = [t[1] for t in config['rg_pairs']],
+        )
+    output:
+        "results/ldsc/rg_compiled.tsv"
+    run:
+        import io
+        import re
+        import pandas as pd
+
+        frames = []
+        for log_file in input.logs:
+            with open(log_file) as f:
+                text = f.read()
+
+            match = re.search(
+                r"Summary of Genetic Correlation Results\n(.*?)\n\n",
+                text,
+                re.DOTALL,
+            )
+            if not match:
+                print(f"WARNING: no summary table found in {log_file}")
+                continue
+
+            df = pd.read_csv(
+                io.StringIO(match.group(1).strip()),
+                sep=r"\s+",
+                engine="python",
+            )
+            frames.append(df)
+
+        result = pd.concat(frames, ignore_index=True)
+
+        # Derive short trait names from the sumstats file paths in p1/p2
+        result.insert(0, "trait_A", result["p1"].str.extract(r"/([^/]+)\.sumstats\.gz$"))
+        result.insert(1, "trait_B", result["p2"].str.extract(r"/([^/]+)\.sumstats\.gz$"))
+
+        result.to_csv(output[0], sep="\t", index=False)
+
 rule compute_expected_chi2:
     """Compute per-SNP expected chi-squared from LDSC tau coefficients and BaselineLD LD scores."""
     input:
