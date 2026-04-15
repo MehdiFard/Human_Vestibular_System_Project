@@ -1,8 +1,6 @@
 library(dplyr)
 library(readr)
 
-save.image('convert.RData')
-
 # Read input
 gwas <- read_tsv(snakemake@input[[1]], show_col_types = FALSE)
 

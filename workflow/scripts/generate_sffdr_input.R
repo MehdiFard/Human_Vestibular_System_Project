@@ -38,7 +38,8 @@ for(i in seq_along(snakemake@input$informative)) {
   informative[, (bp_col) := as.integer(get(bp_col))]
 
   if("chi2_expected" %in% names(informative)) {
-    setnames(informative, "chi2_expected", p_col)
+    informative[, (p_col) := pchisq(chi2_expected, df = 1, lower.tail = FALSE)]
+    informative[, chi2_expected := NULL]
   }
 
   informative <- informative[!is.na(get(p_col))]

@@ -55,7 +55,9 @@ sffdr_inputs:
   informative:
     - "results/pred_ld/tinnitus_eur/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
     - "results/pred_ld/hearing_hleur/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
-    - "results/ldsc/balance_meta_eur/expected_chi2.tsv.gz"
+    - "results/pred_ld/anx_eur/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
+    - "results/pred_ld/depression_mdd/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
+    # - "results/ldsc/balance_meta_eur/expected_chi2.tsv.gz"
 col_names:
   # NB: looks like the plink naming convention
   chromosome: "CHR"
@@ -85,3 +87,22 @@ gwas_datasets:
     controls: 317856
     case_proportion: 0.126850788663
     pop_prevalence: 0.05
+  hearing_hleur:
+    paper_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC6817556/
+    samples: 250389
+    cases: 87056
+    controls: 163333
+  tinnitus_eur:
+    paper_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC10799010/
+    samples: 481874
+  anx_eur:
+    # Numbers don't exactly match but probably this one? https://www.nature.com/articles/s41588-025-02485-8
+    # That one has 122,341 cases and 729,811 controls
+    # Actually maybe this one? https://www.nature.com/articles/s41588-024-01908-2#Tab1
+    samples: 845137
+  depression_mdd:
+    # This are in Table S1B
+    paper_url: https://www.sciencedirect.com/science/article/pii/S0092867424014156?via%3Dihub#mmc2
+    samples: 3887532
+    cases: 525197
+    controls: 3362335

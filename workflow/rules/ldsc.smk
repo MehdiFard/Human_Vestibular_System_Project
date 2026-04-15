@@ -76,8 +76,22 @@ rule munge_sumstats:
             --out {params.out_prefix}
         """
 
+rule estimate_rg:
+    input:
+        sumstats_A = "results/ldsc/sumstats/{trait_A}.sumstats.gz",
+        sumstats_B = "results/ldsc/sumstats/{trait_B}.sumstats.gz",
+        ld_scores = expand("resources/ldsc/1000G_Phase3_ldscores/LDscore.{chr}.l2.{ext}", chr = range(1,23), ext = ["ldscore.gz", "M", "M_5_50"]),
+        weights = expand("resources/ldsc/1000G_Phase3_weights_hm3_no_MHC/weights.hm3_noMHC.{chr}.l2.ldscore.gz", chr = range(1,23))
+    output:
+        "results/ldsc/{trait_A}_and_{trait_B}/rg.log"
+    params:
+        ld_score_stem = "resources/ldsc/1000G_Phase3_ldscores/LDscore.",
+        weight_stem = "resources/ldsc/1000G_Phase3_weights_hm3_no_MHC/weights.hm3_noMHC.",
+        out_stem = "results/ldsc/{trait_A}_and_{trait_B}/rg"
+    shell: "python /opt/ldsc/ldsc.py --rg {input.sumstats_A},{input.sumstats_B} --ref-ld-chr {params.ld_score_stem} --w-ld-chr {params.weight_stem} --out {params.out_stem}"
+
 rule run_ldsc:
-    """Run stratified LDSC with the BaselineLD model to estimate per-annotation tau coefficients. Need to do my own MAF filtering as I'm not using the LDSC frq files."""
+    """Run stratified LDSC with the BaselineLD model to estimate per-annotation tau coefficients."""
     input:
         # TODO list the input files properly
         sumstats     = rules.munge_sumstats.output,
