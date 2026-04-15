@@ -37,6 +37,7 @@ RUN Rscript -e "\
         'AnnotationHub', \
         'ensembldb', \
         'GenomicRanges', \
+        'qvalue', \
         'data.table', \
         'magrittr', \
         'ggtext', \
