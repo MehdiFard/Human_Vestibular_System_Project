@@ -117,3 +117,15 @@ use rule draw_manhattan_with_lead_snp_annotation as plot_pruned_sffdr_input with
         gwas = "results/sffdr/pruned_input.tsv"
     output:
         "results/sffdr/pruned_input.png"
+
+rule draw_locuszoomr_plot_for_sffdr:
+    input:
+        gwas = rules.run_sffdr.output.tsv,
+        edb = rules.download_ensembl_db.output
+    output:
+        "results/sffdr/locuszoom/{chr}_{start}_{end}.png"
+    params:
+        p_col = 'fp'
+    resources:
+        runtime = 10
+    script: script_path("locuszoomr/plot_locus.R")
