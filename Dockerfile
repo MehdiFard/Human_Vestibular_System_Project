@@ -43,7 +43,8 @@ RUN Rscript -e "\
         'ggtext', \
         'ggrepel', \
         'R.utils', \
-        'locuszoomr' \
+        'locuszoomr', \
+        'patchwork' \
     ), ask = FALSE)"
 
 # GitHub R packages (volatile — add new ones here without touching the layer above)

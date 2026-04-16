@@ -123,9 +123,8 @@ rule draw_locuszoomr_plot_for_sffdr:
         gwas = rules.run_sffdr.output.tsv,
         edb = rules.download_ensembl_db.output
     output:
-        "results/sffdr/locuszoom/{chr}_{start}_{end}.png"
+        "results/sffdr/locuszoomr/{chr}_{start}_{end}.png"
     params:
-        p_col = 'fp'
+        p_col         = 'fp',
+        snps_to_label = []
     resources:
-        runtime = 10
-    script: script_path("locuszoomr/plot_locus.R")
