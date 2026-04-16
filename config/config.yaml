@@ -57,6 +57,8 @@ sffdr_inputs:
     - "results/pred_ld/hearing_hleur/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
     - "results/pred_ld/anx_eur/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
     - "results/pred_ld/depression_mdd/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
+    - "results/pred_ld/frailty_gwas/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
+    # - "results/pred_ld/non_cognitive_skills_ext/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
     # - "results/ldsc/balance_meta_eur/expected_chi2.tsv.gz"
 col_names:
   # NB: looks like the plink naming convention
@@ -70,6 +72,8 @@ col_names:
   p_value: "P"
   rsid: "rsID"
   sample_size: "N"
+  # "cerebral_volume", 
+candidate_informative_studies: ["subcortical_volume", "non_cognitive_skills_ext", "fluid_intelligence_eur", "frailty_gwas", "cerebellar_volume", "alzheimer", "tinnitus_eur", "hearing_hleur", "anx_eur", "depression_mdd"]
 gwas_datasets:
   balance_meta1:
     samples: 781387
@@ -119,4 +123,4 @@ gwas_datasets:
   cerebellar_volume:
     samples: 27486
   alzheimer:
-    samples: 1
+    samples: 488511

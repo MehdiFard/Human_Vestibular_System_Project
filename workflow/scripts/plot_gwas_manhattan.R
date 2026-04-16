@@ -18,7 +18,7 @@ if (is.null(snakemake@params[["height"]])) {
 }
 
 if (is.null(snakemake@params$ylim)) {
-  ylim <- c(1, 1e-10)
+  ylim <- c(1, 1e-20)
 } else {
   ylim <- snakemake@params$ylim
 }
@@ -32,7 +32,7 @@ theme_set(theme_bw() +
     axis.text.y = element_text(size = 10, color = "black"),
     legend.title = element_text(size = 10),
     legend.text = element_text(size = 10),
-    panel.grid.major.y = element_blank()
+    panel.grid.minor.y = element_blank()
   ))
 
 chr_col <- snakemake@config[["col_names"]][["chromosome"]]
@@ -54,7 +54,7 @@ if(!is.null(snakemake@input$lead_snps)) {
   setnames(lead_snps, c(snakemake@config[["col_names"]][["chromosome"]], snakemake@config[["col_names"]][["base_pair_location"]], 'genes'), c('chr', 'bp', 'gene'))
 
   ggsave(
-    draw_manhattan(procd_sumstats, lead_snps = lead_snps, stat_col = p_col, y_limits = c(1, 1e-20), palette = c('black', 'gray'), repel_args = list(size = 4, angle = 0, colour = "black", min.segment.length = 0)) +
+    draw_manhattan(procd_sumstats, lead_snps = lead_snps, stat_col = p_col, y_limits = ylim, y_axis_breaks = 10^(-seq(0, 20, by = 1)), palette = c('black', 'gray'), repel_args = list(size = 4, angle = 0, colour = "black", min.segment.length = 0, nudge_y = 4)) +
     geom_hline(yintercept = 5e-8, linetype = "dashed", color = "black"),
     file = snakemake@output[[1]],
     width = width,
@@ -62,7 +62,7 @@ if(!is.null(snakemake@input$lead_snps)) {
   )
 } else {
   ggsave(
-    draw_manhattan(procd_sumstats, stat_col = p_col, y_limits = c(1, 1e-20), palette = c('black', 'gray'), repel_args = list(size = 4, angle = 0, colour = "black", min.segment.length = 0)) +
+    draw_manhattan(procd_sumstats, stat_col = p_col, y_limits = ylim, y_axis_breaks = 10^(-seq(0, 20, by = 1)), palette = c('black', 'gray'), repel_args = list(size = 4, angle = 0, colour = "black", min.segment.length = 0)) +
     geom_hline(yintercept = 5e-8, linetype = "dashed", color = "black"),
     file = snakemake@output[[1]],
     width = width,

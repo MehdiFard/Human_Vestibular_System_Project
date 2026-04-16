@@ -61,7 +61,7 @@ rule run_pred_ld_imputation:
         maf = lambda w: float(f"0.{w.maf}"),
         ref_dir = "resources/pred_ld",
         output_dir = "results/pred_ld/{trait_to_impute}/imputed/EUR/r2_{r2threshold}/maf_0_{maf}"
-    threads: 8
+    threads: 12
     resources:
         runtime = 120
     shell:
@@ -120,3 +120,7 @@ use rule draw_manhattan_with_lead_snp_annotation as draw_manhattan_for_imputed_g
         gwas = rules.convert_pred_ld_to_harmonised_format.output
     output:
         "results/pred_ld/{trait_to_impute}/imputed/EUR/r2_{r2threshold}/maf_0_{maf}/combined.png"
+
+rule draw_imputed_informative_study_manhattans:
+    input:
+        expand("results/pred_ld/{trait}/imputed/EUR/r2_0_2/maf_0_005/combined.png", trait = config.get("candidate_informative_studies"))

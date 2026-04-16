@@ -105,8 +105,8 @@ rule run_ldsc:
         weights_prefix = "resources/ldsc/GRCh38/weights/weights.hm3_noMHC.",
         frq_prefix = "resources/ldsc/1000G_Phase3_frq/1000G.EUR.QC.",
         out_prefix     = "results/ldsc/{trait}/ldsc",
-        case_proportion = lambda w: config.get('gwas_datasets').get(w.trait).get('case_proportion'),
-        pop_prevalence = lambda w: config.get('gwas_datasets').get(w.trait).get('pop_prevalence')
+        # case_proportion = lambda w: config.get('gwas_datasets').get(w.trait).get('case_proportion'),
+        # pop_prevalence = lambda w: config.get('gwas_datasets').get(w.trait).get('pop_prevalence')
     resources:
         runtime = 60,
         mem_mb  = 16000
@@ -117,28 +117,19 @@ rule run_ldsc:
             --frqfile-chr {params.frq_prefix} \
             --ref-ld-chr {params.annot_prefix} \
             --w-ld-chr {params.weights_prefix} \
-            --samp-prev {params.case_proportion} \
-            --pop-prev {params.pop_prevalence} \
             --overlap-annot \
             --print-coefficients \
             --out {params.out_prefix}
         """
 
+            # --samp-prev {params.case_proportion} \
+            # --pop-prev {params.pop_prevalence} \
 rule compile_rg:
     """Compile rg estimates, SEs, p-values, and intercepts from multiple LDSC rg log files."""
     input:
-        # Placeholder: populate with your trait pairs, e.g.:
-        # expand(
-        #     "results/ldsc/{trait_A}_and_{trait_B}/rg.log",
-        #     zip,
-        #     trait_A = [t[0] for t in config['rg_pairs']],
-        #     trait_B = [t[1] for t in config['rg_pairs']],
-        # )
         logs = expand(
-            "results/ldsc/{trait_A}_and_{trait_B}/rg.log",
-            zip,
-            trait_A = [t[0] for t in config['rg_pairs']],
-            trait_B = [t[1] for t in config['rg_pairs']],
+            "results/ldsc/balance_meta_eur_and_{trait_B}/rg.log",
+            trait_B = config['candidate_informative_studies']
         )
     output:
         "results/ldsc/rg_compiled.tsv"

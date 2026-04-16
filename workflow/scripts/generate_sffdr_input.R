@@ -38,13 +38,14 @@ for(i in seq_along(snakemake@input$informative)) {
   informative[, (bp_col) := as.integer(get(bp_col))]
 
   if("chi2_expected" %in% names(informative)) {
-    informative[, (p_col) := pchisq(chi2_expected, df = 1, lower.tail = FALSE)]
-    informative[, chi2_expected := NULL]
-  }
-
-  informative <- informative[!is.na(get(p_col))]
-
-  primary <- merge(primary, informative[, ..cols_to_keep], by = coord_cols, suffixes = c('', sprintf(".%d", i)))
+    informative <- informative[!is.na(chi2_expected)]
+    cols_to_keep <- c(coord_cols, 'chi2_expected')
+    primary <- merge(primary, informative[, ..cols_to_keep], by = coord_cols)
+  } else {
+    informative <- informative[!is.na(get(p_col))]
+    cols_to_keep <- c(coord_cols, stat_cols)
+    primary <- merge(primary, informative[, ..cols_to_keep], by = coord_cols, suffixes = c('', sprintf(".%d", i)))
+ }
 }
 
 # Drop a very extended definition of the MHC
