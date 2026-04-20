@@ -127,4 +127,4 @@ rule draw_locuszoomr_plot_for_sffdr:
     params:
         p_col         = 'fp',
         snps_to_label = []
-    resources:
+    script: script_path("locuszoomr/plot_locus.R")
