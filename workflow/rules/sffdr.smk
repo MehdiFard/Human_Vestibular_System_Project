@@ -97,7 +97,7 @@ use rule draw_manhattan_with_lead_snp_annotation as draw_manhattan_with_lead_snp
         lead_snps = rules.finalise_lead_snp_annotations_for_sffdr.output,
         gwas = rules.run_sffdr.output.tsv
     output:
-        "results/sffdr/{window_size}_{threshold}_manhattan_plot.png"
+         "results/sffdr/{window_size}_{threshold}_manhattan_plot.png"
     params:
         p_col = 'fp'
 

@@ -138,3 +138,6 @@ gwas_datasets:
     controls: 401577
     ancestry: "European"
     accession_no: "GCST90027158"
+apis:
+  ldlink:
+    token: "a39950a52a4b"

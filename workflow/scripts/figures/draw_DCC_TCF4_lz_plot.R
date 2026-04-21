@@ -4,6 +4,8 @@ library(ensembldb)
 library(patchwork)
 library(ggplot2)
 theme_set(theme_bw())
+save.image('dcc.RData')
+stop()
 
 chr_col  <- snakemake@config[["col_names"]][["chromosome"]]
 bp_col   <- snakemake@config[["col_names"]][["base_pair_location"]]
@@ -37,11 +39,24 @@ loc <- locus(
     seqname    = chr,
     xrange     = c(start_bp, end_bp),
     index_snp  = snps_to_label[1],
-    ens_db     = edb
-)
+    ens_db     = edb,
+  )
 
-p_scatter <- gg_scatter(loc, showLD = FALSE, labels = snps_to_label,
-                        min.segment.length = 0, nudge_y = 1)+ylab("-log10 functional\np-value")+theme(axis.title.y = element_text(angle = 0, vjust = 0.5))+ylim(0, 11)
+loc <- link_LD(loc, token = snakemake@config$apis$ldlink$token, pop = "EUR")
+loc <- link_recomb(loc)
+
+# NB: necessary to customise y axes.
+rscale <- max(loc$recomb$value, na.rm = TRUE) / max(loc$data$logP, na.rm = TRUE)
+
+p_scatter <- gg_scatter(loc, showLD = TRUE, labels = snps_to_label,
+                        min.segment.length = 0, nudge_y = 1)+ylim(0, 11)+scale_y_continuous(
+     name    = expression(-log[10](plain("functional p-value"))),
+     sec.axis = sec_axis(
+       ~ . * rscale,
+       name   = "Recombination rate (cM/Mb)",
+       breaks = seq(0, 100, 25)
+     )
+   )+theme(legend.background = element_rect(fill = "transparent"))
 
 ggsave(p_scatter / gg_genetracks(loc, filter_gene_biotype = 'protein_coding') + plot_layout(heights = c(3, 1)),
        file = snakemake@output[[1]], width = 6, height = 6)
