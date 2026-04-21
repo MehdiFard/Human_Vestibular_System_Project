@@ -19,6 +19,7 @@ RUN pip install --no-cache-dir \
     numpy \
     scipy \
     "gql[aiohttp]" \
+    xlsxwriter \
     git+https://github.com/twillis209/PRED-LD.git@pip
 
 # Install LDSC from fork with Python 3 compatibility fixes applied.
