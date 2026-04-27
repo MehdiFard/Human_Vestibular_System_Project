@@ -60,11 +60,11 @@ sac_vs_utr_w8_up_GSEA <- gseGO(geneList     = sac_vs_utr_w8_up,
 search_kegg_organism('mmu', by='kegg_code')
 # KEGG pathway analysis
 sac_vs_utr_w8_up_KEGG <- gseKEGG(geneList     = sac_vs_utr_w8_up,
-                         organism             = 'mmu',
-                         keyType              = "kegg",
-                         minGSSize            = 5,
-                         pvalueCutoff         = 0.05,
-                         verbose              = FALSE)
+                          organism             = 'mmu',
+                          keyType              = "kegg",
+                          minGSSize            = 5,
+                          pvalueCutoff         = 0.05,
+                          verbose              = FALSE)
 
 
 ### Let's us gprofiler

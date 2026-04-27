@@ -38,16 +38,17 @@ for (j in seq_len(ncol(X))) {
 }
 
 # compute LD correlation matrix (SNP x SNP)
-R <- cor(X)
-dim(R)
-R[1:5, 1:5]
-
-
-# basic sanity
-R <- (R + t(R)) / 2
+library(matrixStats)
+sd <- matrixStats::colSds(X)
+X <- X[, sd > 0, drop = FALSE]
+R <- crossprod(scale(X)) / (nrow(X) - 1)
 diag(R) <- 1
-dim(R)
 R[1:5, 1:5]
+
+# Fix SNP IDs in R to match bim
+new_names <- sub("_[^_]+$", "", colnames(R))
+colnames(R) <- new_names
+rownames(R) <- sub("_[^_]+$", "", rownames(R))
 
 
 ###--------------------- SusieR
@@ -70,6 +71,10 @@ snps_ld2 <- snps_ld[keep]
 R2 <- R[keep, keep, drop = FALSE]
 ss2 <- ss[m[keep], ]
 z <- ss2$Z
+length(z)
+# Check alignment
+table(colnames(R2) == ss2$SNP)
+table(rownames(R2) == ss2$SNP)
 
 ## Basic sanity checks
 stopifnot(length(z) == ncol(R2), ncol(R2) == nrow(R2))

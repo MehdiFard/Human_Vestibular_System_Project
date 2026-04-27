@@ -18,8 +18,7 @@ head(SLE_gwas_sub)
 # extracting a subset of the data 
 loc <- locus(data = SLE_gwas_sub, gene = 'UBE2L3', flank = 1e5,
               ens_db = "EnsDb.Hsapiens.v75")
-summary(loc)
-locus_plot(loc)
+
 
 
 ### My data - balance_meta1
