@@ -26,8 +26,6 @@ def write_sheet(writer, df, sheet_name):
 
     ws.freeze_panes(1, 0)
 
-    ws.set_column(0, len(df.columns) - 1, 18)
-
 sffdr_lead_snps_df = pd.read_csv(snakemake.input.sffdr_lead_snps, sep="\t")
 sffdr_lead_snps_df = sffdr_lead_snps_df[["rsID", "CHR", "BP", "A1", "A2", "P", "fp", "fpi0", "flfdr", "missense_gene", "qtl_genes", "nearest_gene_name", "distance_bp", "P.1", "P.2", "P.3", "P.4", "P.5"]]
 sffdr_lead_snps_df.rename(columns={"CHR": "Chromosome",
