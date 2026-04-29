@@ -11,11 +11,11 @@ def write_sheet(writer, df, sheet_name):
     fmt_2dp      = wb.add_format({"num_format": "0.00"})
 
     def col_fmt(col_name):
-        if re.search(r'Functional p-value|p-value|fp-value|\bFDR\b|FDR', col_name, re.IGNORECASE):
+        if re.search(r'Functional p-value|p-value|fp-value|\bFDR\b|lFDR', col_name, re.IGNORECASE):
             return fmt_pvalue
         if re.match(r'Position', col_name):
             return fmt_position
-        if re.match(r'Beta|Standard error|Genetic correlation estimate|Heritability estimate|Functional prior', col_name):
+        if re.match(r'Beta|Standard error|Genetic correlation estimate|Heritability estimate|Functional prior|Functional local FDR', col_name):
             return fmt_2dp
         return None
 
