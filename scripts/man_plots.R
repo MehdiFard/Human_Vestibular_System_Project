@@ -857,7 +857,7 @@ dev.off()
 
 
 ###--------------------------- CMPlots
-install.packages("CMplot")
+# install.packages("CMplot")
 library("CMplot")
 
 data(pig60K)   #calculated p-values by MLM
@@ -1063,3 +1063,218 @@ CMplot(
     width = 5,
     height = 5
 )
+
+
+
+####
+
+
+
+
+SNPs <- pig60K[pig60K[,5] < (0.05 / nrow(pig60K)), 1]
+genes <- paste("GENE", 1:length(SNPs), sep = "_")
+set.seed(666666)
+
+CMplot(
+    pig60K[, c(1:3, 5)],
+    plot.type = "m",
+    LOG10 = TRUE,
+    col = c("grey30", "grey60"),
+    highlight = SNPs,
+    highlight.col = rep(c("green", "blue"), length.out = length(SNPs)),
+    highlight.cex = 1,
+    highlight.text = genes,
+    highlight.text.col = rep("red", length(SNPs)),
+    threshold = 0.05 / nrow(pig60K),
+    threshold.lty = 2,
+    amplify = FALSE,
+    file = "jpg",
+    file.name = "pig60K_manhattan",
+    dpi = 300,
+    file.output = TRUE,
+    verbose = TRUE,
+    width = 14,
+    height = 6
+)
+
+
+
+  ### CMplot version: MAGMA gene-based Manhattan (minimal)
+  magma_cm <- fread("data/gwas_raw_sumstats/Royce_files/magma_all_sets.csv.gz") %>%
+    transmute(
+      GENE = as.character(SYMBOL),
+      SNP = make.unique(as.character(SYMBOL)),
+      Chromosome = as.integer(gsub("^chr", "", ifelse(as.character(CHR) == "X", "23", as.character(CHR)), ignore.case = TRUE)),
+      Position = as.numeric(START),
+      MAGMA_P = as.numeric(P)
+    ) %>%
+    filter(
+      !is.na(SNP),
+      SNP != "",
+      !is.na(Chromosome),
+      Chromosome >= 1,
+      Chromosome <= 22,
+      !is.na(Position),
+      !is.na(MAGMA_P),
+      MAGMA_P > 0
+    ) %>%
+    arrange(Chromosome, Position)
+
+  sig <- 0.05 / nrow(magma_cm)
+
+  sig_hits <- magma_cm %>%
+    filter(MAGMA_P <= sig) %>%
+    arrange(MAGMA_P) # %>%
+    # slice_head(n = 20)
+
+  CMplot(
+    magma_cm[, c("SNP", "Chromosome", "Position", "MAGMA_P")],
+    type = "p",
+    plot.type = "m",
+    LOG10 = TRUE,
+    cex = 0.5,
+    col = c("grey60", "#4197d8"), # col = c("grey60", "lightpink3"),
+    threshold = sig,
+    threshold.col = "red",
+    threshold.lty = 2,
+    amplify = FALSE,
+    highlight = sig_hits$SNP,
+    highlight.col = "red",
+    highlight.cex = 0.6,
+    highlight.text = sig_hits$GENE,
+    highlight.text.col = "black",
+    highlight.text.cex = 0.8,
+    file = "jpg",
+    file.name = "MAGMA_CMplot_gene_manhattan",
+    dpi = 300,
+    file.output = TRUE,
+    verbose = TRUE,
+    width = 14,
+    height = 6
+  )
+
+
+
+### CMplot version: SFFDR results
+sff <- fread("/data/hps/assoc/private/gdml/user/twil15/sffdr_for_dizziness/results/sffdr/results.tsv.gz") %>%
+  select(SNP = rsID, Chromosome = CHR, Position = BP, SFFDR_P = fp) %>%
+  mutate(
+    SNP = as.character(SNP),
+    Chromosome = as.integer(Chromosome),
+    Position = as.numeric(Position),
+    SFFDR_P = as.numeric(SFFDR_P)
+  ) %>%
+  filter(
+    !is.na(SNP),
+    SNP != "",
+    !is.na(Chromosome),
+    Chromosome >= 1,
+    Chromosome <= 22,
+    !is.na(Position),
+    !is.na(SFFDR_P),
+    SFFDR_P > 0
+  ) %>%
+  arrange(Chromosome, Position)
+head(sff)
+
+
+snp_gene_map <- data.table(
+  SNP = c("rs7098100", "rs9536418", "rs74564337", "rs4456576", "rs4800996", "rs12980498"),
+  Nearest_genes = c("MLLT10", "OLFM4", "C17orf58", "DCC", "TCF4", "ZNF675")
+)
+
+sff_cm <- sff %>%
+  left_join(snp_gene_map, by = "SNP")
+
+sig_sff <- 0.05 / nrow(sff_cm)
+
+label_hits_sff <- sff_cm %>%
+  filter(!is.na(Nearest_genes))
+
+CMplot(
+  sff_cm[, c("SNP", "Chromosome", "Position", "SFFDR_P")],
+  type = "p",
+  plot.type = "m",
+  LOG10 = TRUE,
+  cex = 0.5,
+  col = c("grey60", "#4197d8"),
+  threshold = 5e-8, # sig_sff,
+  threshold.col = "red",
+  threshold.lty = 2,
+  amplify = FALSE,
+  highlight = label_hits_sff$SNP,
+  highlight.col = "red",
+  highlight.cex = 0.6,
+  highlight.text = label_hits_sff$Nearest_genes,
+  highlight.text.col = "black",
+  highlight.text.cex = 0.8,
+  file = "jpg",
+  file.name = "SFFDR_CMplot_gene_manhattan",
+  dpi = 300,
+  file.output = TRUE,
+  verbose = TRUE,
+  width = 14,
+  height = 6
+)
+
+
+### CMplot version: MAGMA + SFFDR in one multi-track figure
+magma_sff_multitrack <- full_join(
+  magma_cm[, c("SNP", "Chromosome", "Position", "MAGMA_P")],
+  sff_cm[, c("SNP", "Chromosome", "Position", "SFFDR_P")],
+  by = c("SNP", "Chromosome", "Position")
+) %>%
+  mutate(
+    MAGMA = dplyr::coalesce(MAGMA_P, 0.90),
+    SFFDR = dplyr::coalesce(SFFDR_P, 0.90)
+  ) %>%
+  select(-MAGMA_P, -SFFDR_P) %>%
+  arrange(Chromosome, Position)
+
+head(magma_sff_multitrack)
+
+highlight_tracks <- list(
+  sig_hits$SNP,
+  label_hits_sff$SNP
+)
+
+highlight_labels <- list(
+  sig_hits$GENE,
+  label_hits_sff$Nearest_genes
+)
+
+
+mm_to_in <- function(x) x / 25.4
+
+w_mm <- 250
+h_mm <- 90
+
+CMplot(
+  magma_sff_multitrack,
+  type = "p",
+  plot.type = "m",
+  LOG10 = TRUE,
+  col = c("grey60", "#4197d8"),
+  threshold = list(sig, 5e-8), # 5e-8, # c(sig, 5e-8),
+  cex = 0.5,
+  threshold.col = "red",
+  threshold.lty = 2,
+  amplify = FALSE,
+  highlight = highlight_tracks,
+  highlight.col = "red",
+  highlight.cex = 0.6,
+  highlight.text = highlight_labels,
+  highlight.text.col = "black",
+  highlight.text.cex = 0.8,
+  file = "jpg",
+  file.name = "MAGMA_SFFDR_CMplot_multitrack_manhattan",
+  dpi = 300,
+  file.output = TRUE,
+  verbose = TRUE,
+  multracks = TRUE,
+  width = 14, # mm_to_in(w_mm),
+  height = 4.724 # 6 # mm_to_in(h_mm)
+)
+
+
+### End

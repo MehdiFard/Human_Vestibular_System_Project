@@ -906,4 +906,118 @@ par(oldpar)      # IMPORTANT: restore original par()
 dev.off()
 
 
+
+### -------------------------- SFFDR results - regional locuszoom plot for chr18:52-57Mb
+
+sff <- fread("/data/hps/assoc/private/gdml/user/twil15/sffdr_for_dizziness/results/sffdr/results.tsv.gz") %>%
+  select(SNP = rsID, Chromosome = CHR, Position = BP, SFFDR_P = fp) %>%
+  mutate(
+    SNP = as.character(SNP),
+    Chromosome = as.integer(Chromosome),
+    Position = as.numeric(Position),
+    SFFDR_P = as.numeric(SFFDR_P)
+  ) %>%
+  filter(
+    !is.na(SNP),
+    SNP != "",
+    !is.na(Chromosome),
+    Chromosome >= 1,
+    Chromosome <= 22,
+    !is.na(Position),
+    !is.na(SFFDR_P),
+    SFFDR_P > 0
+  ) %>%
+  arrange(Chromosome, Position)
+
+
+
+# Extracting the region of interest for chromosome 18: 52-57Mb
+sff_chr18_reg <- sff %>%
+  filter(
+    Chromosome == 18,
+    Position >= 52000000,
+    Position <= 57000000
+  ) %>%
+  transmute(
+    rsid = SNP,
+    chr = Chromosome,
+    pos = Position,
+    p = SFFDR_P
+  ) %>%
+  arrange(p)
+
+dim(sff_chr18_reg)
+head(sff_chr18_reg)
+
+stopifnot(nrow(sff_chr18_reg) > 0)
+
+index_snp_chr18 <- sff_chr18_reg$rsid[which.min(sff_chr18_reg$p)]
+index_snp_chr18
+
+# Create locus object for the region of interest
+loc_sff_chr18 <- locus(
+  data = as.data.frame(sff_chr18_reg),
+  seqname = 18,
+  xrange = c(52000000, 57000000),
+  ens_db = ensDb_v113,
+  chrom = "chr",
+  pos = "pos",
+  p = "p",
+  labs = "rsid",
+  index_snp = index_snp_chr18
+)
+
+# Add LD information using 1000 Genomes EUR reference panel
+loc_sff_chr18_ld <- link_LD(
+  loc_sff_chr18,
+  token = "7d78d9d5e1ed",
+  pop = "EUR",
+  genome_build = "grch38"
+)
+
+# Add recombination rate information using UCSC recombination map for hg38
+recomb_gr <- rtracklayer::import.bw("src/ucsc_recomb/hg38/recomb1000GAvg.bw")
+loc_sff_chr18_ld_recomb <- link_recomb(
+  loc_sff_chr18_ld,
+  genome = "hg38",
+  recomb = recomb_gr
+)
+
+# Plotting the locuszoom plot for the region of interest
+jpeg(
+  "figures/locuszoom_sffdr_chr18_52_57Mb.jpg",
+  width = 140,
+  height =140,
+  units = "mm", 
+  res = 300
+)
+
+# Optional gene-track controls
+# Set genes_keep to show only specific genes in the track (preferred)
+# Set genes_drop to remove specific genes from the track
+genes_keep <- c("DCC", "TCF4", "MBD2", "CCDC68", "TXNL1", "WDR7", "POLI")
+genes_drop <- NULL
+
+gene_filter_for_plot <- genes_keep
+
+if (is.null(gene_filter_for_plot) && !is.null(genes_drop)) {
+  tx_col <- intersect(c("gene_name", "symbol", "SYMBOL", "gene"), names(loc_sff_chr18_ld_recomb$TX))[1]
+  if (!is.na(tx_col)) {
+    available_genes <- unique(as.character(loc_sff_chr18_ld_recomb$TX[[tx_col]]))
+    gene_filter_for_plot <- setdiff(available_genes, genes_drop)
+  }
+}
+
+# Plot the locuszoom plot with gene tracks, highlighting specific genes and using the filtered gene list
+locus_plot(
+  loc_sff_chr18_ld_recomb,
+  labels = c("index", "rs4800996"),
+  # filter_gene_name = gene_filter_for_plot,
+  ylab = expression(-log[10](SFFDR~P)),
+  filter_gene_biotype = "protein_coding",
+  highlight = c("DCC", "TCF4")
+)
+
+dev.off()
+
 ### END
