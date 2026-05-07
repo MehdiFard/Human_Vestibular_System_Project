@@ -1,9 +1,8 @@
 rm(list = ls())
 getwd()
 
-
 # Set dir
-setwd("Pantry/")
+# setwd("Pantry/")
 
 library(tidyverse)
 library(data.table)
@@ -33,6 +32,7 @@ genes <- rtracklayer::import("Pantry/phenotyping/input/ref/Homo_sapiens.GRCh38.1
     filter(type == "gene",
             gene_biotype %in% c("protein_coding", "lncRNA")) |>
     pull(gene_id)
+head(genes)
 
 # dir.create("figures/data_tables/", recursive = T, showWarnings = F)
 write_lines(genes, "figures/data_tables/genes_pcg_lncrna.txt")
@@ -110,6 +110,21 @@ vestib_qtls_sep <- tibble(modality = modalities) |>
 View(vestib_qtls_sep)
 dim(vestib_qtls_sep)
 
+# Number of significant variant–phenotype pairs per modality (separately mapped)
+table(vestib_qtls_sep$modality)
+
+
+# Number of significant unique xQTLs per modality (separately mapped)
+vestib_qtls_sep |>
+    group_by(modality) |>
+    summarise(n_variants = n_distinct(variant_id))
+
+# Number of significant unique xGenes per modality (separately mapped)
+vestib_qtls_sep |>
+    group_by(modality) |>
+    summarise(n_genes = n_distinct(gene_id))
+
+
 # Write out the data
 write_tsv(vestib_qtls_sep, "figures/data_tables/vestibular.sep.qtls.tsv")
 
@@ -124,6 +139,22 @@ vestib_qtls_comb <- read_tsv("Pantry/pheast_no_outlier/output/vestibular/qtl/cro
     arrange(gene_id, rank)
 dim(vestib_qtls_comb)
 View(vestib_qtls_comb)
+
+
+
+# Number of significant variant–phenotype pairs per modality (combined-modality mapping)
+table(vestib_qtls_comb$modality)
+
+# Number of significant unique xQTLs per modality (combined-modality mapping)
+vestib_qtls_comb |>
+    group_by(modality) |>
+    summarise(n_variants = n_distinct(variant_id))
+
+# Number of significant unique xGenes per modality (combined-modality mapping)
+vestib_qtls_comb |>
+    group_by(modality) |>
+    summarise(n_genes = n_distinct(gene_id))
+
 
 # Write out the data
 write_tsv(vestib_qtls_comb, "figures/data_tables/vestibular.comb.qtls.tsv")

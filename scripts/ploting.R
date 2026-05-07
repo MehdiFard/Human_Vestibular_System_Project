@@ -1370,3 +1370,5 @@ head(twas)
 View(twas[1:5, ])
 length(unique(twas$ID))
 length(unique(twas$ENSG))
+
+

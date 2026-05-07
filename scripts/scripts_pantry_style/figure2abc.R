@@ -38,6 +38,7 @@ qtls <- read_tsv("figures/data_tables/vestibular.comb.qtls.tsv", col_types = "ci
                             other_level = "10+"))
 dim(qtls)
 View(qtls)
+table(qtls$modality)
 
 #############
 ## Panel A ## xQTLs per rank per modality using separate mapping
