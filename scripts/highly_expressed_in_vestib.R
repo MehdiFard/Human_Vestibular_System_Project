@@ -201,4 +201,5 @@ write.table(dt_max_filt[, "gene_id"], "figures/data_tables/vestibular_high_expre
 # Write background genes
 write.table(dt_plot[, "gene_id"], "figures/data_tables/vestibular_and_gtex_genes_background.tsv", sep = "\t", row.names = FALSE, col.names = F, quote = FALSE)
 
+
 ### END

@@ -1,9 +1,13 @@
 # Figure 2: QTL functional analysis
 # Panel E: Functional annotation enrichment
-rm(list = ls)
+rm(list = ls())
 
-library(tidyverse)
+library(dplyr)
+library(readr)
+library(forcats)
 library(patchwork)
+library(cowplot)
+library(ggplot2)
 
 modalities <- c(
     expression = "Expression",
@@ -73,8 +77,7 @@ categories <- c(
     truncating = "Truncating"
 )
 
-dim(enrich_all)
-View(enrich_all[1:20, ])
+
 
 enrich_all <- read_tsv("figures/data_tables/enrich.vestibular.comb.tsv", col_types = "ccciiiiddd") |>
     combine_categories(c(frameshift_variant_d = "truncating",
@@ -86,7 +89,8 @@ enrich_all <- read_tsv("figures/data_tables/enrich.vestibular.comb.tsv", col_typ
     filter(count_qtls >= 2) |>
     add_pseudocounts(0.5)
 
-
+dim(enrich_all)
+View(enrich_all[1:20, ])
 
 
 enrich <- enrich_all |>
@@ -109,7 +113,8 @@ p1 <- enrich |>
                 fill = "#eeeeee",
                 data = stripes, show.legend = FALSE) +
     geom_vline(xintercept = 0, lty = 2) +
-    geom_linerange(linewidth = 0.6) +
+    # geom_linerange(linewidth = 0.6) + # If I have many tissues, like pantry
+    geom_linerange(linewidth = 0.6, show.legend = FALSE) +
     geom_point(size = 1.5, stroke = 0.75) +
     scale_color_manual(values = modality_colors) +
     # scale_shape_manual(values = c(16, 17, 15, 4, 8, 5)) +
@@ -124,16 +129,20 @@ p1 <- enrich |>
         axis.text = element_text(color = "black"),
         legend.background = element_rect(color = "black", linewidth = 0.25),
         legend.justification = c(1, 0),
-        legend.key.height = unit(10, "pt"), # To reduce vertical space
+        legend.key.height = unit(7, "pt"),
+        legend.key.width = unit(7, "pt"),
+        legend.margin = margin(2, 3, 2, 3),
         legend.position = "inside",
         legend.position.inside = c(0.98, 0.05),
-        legend.text = element_text(size = 8),
-        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 6),
+        legend.title = element_text(size = 6),
         plot.margin = unit(c(5.5, 1, 5.5, 5.5), "pt"),
     ) +
     xlab(expression(log[2]*" fold enrichment in xVariants    ")) +
     ylab(NULL) +
     labs(color = "Modality", shape = "Modality")
+p1
+dev.off()
 
 p2 <- enrich |>
     mutate(modality = fct_rev(modality)) |>
@@ -147,14 +156,14 @@ p2 <- enrich |>
         axis.text = element_text(color = "black"),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
-        legend.position = "inside",
-        legend.position.inside = c(0.5, 0.5),
+        legend.position = "none",
         plot.margin = unit(c(5.5, 5.5, 5.5, 1), "pt"),
     ) +
     ylab(NULL) +
     xlab("Freq. in xVariants           ") # Move label left since axis will be truncated in figure
+p2
 
-p1 + p2 + plot_layout(widths = c(0.5, 0.4))
+plot_grid(p1, p2, align = "h", axis = "tb", rel_widths = c(0.5, 0.4))
 
 # ggsave("figures/figure2/figure2e.png", width = 5.4, height = 5, device = png)
 ggsave("figures/paper/figure2e.pdf", width = 6.50, height = 6.50)

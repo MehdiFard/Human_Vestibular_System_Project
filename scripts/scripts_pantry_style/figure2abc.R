@@ -50,12 +50,12 @@ data_2a <- qtls |>
             fct_other(keep = as.character(1:4), other_level = "5+"),
             modality = fct_infreq(modality)) |>
     group_by(modality, n_QTLs) |>
-    # summarise(thousands = n() / 1000,
-    summarise(thousands = n() / 10,
+    summarise(thousands = n() / 1, # 1000
             .groups = "drop")
 
 dim(data_2a)
 View(data_2a)
+
 
 ggplot(data_2a, aes(x = thousands, y = modality, fill = n_QTLs)) +
     geom_col(width = 0.8) +
@@ -63,7 +63,7 @@ ggplot(data_2a, aes(x = thousands, y = modality, fill = n_QTLs)) +
     scale_fill_viridis_d() +
     labs(fill = "xQTLs") +
     # xlab("xGenes (×1000)") +
-    xlab("xGenes (×10)") +
+    xlab("No. of xGenes") +
     ylab("Modality") +
     theme_classic() +
     theme(
@@ -75,14 +75,22 @@ ggplot(data_2a, aes(x = thousands, y = modality, fill = n_QTLs)) +
         legend.title = element_text(size = 8),
     )
 
+
+data_2a_modality <- data_2a |>
+    group_by(modality) |>
+    summarise(thousands = sum(thousands), .groups = "drop")
+
+
 # Version 2: Just color by modality and ignoring xQTL counts
-ggplot(data_2a, aes(x = thousands, y = modality, fill = modality)) +
+ggplot(data_2a_modality, aes(x = thousands, y = modality, fill = modality)) +
     geom_col(width = 0.8) +
+    geom_text(aes(label = thousands), hjust = -0.2, size = 3) +
     # scale_x_continuous(breaks = c(0, 2, 4, 6, 8, 10)) +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +
     scale_fill_manual(values = modality_colors) +
     labs(fill = "Modality") +
     # xlab("xGenes (×1000)") +
-    xlab("xGenes (×10)") +
+    xlab("No. of xGenes") +
     ylab("Modality") +
     theme_classic() +
     theme(
@@ -116,21 +124,26 @@ qtls_per_gene <- qtls |>
 
 data_2b <- qtls_per_gene |>
     dplyr::count(n_qtls) |>
-    # mutate(thousands = n / 1000)
-    mutate(thousands = n / 10)
+    mutate(thousands = n / 1) # 1000
+data_2b
+View(data_2b)
 
 ggplot(data_2b, aes(x = n_qtls, y = thousands)) +
     geom_col(position = "dodge", width = 0.5, color = "black", fill = NA, linewidth = 0.5) +
+    geom_text(aes(label = thousands), vjust = -0.4, size = 2.2) +
+    scale_y_continuous(expand = expansion(mult = c(0.03, 0.08))) +
     xlab("Total xQTLs per gene") +
     # ylab("Genes (×1000)") +
-    ylab("Genes (×10)") +
+    ylab("No. of Genes") +
     theme_classic() +
     theme(
         axis.text = element_text(color = "black"),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10)
     )
 
 # ggsave("figures/paper/figure2b.png", width = 2.2, height = 2.1, device = png)
-ggsave("figures/paper/figure2b_vestibular.pdf", width = 2.2, height = 2.1)
+ggsave("figures/paper/figure2b_vestibular.pdf", width = 2.2, height = 2.3)
 write_tsv(data_2b, "figures/data_tables/Figure_2b_vestibular.txt")
 
 

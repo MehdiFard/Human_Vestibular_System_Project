@@ -608,6 +608,7 @@ magma_plot <- ggplot(gwas_data, aes(x = bp_cum, y = -log10(P))) +
     # axis.line.x = element_line(color = "black", linewidth = 0.3),
     # axis.line.y = element_line(color = "black", linewidth = 0.3)
   )
+magma_plot
 
 ggsave(
     filename = "figures/MAGMA_gene_manhattan.pdf",
@@ -854,6 +855,7 @@ if (nrow(label_df) > 0) {
 }
 
 dev.off()
+
 
 
 ###--------------------------- CMPlots

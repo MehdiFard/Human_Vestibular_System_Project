@@ -420,7 +420,7 @@ rsync -avz --partial --progress \
 
 
 # From remote to local - run on local
-FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/demographics/panel_D_age_donut.png"
+FILE="/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/figures/paper/Supp_Fig3_panel_*.png"
 rsync -avz --progress \
         sesmae@login-2.hpc.childrens.sea.kids:$FILE .
         

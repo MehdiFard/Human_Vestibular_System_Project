@@ -89,7 +89,7 @@ loc_meta_ld_recom <- link_recomb(
 
 library(httr)
 
-options(httr.verbose = TRUE)
+options(httr.verbose = F)
 httr::set_config(httr::verbose())
 loc_meta_ld_recom <- link_recomb(loc_meta_ld,
                                 genome = "hg38",
@@ -117,8 +117,8 @@ ensembldb::listGenebiotypes(ensDb_v113)
 
 
 # Size of the plot
-w_mm <- 180
-h_mm <- 140
+w_mm <- 182
+h_mm <- 130.26
 pdf("figures/locuszoom_gwas2.pdf",
     width = w_mm / 25.4,
     height = h_mm / 25.4)
@@ -126,7 +126,7 @@ pdf("figures/locuszoom_gwas2.pdf",
 locus_plot(loc_meta_ld_recom_eqtls, 
           labels = c("rs695017", "rs167154"), # rs612285: gwas top snp (= "index", ), - rs695017: gwas snp coloced in twas, - rs167154: Isoform qtl coloced in twas
           label_x = c(-1, -5),
-          highlight = c("ZNF724", "ZNF91", "ZNF675"),
+          # highlight = c("ZNF724", "ZNF91", "ZNF675"),
           # filter_gene_biotype = "protein_coding",
           # gene_col = 'grey',
           # exon_col = 'orange',
@@ -189,7 +189,8 @@ library(tidyr)
 qtl_isoform <- read_parquet("Pantry/pheast_no_outlier/output/vestibular/qtl/nominal/isoforms/vestibular_isoforms.cis_qtl_pairs.19.parquet")
 dim(qtl_isoform)
 head(qtl_isoform)
-
+summary(qtl_isoform$pval_nominal)
+summary(-log10(qtl_isoform$pval_nominal))
 
 # Check if our TWAS top SNP is present
 which(qtl_isoform$variant_id == "19_23307401_A_G")
@@ -209,7 +210,7 @@ dim(qtl_cln_isoform)
 head(qtl_cln_isoform)
 which(qtl_cln_isoform$rsID == "rs167154")
 length(unique(qtl_cln_isoform$rsID))
-
+summary(-log10(qtl_cln_isoform$p))
 
 # Filtering to keep only the most significant association for each SNP
 qtl_cln_filt_isoform <- qtl_cln_isoform %>%
@@ -217,7 +218,8 @@ qtl_cln_filt_isoform <- qtl_cln_isoform %>%
     slice_min(p, n = 1, with_ties = FALSE) %>%
     ungroup()
 dim(qtl_cln_filt_isoform)
-
+head(qtl_cln_filt_isoform)
+summary(-log10(qtl_cln_filt_isoform$p))
 
 # Extracting a subset of the data around gene or region of interest
 loc_meta_isoform <- locus(data = qtl_cln_filt_isoform,
