@@ -58,6 +58,7 @@ names(genes)
 dim(genes)
 head(genes)
 unique(genes$gene_biotype)
+table(genes$gene_biotype)
 
 phenos <- tibble(modality = names(modalities)) |>
     reframe(get_phenotypes(modality), .by = modality) |>
@@ -67,7 +68,14 @@ phenos <- tibble(modality = names(modalities)) |>
 dim(phenos)
 head(phenos)
 table(phenos$modality)
+n.phen <- c(34225, 72232, 87942, 66889, 56565, 12248, 137638)
+median(n.phen)
+mean(n.phen)
+
 View(phenos)
+length(unique(phenos$gene_id))
+table(unique(phenos$gene_id) %in% genes$gene_id)
+table(phenos$gene_biotype)
 
 #############
 ## Panel A ## Pantry diagram (made in Affinity)

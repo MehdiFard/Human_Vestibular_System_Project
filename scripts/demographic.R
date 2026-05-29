@@ -17,12 +17,12 @@ dir.create(OUT_DIR, showWarnings = FALSE)
 SIDE_MM <- 80
 
 save_panel <- function(p, name) {
-  ggsave(file.path(OUT_DIR, paste0(name, ".pdf")), p,
-         width = SIDE_MM, height = SIDE_MM,
-         units = "mm", device = cairo_pdf)
-  ggsave(file.path(OUT_DIR, paste0(name, ".png")), p,
-         width = SIDE_MM, height = SIDE_MM,
-         units = "mm", dpi = 600)
+    ggsave(file.path(OUT_DIR, paste0(name, ".pdf")), p,
+          width = SIDE_MM, height = SIDE_MM,
+          units = "mm", device = cairo_pdf)
+    ggsave(file.path(OUT_DIR, paste0(name, ".png")), p,
+          width = SIDE_MM, height = SIDE_MM,
+          units = "mm", dpi = 600)
 }
 
 ## ---- Data ---------------------------------------------------------
@@ -187,22 +187,27 @@ save_panel(pA, "panel_A_donut")
 ## ====================================================================
 ## Panel B — Cases vs controls per stratum (8 x 8 cm)
 ## ====================================================================
+make_row_lab_B <- function(stratum, sex, case_pct) {
+  sprintf("%s %s (%.1f%%)",
+          as.character(stratum), as.character(sex), case_pct)
+}
+
 plotB_df <- demo |>
   pivot_longer(c(cases, controls), names_to = "status", values_to = "n") |>
   mutate(status  = factor(ifelse(status == "cases", "Cases", "Controls"),
                           levels = c("Controls", "Cases")),
-         row_lab = paste0(stratum, "  ", as.character(sex)))
+         row_lab = make_row_lab_B(stratum, sex, case_pct))
 
 row_order_B <- demo |>
   arrange(desc(stratum), desc(sex)) |>
-  mutate(row_lab = paste0(stratum, "  ", as.character(sex))) |>
+  mutate(row_lab = make_row_lab_B(stratum, sex, case_pct)) |>
   pull(row_lab)
 
 plotB_df <- plotB_df |>
   mutate(row_lab = factor(row_lab, levels = row_order_B))
 
 totalsB <- demo |>
-  mutate(row_lab = factor(paste0(stratum, "  ", as.character(sex)),
+  mutate(row_lab = factor(make_row_lab_B(stratum, sex, case_pct),
                           levels = row_order_B))
 
 pB <- ggplot(plotB_df, aes(x = n, y = row_lab, fill = status)) +
@@ -229,7 +234,7 @@ pB <- ggplot(plotB_df, aes(x = n, y = row_lab, fill = status)) +
         axis.ticks.y = element_blank(),
         axis.text.y  = element_text(family = "mono", size = BASE_SIZE))
 pB
-save_panel(pB, "panel_B_stratum_n")
+save_panel(pB, "panel_B_stratum_n_percent")
 
 ## ====================================================================
 ## Panel C — Sex composition per stratum (8 x 8 cm)
