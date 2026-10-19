@@ -1,0 +1,6 @@
+/resources/
+/results/
+/.cache/
+/.snakemake/
+.worktrees/
+/logs/

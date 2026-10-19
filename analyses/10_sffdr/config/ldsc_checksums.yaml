@@ -1,0 +1,7 @@
+# config/ldsc_checksums.yaml
+# MD5 checksums from https://zenodo.org/records/10515792
+# Keyed by the local archive filename (as saved to resources/ldsc/archives/)
+GRCh38.tgz: "31618a3bb6b5d20bdbfb02d9fa0bfc3f"
+weights.tgz: "a98ac0f089ee285177544a3e6e721ca3"
+frq.tgz: "ac29686ffd5b6378789857a522ebca77"
+hm3_no_MHC.list.txt: "65a34c68833eb4a764d0707b5505b508"
