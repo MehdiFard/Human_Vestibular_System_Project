@@ -1,5 +1,5 @@
 ## ====================================================================
-## Figure 3: otolith-organ transcriptome vs GTEx and vestibular-enriched genes (7.2 in wide)
+## Figure 3: otolith-organ transcriptome vs GTEx and vestibular-enriched genes (5.8 x 5.8 in)
 ##   a. PCA of otolith organs + GTEx tissues (Pantry expression, same pipeline), tissue groups labelled
 ##   b. Otolith median vs highest GTEx median expression per gene; 659 vestibular-enriched genes (delta log2 > 2) in red,
 ##      inner-ear genes of panel d outlined
@@ -10,7 +10,7 @@
 ##      enrichment of the enriched genes; redundant terms (gene-set Jaccard >= 0.7) dropped; bars = -log10(FDR)
 ## Inputs: analyses/08_expression_gtex/results (cached tables in _fig3_cache/; the per-tissue median TPM table is
 ## computed once and cached there, median_tpm_by_tissue.rds).
-## Output: manuscript/figures/Fig3/ (Fig3.pdf/png, Fig3_5.8x5.8in.pdf/png, panels/).
+## Output: manuscript/figures/Fig3/ (Fig3_5.8x5.8in.pdf/png, panels/).
 ## Run from the project root on a compute node (env r_plots):
 ##   Rscript manuscript/figures/Fig3/Fig3_expression.R
 ## ====================================================================
@@ -23,7 +23,7 @@ if (file.exists("config/config_lab.yaml")) cfg <- modifyList(cfg, yaml::read_yam
 OUT   <- "manuscript/figures/Fig3"; dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
 CACHE <- "analyses/08_expression_gtex/results/_fig3_cache"
 FONT  <- "Nimbus Sans"
-W <- 7.2; H <- 7.9
+W <- 7.2   # layout width (in); the assembled figure is scaled to 5.8 in at the end
 RED <- "#C8102E"; GREY <- "grey75"
 
 th <- theme_classic(base_size = 7, base_family = FONT) +
@@ -290,15 +290,12 @@ pE <- ggplot(en, aes(y, lab)) +
 ## ====================================================================
 ## assemble (patchwork within rows: equal square panels, aligned x axes)
 ## ====================================================================
+## laid out at 7.2 x 7.2 in, then scaled to 5.8 x 5.8 in (the manuscript size) with ghostscript (vector) + 600 dpi PNG
+## with the DPI tag, so Word places it at exactly 5.8 x 5.8 in
 row1 <- (pA | pB | pCt) + plot_layout(widths = c(1, 1, 0.95)) & theme(plot.margin = margin(4, 8, 2, 5))
-fig3 <- plot_grid(row1, pD, pE, ncol = 1, rel_heights = c(2.5, 3.05, 2.35))
-ggsave(file.path(OUT, "Fig3.pdf"), fig3, width = W, height = H, device = cairo_pdf)
-ggsave(file.path(OUT, "Fig3.png"), fig3, width = W, height = H, dpi = 600, bg = "white")
-## square version for the manuscript (Word: 5.8 x 5.8 in): laid out at 7.2 x 7.2 in (rows a bit shorter), then scaled
-## to 5.8 in with ghostscript (vector) + 600 dpi PNG with the DPI tag, so Word places it at exactly 5.8 x 5.8 in
-fig3_sq <- plot_grid(row1, pD, pE, ncol = 1, rel_heights = c(2.35, 2.75, 2.1))
-sq_src <- file.path(OUT, "panels", "Fig3_square_7.2in.pdf")   # intermediate
-ggsave(sq_src, fig3_sq, width = 7.2, height = 7.2, device = cairo_pdf)
+fig3 <- plot_grid(row1, pD, pE, ncol = 1, rel_heights = c(2.35, 2.75, 2.1))
+sq_src <- tempfile(fileext = ".pdf")   # 7.2 in intermediate
+ggsave(sq_src, fig3, width = W, height = W, device = cairo_pdf)
 sq_out <- file.path(OUT, "Fig3_5.8x5.8in")
 system2("gs", c("-q", "-dNOPAUSE", "-dBATCH", "-dSAFER", "-sDEVICE=pdfwrite", "-dFIXEDMEDIA", "-dPDFFitPage",
                 "-dAutoRotatePages=/None", "-dEmbedAllFonts=true", "-dDEVICEWIDTHPOINTS=417.6", "-dDEVICEHEIGHTPOINTS=417.6",

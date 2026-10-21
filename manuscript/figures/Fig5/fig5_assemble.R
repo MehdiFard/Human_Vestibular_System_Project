@@ -2,7 +2,7 @@
 ##   a  QTL / GWAS tracks (panels/Fig5a.rds, fig5a_suppfig4_regional.R)
 ##   b  GWAS LocusZoom plot drawn on the page with locuszoomr (scatter_plot + genetracks), LD with rs695017 (1000G EUR)
 ##   c  LocusCompare, GWAS vs RNA editing QTL (panels/Fig5c.rds, fig5c_locuscompare.R)
-## Built at 7.2 x 5.6 in, then scaled with ghostscript (vector): Fig5.{pdf,png} (2x) and Fig5_6.45x5.02in.{pdf,png}.
+## Built at 7.2 x 5.6 in, then scaled with ghostscript (vector) to the manuscript size: Fig5_6.45x5.02in.{pdf,png}.
 ## Inputs: data/cache_znf91_region.rds, data/ld_rs695017_1kgEUR.tsv, the two panel objects. Run from the project root:
 ##   Rscript manuscript/figures/Fig5/fig5_assemble.R
 suppressPackageStartupMessages({ library(locuszoomr); library(ensembldb); library(AnnotationHub); library(rtracklayer)
@@ -60,11 +60,11 @@ compose <- function() {
             just = c(0, 1), gp = gpar(fontfamily = FONT, fontface = "bold", fontsize = 10))
   cat(sprintf("b y-axis at %.3f in; c placed at x = %.3f in (axis offset %.3f in)\n", axis_b, xc, fc_in))
 }
-f1 <- file.path(F5, "Fig5_1x.pdf")                    # intermediate (vector, 7.2 x 5.6 in)
+f1 <- tempfile(fileext = ".pdf")                      # intermediate (vector, 7.2 x 5.6 in)
 cairo_pdf(f1, width = W, height = H, family = FONT); compose(); invisible(dev.off())
 
-## ---- vector scaling (ghostscript) to a final size + 600 dpi PNG (DPI tag set, so Word places it at exactly w x h in)
-##   2x: 14.4 x 11.2 in; Word: 6.45 x 5.02 in (the size used in the manuscript draft, same aspect ratio)
+## ---- vector scaling (ghostscript) to the manuscript size, 6.45 x 5.02 in (same aspect ratio), + 600 dpi PNG
+## (DPI tag set, so Word places it at exactly w x h in)
 scale_to <- function(src, stem, w, h) {
   system2("gs", c("-q", "-dNOPAUSE", "-dBATCH", "-dSAFER", "-sDEVICE=pdfwrite", "-dFIXEDMEDIA", "-dPDFFitPage",
                   "-dAutoRotatePages=/None", "-dEmbedAllFonts=true", sprintf("-dDEVICEWIDTHPOINTS=%.2f", w * 72),
@@ -73,6 +73,8 @@ scale_to <- function(src, stem, w, h) {
                   "-dGraphicsAlphaBits=4", paste0("-sOutputFile=", stem, ".png"), paste0(stem, ".pdf")))
 }
 WORD <- c(6.45, 5.02)
-scale_to(f1, file.path(OUT, "Fig5"), 2 * W, 2 * H)
 scale_to(f1, file.path(OUT, "Fig5_6.45x5.02in"), WORD[1], WORD[2])
 cat("[done]\n")
+
+
+### END

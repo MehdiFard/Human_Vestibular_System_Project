@@ -1,0 +1,61 @@
+# Only code, configs and docs are tracked. Data, references, results and figure files stay on the analysis server
+# (no genotype / RNA-seq data, participant information or derived results in git). Every ignored folder has a
+# README.md (tracked) describing what belongs there.
+
+# lab-specific settings and lab-only analyses
+config/config_lab.yaml
+profiles/slurm_lab/
+run_pipeline_lab.slurm
+analyses/10_sffdr/profile_lab/
+analyses/10_sffdr/config/config_lab.yaml
+analyses/checking_signals/
+BACKUP/
+
+# data, references, logs
+data/*
+!data/README.md
+resources/**
+!resources/**/
+!resources/**/.gitkeep
+!resources/README.md
+!resources/gtex_colors.json
+logs/*
+!logs/.gitkeep
+
+# analyses: keep Snakefile, scripts/, README, small configs; inputs (src/), results, figures and run folders stay out
+analyses/*/src/*
+!analyses/*/src/README.md
+!analyses/04_gwas_sumstats/src/gwas_map.tsv
+analyses/*/results/*
+!analyses/*/results/README.md
+analyses/10_sffdr/results
+analyses/*/figures/*
+!analyses/*/figures/README.md
+analyses/*/logs/
+analyses/05_pantry/*/input/*
+!analyses/05_pantry/*/input/README.md
+analyses/05_pantry/*/intermediate/*
+!analyses/05_pantry/*/intermediate/README.md
+analyses/05_pantry/*/output/*
+!analyses/05_pantry/*/output/README.md
+analyses/05_pantry/*/logs/
+analyses/05_pantry/pheast/scripts/fusion_twas/gemma
+analyses/05_pantry/pheast/scripts/fusion_twas/gcta_nr_robust
+analyses/06_twas/gtex_weights/*/
+!analyses/06_twas/gtex_weights/scripts/
+
+# manuscript: code, PNG figures and panels, source data and tables are tracked; PDFs, intermediates and the draft are not
+manuscript/*.pdf
+manuscript/*.docx
+manuscript/figures/**/*.pdf
+!manuscript/figures/SuppFig2/SuppFig2_enriched_in_gtex.pdf
+manuscript/figures/**/*.rds
+manuscript/figures/*/data/
+
+# generic
+**/.snakemake/
+**/__pycache__/
+*.pyc
+Rplots.pdf
+.vscode/
+.claude/

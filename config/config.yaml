@@ -100,6 +100,11 @@ apptainer_bind: ""              # with a container: extra directory to bind into
 slurm:
   gpu_partition: "<gpu_partition>"   # Slurm partition with GPUs (pheast / tensorQTL)
 
+apis:
+  ldlink:
+    token: ""                    # personal NIH LDlink token (https://ldlink.nih.gov/?tab=apiaccess), for the Fig 2e LD
+                                 # colours; set it in config_lab.yaml, not here
+
 # ---- step parameters -------------------------------------------------------------------------------------------------
 sffdr:                                   # analyses/10_sffdr (own config: analyses/10_sffdr/config/config.yaml)
   rerun: false                           # false: only check that results/sffdr/results.tsv.gz exists (existing run)

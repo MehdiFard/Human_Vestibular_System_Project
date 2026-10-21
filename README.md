@@ -4,6 +4,32 @@ The genetics of functional decline in the aging vestibular system: GWAS of dizzi
 multimodal RNA-seq of human otolith organs (utricle and saccule, 107 donors): xQTL mapping across seven RNA
 modalities (Pantry), TWAS and colocalisation, fine-mapping, and otolith-vs-GTEx expression.
 
+## Workflow
+
+Each box is one analysis folder with its own Snakefile; the main `Snakefile` runs them in this order
+(`snakemake --rulegraph`, redundant edges removed).
+
+```mermaid
+flowchart LR
+  L["01 liftover<br/>hg19 → hg38"] --> I["02 imputation<br/>Eagle + Minimac4"]
+  I --> M["03 sample matching<br/>RNA-seq ↔ genotype"]
+  I --> P["05 Pantry + pheast<br/>7 RNA modalities: xQTL,<br/>heritability, TWAS weights"]
+  G["04 GWAS summary<br/>statistics"] --> T["06 TWAS + coloc"]
+  P --> T
+  G --> F["07 fine-mapping<br/>SuSiE"]
+  P --> F
+  P --> X["08 otolith organs<br/>vs GTEx"]
+  P --> D["09 utricle vs saccule<br/>DGE"]
+  G --> S["10 sfFDR"]
+  M --> FIG["manuscript figures"]
+  T --> FIG
+  F --> FIG
+  X --> FIG
+  D --> FIG
+  S --> FIG
+  FIG --> TAB["supplementary tables<br/>+ numbers in the text"]
+```
+
 ## Layout
 
 ```
@@ -51,7 +77,8 @@ Analyses 01-04, 06 and 10 run inside their folder; 07-09, figures and tables run
    raw data are, references kept outside the project, tool locations, `conda_prefix`, Slurm partitions. Either edit
    them there, or copy only those keys into a new file `config/config_lab.yaml` with your values. That file is not
    tracked by git and, when present, is read after `config.yaml` and overrides it. Put participant identifiers
-   (outlier donor IDs, date-of-birth corrections) only in `config_lab.yaml`, never in `config.yaml`.
+   (outlier donor IDs, date-of-birth corrections) and your personal NIH LDlink token (`apis: ldlink: token:`, used
+   for Fig 2e; request one at https://ldlink.nih.gov/?tab=apiaccess) only in `config_lab.yaml`, never in `config.yaml`.
 3. **Slurm.** Set your account and partitions in `profiles/slurm/config.yaml` and `run_pipeline.slurm`.
 
 ```bash

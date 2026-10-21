@@ -46,3 +46,6 @@ out = bim.iloc[idx][["chr", "pos", "snp", "a1", "a2"]].assign(r2=np.round(r2, 4)
 out.to_csv(OUT, sep="\t", index=False)
 print(f"EUR samples: {eur.sum()} | SNPs: {len(out)} | index {bim.snp[ref_i]}")
 print(out[out.pos.isin([23421111, 23307401, 23459336])].to_string(index=False))
+
+
+### END

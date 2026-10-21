@@ -1,7 +1,7 @@
 ## Supp Fig 4: regional plots of the ZNF91 locus (a) + colocalization posteriors of the dizziness xTWAS hits (b) +
 ## cross-ancestry LD of the lead variants (c). Outputs:
 ##   panels/SuppFig4bc_coloc_LD.{pdf,png}   b + c, 7.2 x 2.7 in
-##   SuppFig4.{pdf,png}                     a + b + c, 7.2 x 8.3 in; SuppFig4_5.5x5.5in.{pdf,png} (square, scaled with ghostscript)
+##   SuppFig4_5.5x5.5in.{pdf,png}           a + b + c, laid out at 7.2 x 7.2 in and scaled to 5.5 in with ghostscript
 ## Inputs: TWAS hits (balance_meta1, analyses/06_twas), data/ld_cross_ancestry_3snps.tsv (ld_cross_ancestry.py),
 ## panels/regional/Supp_Fig4.rds (../Fig5/fig5a_suppfig4_regional.R). Run from the project root (env locuszoomr).
 suppressPackageStartupMessages({ library(ggplot2); library(ggrepel); library(cowplot); library(data.table); library(dplyr); library(tidyr) })   # ggrepel: draws the SNP tags of the saved Supp Fig 4
@@ -65,12 +65,10 @@ sv <- function(p, stem, w, h, dir = OUT) {
 }
 sv(row_bc(c("a", "b")), "SuppFig4bc_coloc_LD", W, 2.7, dir = PAN)   # b + c as a standalone panel
 s4 <- readRDS("manuscript/figures/SuppFig4/panels/regional/Supp_Fig4.rds")
-merged <- plot_grid(do.call(plot_grid, c(list(s4, labels = "a"), LBL)), row_bc(c("b", "c")), ncol = 1, rel_heights = c(5.6, 2.7))
-sv(merged, "SuppFig4", W, 8.3)
 ## square version for Word (5.5 x 5.5 in): laid out at 7.2 x 7.2 in (shorter regional tracks), scaled to 5.5 in with
 ## ghostscript (vector) + 600 dpi PNG with the DPI tag
 merged_sq <- plot_grid(do.call(plot_grid, c(list(s4, labels = "a"), LBL)), row_bc(c("b", "c")), ncol = 1, rel_heights = c(4.75, 2.45))
-src <- "manuscript/figures/SuppFig4/data/SuppFig4_square_7.2in.pdf"          # intermediate
+src <- tempfile(fileext = ".pdf")          # intermediate
 ggsave(src, merged_sq, width = 7.2, height = 7.2, device = cairo_pdf)
 dst <- file.path(OUT, "SuppFig4_5.5x5.5in")
 system2("gs", c("-q", "-dNOPAUSE", "-dBATCH", "-dSAFER", "-sDEVICE=pdfwrite", "-dFIXEDMEDIA", "-dPDFFitPage", "-dAutoRotatePages=/None",

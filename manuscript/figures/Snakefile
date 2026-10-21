@@ -28,11 +28,10 @@ rule all:
     input:
         "manuscript/figures/Fig1/panels/manhattan_meta_all.pdf",
         "manuscript/figures/Fig2/panels/panel_a_magma_manhattan_new.pdf",
-        "manuscript/figures/Fig3/Fig3.pdf",
+        "manuscript/figures/Fig3/Fig3_5.8x5.8in.pdf",
         "manuscript/figures/Fig4/Fig4.pdf",
-        "manuscript/figures/Fig5/Fig5.pdf",
+        "manuscript/figures/Fig5/Fig5_6.45x5.02in.pdf",
         "manuscript/figures/SuppFig1/panels/VolcanoPlot_utricle_vs_saccule_batch_corrected.pdf",
-        "manuscript/figures/SuppFig2/SuppFig2.pdf",
         "manuscript/figures/SuppFig3/SuppFig3.pdf",
         "manuscript/figures/SuppFig4/SuppFig4_5.5x5.5in.pdf",
         "manuscript/figures/SuppFig5/panels/znf91_expression_vs_age_vestibular.pdf",
@@ -42,12 +41,12 @@ rule all:
 rule fig1:
     output: "manuscript/figures/Fig1/panels/manhattan_meta_all.pdf", "manuscript/figures/Fig1/panels/demographics/panel_A_donut.pdf"
     resources: mem_mb=64000
-    shell: f"{RS('plots')} manuscript/figures/Fig1/Fig1_gwas_meta.R && {RS('plots')} manuscript/figures/Fig1/demographic.R"
+    shell: f"{RS('plots')} manuscript/figures/Fig1/Fig1_gwas_meta.R && {RS('plots')} manuscript/figures/Fig1/Fig1_demographic.R"
 
-# ---- Fig 2 (+ Supp Fig 2): MAGMA, GSEM, sfFDR, LocusZoom -------------------------------------------------------------
+# ---- Fig 2: MAGMA, GSEM, sfFDR, LocusZoom (panels; assembled in Illustrator). Supp Fig 2 is the partner figure as is -
 rule fig2:
-    input: "manuscript/figures/Fig2/inputs/GSEM.pdf", "manuscript/figures/SuppFig2/inputs/enrich_in_gtex.pdf", f"{A}/10_sffdr/results/sffdr/results.tsv.gz"
-    output: "manuscript/figures/Fig2/panels/panel_a_magma_manhattan_new.pdf", "manuscript/figures/SuppFig2/SuppFig2.pdf"
+    input: "manuscript/figures/Fig2/inputs/GSEM.pdf", f"{A}/10_sffdr/results/sffdr/results.tsv.gz"
+    output: "manuscript/figures/Fig2/panels/panel_a_magma_manhattan_new.pdf"
     resources: mem_mb=64000
     shell: f"{RS('locuszoom')} manuscript/figures/Fig2/Fig2_gwas_annot.R"     # needs locuszoomr
 
@@ -56,7 +55,7 @@ rule fig3:
     input:
         f"{A}/08_expression_gtex/results/enrichment_BP.tsv",
         f"{A}/08_expression_gtex/results/gtex_vest_logCPM_vestib_gtex_same_pipeline_PCs.RData"
-    output: "manuscript/figures/Fig3/Fig3.pdf", "manuscript/figures/Fig3/Fig3_5.8x5.8in.pdf"
+    output: "manuscript/figures/Fig3/Fig3_5.8x5.8in.pdf", "manuscript/figures/Fig3/Fig3_5.8x5.8in.png"
     resources: mem_mb=48000
     shell: f"{RS('plots')} manuscript/figures/Fig3/Fig3_expression.R"
 
@@ -99,13 +98,13 @@ rule fig5_panels:
 rule fig5:
     # Fig 5b (LocusZoom) is drawn on the page by fig5_assemble.R; output is vector, scaled to the final sizes
     input: rules.fig5_panels.output
-    output: "manuscript/figures/Fig5/Fig5.pdf", "manuscript/figures/Fig5/Fig5_6.45x5.02in.pdf"
+    output: "manuscript/figures/Fig5/Fig5_6.45x5.02in.pdf", "manuscript/figures/Fig5/Fig5_6.45x5.02in.png"
     resources: mem_mb=32000
     shell: f"{RS('locuszoom')} manuscript/figures/Fig5/fig5_assemble.R"
 
 rule suppfig4:
     input: rules.fig5_panels.output, rules.ld_znf91.output, TWAS
-    output: "manuscript/figures/SuppFig4/SuppFig4.pdf", "manuscript/figures/SuppFig4/SuppFig4_5.5x5.5in.pdf"
+    output: "manuscript/figures/SuppFig4/SuppFig4_5.5x5.5in.pdf", "manuscript/figures/SuppFig4/SuppFig4_5.5x5.5in.png"
     resources: mem_mb=32000
     shell: f"{RS('locuszoom')} manuscript/figures/SuppFig4/suppfig_coloc_ld.R"
 

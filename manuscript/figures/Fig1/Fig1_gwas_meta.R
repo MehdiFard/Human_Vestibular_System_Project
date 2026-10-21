@@ -245,5 +245,4 @@ for (nm in names(gwas_files)) {
 cat("[done] all six figures written to ", OUT_DIR, "\n", sep = "")
 
 
-
 ### END

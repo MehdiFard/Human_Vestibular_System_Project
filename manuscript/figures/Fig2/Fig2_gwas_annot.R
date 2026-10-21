@@ -1,13 +1,13 @@
 ## ====================================================================
-## Figure 2 — five-panel composite (strict top → bottom)
+## Figure 2 — panels, each saved to panels/ (PDF + PNG) and assembled in Illustrator
 ##   a. MAGMA gene-based Manhattan        (built here)
-##   b. enrich-in-GTEx bar plot           (partner PDF, embedded)
-##   c. GSEM diagram                      (partner PDF, embedded)
+##   b. enrich-in-GTEx bar plot           (partner figure = Supp Fig 2, not built here)
+##   c. GSEM diagram                      (partner PDF in inputs/, copied + PNG)
 ##   d. sfFDR variant-level Manhattan     (built here)
-##   e. Regional locuszoom (chr18 52–57Mb)(rendered via locuszoomr)
+##   e. Regional locuszoom (chr18 52–57Mb)(locuszoomr; LD from NIH LDlink, token in config_lab.yaml)
 ##
-## Environment: locuszoomr (config envs.locuszoom). Panels b and c are partner figures
-## (inputs/, not in git); d uses analyses/10_sffdr results.
+## Environment: locuszoomr (config envs.locuszoom). Panel c is a partner figure (inputs/, not in git);
+## d and e use analyses/10_sffdr results.
 ## ====================================================================
 
 rm(list = ls())
@@ -15,11 +15,8 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(scales)
   library(data.table)
-  library(patchwork)
   library(ggrepel)
   library(cowplot)
-  library(grid)
-  library(png)
   library(locuszoomr)
   library(ensembldb)
   library(AnnotationHub)
@@ -30,13 +27,15 @@ suppressPackageStartupMessages({
 })
 
 
-OUT_DIR  <- "manuscript/figures/Fig2/panels"
-EXT_DIR  <- "manuscript/figures/Fig2/inputs"   # partner PDFs (GSEM path diagram, MAGMA GTEx enrichment)
-TMP_DIR  <- "manuscript/figures/Fig2/render_tmp"
-dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
-dir.create(TMP_DIR, showWarnings = FALSE, recursive = TRUE)
+cfg <- yaml::read_yaml("config/config.yaml")   # + lab-specific values (config_lab.yaml, not in git)
+if (file.exists("config/config_lab.yaml")) cfg <- modifyList(cfg, yaml::read_yaml("config/config_lab.yaml"))
+LDLINK_TOKEN <- cfg$apis$ldlink$token
+if (is.null(LDLINK_TOKEN) || LDLINK_TOKEN == "") stop("set apis: ldlink: token: in config/config_lab.yaml (personal NIH LDlink token)")
 
-PARTNER_ENRICH <- "manuscript/figures/SuppFig2/inputs/enrich_in_gtex.pdf"
+OUT_DIR  <- "manuscript/figures/Fig2/panels"
+EXT_DIR  <- "manuscript/figures/Fig2/inputs"   # partner PDF (GSEM path diagram)
+dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
+
 PARTNER_GSEM   <- file.path(EXT_DIR, "GSEM.pdf")
 
 ## ---- Shared palette / theme (matches Figure 1) -------------------
@@ -61,30 +60,6 @@ paper_theme <- theme_classic(base_size = BASE_SIZE, base_family = "sans") +
     legend.position    = "none",
     plot.margin        = margin(4, 6, 4, 4)
   )
-
-## ====================================================================
-## Helper: convert a single-page PDF to high-DPI PNG (system pdftocairo)
-## and return a ggplot panel that draws the PNG.
-## ====================================================================
-pdf_to_panel <- function(pdf_path, dpi = 600) {
-  if (!file.exists(pdf_path))
-    stop("Missing partner PDF: ", pdf_path,
-         "\nDrop the file there, then re-run.")
-  stub <- tools::file_path_sans_ext(basename(pdf_path))
-  png_path <- file.path(TMP_DIR, paste0(stub, ".png"))
-  needs_render <- !file.exists(png_path) ||
-    file.info(pdf_path)$mtime > file.info(png_path)$mtime
-  if (needs_render) {
-    cmd <- sprintf("pdftocairo -png -r %d -singlefile %s %s",
-                   dpi, shQuote(pdf_path),
-                   shQuote(file.path(TMP_DIR, stub)))
-    sys_status <- system(cmd)
-    if (sys_status != 0)
-      stop("pdftocairo failed for: ", pdf_path)
-  }
-  img <- png::readPNG(png_path)
-  wrap_elements(full = grid::rasterGrob(img, interpolate = TRUE))
-}
 
 ## ====================================================================
 ## Panel a — MAGMA gene-based Manhattan (in ggplot)
@@ -239,68 +214,12 @@ build_sffdr <- function() {
 }
 
 ## ====================================================================
-## Panel e — regional locuszoom (chr18 52–57Mb, sfFDR P-values)
-## Renders to a PNG once via locuszoomr; subsequent runs reuse it
-## (delete the PNG to force a re-render).
-## ====================================================================
-LZ_PNG <- file.path(TMP_DIR, "locuszoom_sffdr_chr18.png")
-
-render_locuszoom <- function() {
-  if (file.exists(LZ_PNG)) return(invisible(NULL))
-
-  cat("[..] rendering regional locuszoom (chr18 52-57Mb) — first run\n")
-  sff <- fread("analyses/10_sffdr/results/sffdr/results.tsv.gz") %>%
-    transmute(rsid = as.character(rsID),
-              chr  = as.integer(CHR),
-              pos  = as.numeric(BP),
-              p    = as.numeric(fp)) %>%
-    dplyr::filter(!is.na(rsid), rsid != "", !is.na(chr), chr >= 1, chr <= 22,
-                  !is.na(pos), !is.na(p), p > 0)
-
-  reg <- sff %>% dplyr::filter(chr == 18, pos >= 52e6, pos <= 57e6) %>%
-    arrange(p)
-  stopifnot(nrow(reg) > 0)
-
-  ah <- AnnotationHub()
-  ensDb <- ah[["AH119325"]]
-
-  loc <- locus(data = as.data.frame(reg), seqname = 18,
-               xrange = c(52e6, 57e6), ens_db = ensDb,
-               chrom = "chr", pos = "pos", p = "p", labs = "rsid",
-               index_snp = reg$rsid[which.min(reg$p)])
-  loc <- link_LD(loc, token = "7d78d9d5e1ed",
-                 pop = "EUR", genome_build = "grch38")
-  recomb_gr <- rtracklayer::import.bw("resources/ucsc_recomb/hg38/recomb1000GAvg.bw")
-  loc <- link_recomb(loc, genome = "hg38", recomb = recomb_gr)
-
-  png(LZ_PNG, width = 180, height = 80, units = "mm", res = 600)
-  locus_plot(loc,
-             labels = c("index", "rs4800996"),
-             ylab = expression(-log[10](SFFDR~P)),
-             filter_gene_biotype = "protein_coding",
-             highlight = c("DCC", "TCF4"))
-  dev.off()
-}
-
-build_locuszoom_panel <- function() {
-  render_locuszoom()
-  img <- png::readPNG(LZ_PNG)
-  wrap_elements(full = grid::rasterGrob(img, interpolate = TRUE))
-}
-
-## ====================================================================
-## Build all five panels
+## Build panels a and d
 ## ====================================================================
 cat("[..] building panel a — MAGMA Manhattan\n")
 pA <- build_magma()
 cat("[..] building panel d — sfFDR Manhattan\n")
 pD <- build_sffdr()
-cat("[..] embedding panel b — enrich-in-GTEx (partner PDF)\n")
-pB <- pdf_to_panel(PARTNER_ENRICH)
-cat("[..] embedding panel c — GSEM (partner PDF)\n")
-pC <- pdf_to_panel(PARTNER_GSEM)
-cat("[..] building panel e — regional locuszoom\n")
-pE <- build_locuszoom_panel()
 
 ## ====================================================================
 ## Save each panel as its own file — for layout in Illustrator
@@ -320,73 +239,54 @@ save_fig(pA, "panel_a_magma_manhattan_new", W_MAN, H_MAN)
 ## d. sfFDR Manhattan
 save_fig(pD, "panel_d_sffdr_manhattan_new", W_MAN, H_MAN)
 
-## b. enrich-gtex — copy partner PDF unchanged (size is fixed)
-file.copy(PARTNER_ENRICH,
-          file.path("manuscript/figures/SuppFig2", "panel_b_enrich_gtex.pdf"),
-          overwrite = TRUE)
+## c. GSEM — copy partner PDF unchanged (size is fixed) + 600 dpi PNG
+if (!file.exists(PARTNER_GSEM)) stop("Missing partner PDF: ", PARTNER_GSEM)
+file.copy(PARTNER_GSEM, file.path(OUT_DIR, "panel_c_gsem.pdf"), overwrite = TRUE)
+if (system2("pdftocairo", c("-png", "-r", "600", "-singlefile", shQuote(PARTNER_GSEM),
+                            shQuote(file.path(OUT_DIR, "panel_c_gsem")))) != 0)
+  stop("pdftocairo failed for: ", PARTNER_GSEM)
 
-## c. GSEM — copy partner PDF unchanged (size is fixed)
-file.copy(PARTNER_GSEM,
-          file.path(OUT_DIR, "panel_c_gsem.pdf"),
-          overwrite = TRUE)
-
-## e. Regional locuszoom — re-render directly to its own PDF + PNG so it
-## stays vector-quality where possible. Width matches the Manhattans;
-## height is locuszoom-natural (taller because of gene tracks).
+## e. Regional locuszoom (chr18 52–57Mb, sfFDR P-values), drawn directly to PDF + PNG.
+## Width matches the Manhattans; height is locuszoom-natural (taller because of gene tracks).
 LZ_W_MM <- 145
 LZ_H_MM <- 90
 
-render_locuszoom_standalone <- function(out_pdf, out_png) {
-  ## Reuse the locus object cached during composite build if available
-  ## by re-running the same pipeline. Inexpensive after first call:
-  ## the AnnotationHub cache and LDlink results are local.
-  sff <- fread("analyses/10_sffdr/results/sffdr/results.tsv.gz") %>%
-    transmute(rsid = as.character(rsID),
-              chr  = as.integer(CHR),
-              pos  = as.numeric(BP),
-              p    = as.numeric(fp)) %>%
-    dplyr::filter(!is.na(rsid), rsid != "", !is.na(chr), chr >= 1, chr <= 22,
-                  !is.na(pos), !is.na(p), p > 0)
-  reg <- sff %>% dplyr::filter(chr == 18, pos >= 52e6, pos <= 57e6) %>%
-    arrange(p)
-  ah <- AnnotationHub()
-  ensDb <- ah[["AH119325"]]
-  loc <- locus(data = as.data.frame(reg), seqname = 18,
-               xrange = c(52e6, 57e6), ens_db = ensDb,
-               chrom = "chr", pos = "pos", p = "p", labs = "rsid",
-               index_snp = reg$rsid[which.min(reg$p)])
-  loc <- link_LD(loc, token = "7d78d9d5e1ed",
-                 pop = "EUR", genome_build = "grch38")
-  recomb_gr <- rtracklayer::import.bw("resources/ucsc_recomb/hg38/recomb1000GAvg.bw")
-  loc <- link_recomb(loc, genome = "hg38", recomb = recomb_gr)
+cat("[..] building panel e — regional locuszoom\n")
+sff <- fread("analyses/10_sffdr/results/sffdr/results.tsv.gz") %>%
+  transmute(rsid = as.character(rsID),
+            chr  = as.integer(CHR),
+            pos  = as.numeric(BP),
+            p    = as.numeric(fp)) %>%
+  dplyr::filter(!is.na(rsid), rsid != "", !is.na(chr), chr >= 1, chr <= 22,
+                !is.na(pos), !is.na(p), p > 0)
+reg <- sff %>% dplyr::filter(chr == 18, pos >= 52e6, pos <= 57e6) %>%
+  arrange(p)
+stopifnot(nrow(reg) > 0)
+ensDb <- AnnotationHub()[["AH119325"]]
+loc <- locus(data = as.data.frame(reg), seqname = 18,
+             xrange = c(52e6, 57e6), ens_db = ensDb,
+             chrom = "chr", pos = "pos", p = "p", labs = "rsid",
+             index_snp = reg$rsid[which.min(reg$p)])
+loc <- link_LD(loc, token = LDLINK_TOKEN,
+               pop = "EUR", genome_build = "grch38")
+recomb_gr <- rtracklayer::import.bw("resources/ucsc_recomb/hg38/recomb1000GAvg.bw")
+loc <- link_recomb(loc, genome = "hg38", recomb = recomb_gr)
 
-  cairo_pdf(out_pdf, width = LZ_W_MM / 25.4, height = LZ_H_MM / 25.4)
-  locus_plot(loc,
-             labels = c("index", "rs4800996"),
-             ylab = expression(-log[10](SFFDR~P)),
-             filter_gene_biotype = "protein_coding",
-             highlight = c("DCC", "TCF4"))
-  dev.off()
-  png(out_png, width = LZ_W_MM, height = LZ_H_MM, units = "mm", res = 600)
-  locus_plot(loc,
-             labels = c("index", "rs4800996"),
-             ylab = expression(-log[10](SFFDR~P)),
-             filter_gene_biotype = "protein_coding",
-             highlight = c("DCC", "TCF4"))
-  dev.off()
-}
+draw_lz <- function() locus_plot(loc,
+                                 labels = c("index", "rs4800996"),
+                                 ylab = expression(-log[10](SFFDR~P)),
+                                 filter_gene_biotype = "protein_coding",
+                                 highlight = c("DCC", "TCF4"))
+cairo_pdf(file.path(OUT_DIR, "panel_e_locuszoom.pdf"), width = LZ_W_MM / 25.4, height = LZ_H_MM / 25.4)
+draw_lz(); invisible(dev.off())
+png(file.path(OUT_DIR, "panel_e_locuszoom.png"), width = LZ_W_MM, height = LZ_H_MM, units = "mm", res = 600)
+draw_lz(); invisible(dev.off())
 
-render_locuszoom_standalone(
-  file.path(OUT_DIR, "panel_e_locuszoom.pdf"),
-  file.path(OUT_DIR, "panel_e_locuszoom.png")
-)
-
-cat("[done] five panels written to ", OUT_DIR, ":\n",
-    "    panel_a_magma_manhattan.{pdf,png}   (", W_MAN, " x ", H_MAN, " mm)\n",
-    "    panel_d_sffdr_manhattan.{pdf,png}   (", W_MAN, " x ", H_MAN, " mm)\n",
-    "    panel_b_enrich_gtex.pdf             (partner PDF, copied)\n",
-    "    panel_c_gsem.pdf                    (partner PDF, copied)\n",
-    "    panel_e_locuszoom.{pdf,png}         (", LZ_W_MM, " x ", LZ_H_MM, " mm)\n",
+cat("[done] panels written to ", OUT_DIR, ":\n",
+    "    panel_a_magma_manhattan_new.{pdf,png}   (", W_MAN, " x ", H_MAN, " mm)\n",
+    "    panel_c_gsem.{pdf,png}                  (partner PDF, copied)\n",
+    "    panel_d_sffdr_manhattan_new.{pdf,png}   (", W_MAN, " x ", H_MAN, " mm)\n",
+    "    panel_e_locuszoom.{pdf,png}             (", LZ_W_MM, " x ", LZ_H_MM, " mm)\n",
     sep = "")
 
 

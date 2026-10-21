@@ -109,3 +109,6 @@ sv <- function(p, n) { ggsave(file.path(OUT, paste0(n, ".pdf")), p, width = WC, 
 saveRDS(pC, file.path(OUT, "Fig5c.rds"))   # for the vector composite (fig5_assemble.R)
 sv(pC, "Fig5c")   # panel c = LocusCompare; the alternative views above are not saved (B and D are in Supp Fig 4)
 cat("[done]\n")
+
+
+### END

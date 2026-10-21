@@ -51,7 +51,7 @@ mods <- tibble::tribble(
                                        "analyses/05_pantry/pheast"), mod, mod))
 
 ## ---------------------------------------------------------------- data
-## region data from the cache (scripts/cache_znf91_region.R; chr19:22.9-23.9 Mb) -> renders in seconds
+## region data from the cache (cache_znf91_region.R; chr19:22.9-23.9 Mb) -> renders in seconds
 cache  <- readRDS("manuscript/figures/Fig5/data/cache_znf91_region.rds")
 gwas19 <- as.data.table(cache$gwas)
 gwas_reg <- gwas19 %>% transmute(SNP, rsID, chr = as.integer(CHR), pos = as.integer(BP), p = as.numeric(P)) %>%
@@ -221,3 +221,6 @@ s4 <- plot_grid(left, rightc, nrow = 1)
 saveRDS(s4, file.path(OUT_S4, "Supp_Fig4.rds"))   # for the merged Supp Fig 4 + coloc/LD (suppfig_coloc_ld.R)
 save_fig(s4, "Supp_Fig4_regional_plots", W, H5, OUT_S4)
 cat("[done]\n")
+
+
+### END
