@@ -8,6 +8,8 @@ import pandas as pd
 container: "docker://twillis209/sffdr_for_dizziness:latest"
 
 configfile: "config/config.yaml"
+if os.path.exists("config/config_lab.yaml"):   # lab-specific settings (not in git)
+    configfile: "config/config_lab.yaml"
 
 def script_path(script):
     return os.path.join(workflow.basedir, "scripts", script)

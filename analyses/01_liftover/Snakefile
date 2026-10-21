@@ -1,0 +1,189 @@
+# =====================================================================================================================
+# Step 01: genotype merge + liftover hg19 -> hg38
+# Runs inside its folder (analyses/01_liftover/); paths below are relative to that folder unless built from ROOT/config.
+#   snakemake -s analyses/01_liftover/Snakefile --profile profiles/slurm        (from the project root)
+# (or through the main workflow: snakemake analyses/01_liftover)
+# Analysis-specific references in src/, shared ones in ../../resources/.
+# =====================================================================================================================
+from pathlib import Path
+ROOT = Path(workflow.basedir).parents[1]
+workdir: str(Path(workflow.basedir))      # paths below are relative to this folder
+configfile: str(ROOT / "config" / "config.yaml")
+_LAB = ROOT / "config" / "config_lab.yaml"   # lab-specific settings, not in git (overrides config.yaml)
+if _LAB.exists():
+    configfile: str(_LAB)
+SCRIPTS = str(Path(workflow.basedir) / "scripts")
+T = config["tools"]
+
+### Snakemake workflow to perform liftover from hg19 to hg38
+
+
+rule all:
+    input:
+        "../../data/genotype/.symlinks_done",
+        multiext("results/genotype/geno_merged_hg19", ".bed", ".bim", ".fam"),
+        "results/genotype/geno_merged_hg19_fixed.fam",
+        "results/geno_metadata.tsv",
+        "src/ucsc_hg19/hg19.fa",
+        "src/ucsc_hg38/hg38.fa",
+        "src/hg19ToHg38.over.chain",
+        "results/genotype/geno_merged_hg19_clean.vcf.gz",
+        "src/ucsc_hg38/hg38.dict",
+        "results/geno_lifted_hg38.vcf.gz",
+        "results/geno_lifted_hg38.vcf.gz.tbi",
+        "results/rejected_variants_to_lift.vcf",
+        "results/geno_lifted_hg38_deduped_renamed.bcf",
+        "results/geno_lifted_hg38_deduped_renamed.bcf.csi"
+
+
+rule symlink_genotype_files:
+    output:
+        touch("../../data/genotype/.symlinks_done")
+    shell:
+        """
+        mkdir -p ../../data/genotype
+        ln -sf {config[data][genotype_raw_dir]}/* ../../data/genotype/
+        touch {output}
+        """
+
+
+rule dl_refs_chain:
+    output:
+        hg19 = "src/ucsc_hg19/hg19.fa",
+        hg38 = "src/ucsc_hg38/hg38.fa",
+        chain_file = "src/hg19ToHg38.over.chain"
+    params:
+        hg19_link = "https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz",
+        hg38_link = "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz",
+        chain_file_hg19_to_hg38 = "https://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz"
+    shell:
+        """
+        mkdir -p src/ucsc_hg19 src/ucsc_hg38
+        wget -P src/ucsc_hg19/ {params.hg19_link}
+        wget -P src/ucsc_hg38/ {params.hg38_link}
+        wget -P src/ {params.chain_file_hg19_to_hg38}
+        gunzip -f src/ucsc_hg19/hg19.fa.gz
+        gunzip -f src/ucsc_hg38/hg38.fa.gz
+        gunzip -f src/hg19ToHg38.over.chain.gz
+        """
+
+
+rule merge_genotypes:
+    input:
+        geno_b12 = multiext("../../data/genotype/batch12/20240129_hg19", ".ped", ".map"),
+        geno_b3 = multiext("../../data/genotype/batch3/20250515_hg19", ".ped", ".map")
+    output:
+        multiext("results/genotype/geno_merged_hg19", ".bed", ".bim", ".fam")
+    params:
+        geno_b12_prefix = "../../data/genotype/batch12/20240129_hg19",
+        geno_b3_prefix = "../../data/genotype/batch3/20250515_hg19"
+    log:
+        "logs/merge_genotypes.log"
+    shell:
+        """
+        plink \
+            --file {params.geno_b12_prefix} \
+            --merge {params.geno_b3_prefix} \
+            --chr 1-22 \
+            --maf 0.01 \
+            --snps-only 'just-acgt' \
+            --nonfounders \
+            --output-chr chrM \
+            --make-bed \
+            --out results/genotype/geno_merged_hg19 &> {log}
+        """
+
+
+rule fix_fam_metadata:
+    input:
+        fam = "results/genotype/geno_merged_hg19.fam"
+    output:
+        fam_fixed = "results/genotype/geno_merged_hg19_fixed.fam",
+        geno_meta = "results/geno_metadata.tsv"
+    shell:
+        """
+        Rscript {SCRIPTS}/fix_fam_make_meta.R
+        """
+
+
+rule fix_ref_alt_vcf:
+    input:
+        bed = "results/genotype/geno_merged_hg19.bed",
+        bim = "results/genotype/geno_merged_hg19.bim",
+        fam = "results/genotype/geno_merged_hg19_fixed.fam",
+        ref_hg19 = "src/ucsc_hg19/hg19.fa"
+    output:
+        "results/genotype/geno_merged_hg19_clean.vcf.gz"
+    shell:
+        r"""
+        plink2 \
+            --bed {input.bed} \
+            --bim {input.bim} \
+            --fam {input.fam} \
+            --fa {input.ref_hg19} \
+            --ref-from-fa force \
+            --max-alleles 2 \
+            --nonfounders \
+            --output-chr chrM \
+            --set-all-var-ids @_#_\$r_\$a \
+            --recode vcf id-paste=iid bgz \
+            --out results/genotype/geno_merged_hg19_clean
+        """
+
+
+rule ref_dic:
+    input:
+        ref_hg38 = "src/ucsc_hg38/hg38.fa"
+    output:
+        "src/ucsc_hg38/hg38.dict"
+    shell:
+        """
+        gatk CreateSequenceDictionary \
+        -R {input.ref_hg38}
+        """
+
+
+rule liftover:
+    input:
+        geno_vcf = "results/genotype/geno_merged_hg19_clean.vcf.gz",
+        chain_file = "src/hg19ToHg38.over.chain",
+        ref_hg38 = "src/ucsc_hg38/hg38.fa"
+    output:
+        vcf_out = "results/geno_lifted_hg38.vcf.gz",
+        vcf_out_indx = "results/geno_lifted_hg38.vcf.gz.tbi",
+        rejected_vcf = "results/rejected_variants_to_lift.vcf",
+    shell:
+        """
+        gatk LiftoverVcf \
+        I={input.geno_vcf} \
+        CHAIN={input.chain_file} \
+        R={input.ref_hg38} \
+        O=results/geno_lifted_hg38.vcf \
+        REJECT={output.rejected_vcf} \
+        RECOVER_SWAPPED_REF_ALT=true
+
+        # gzip and index
+        bgzip results/geno_lifted_hg38.vcf
+        tabix -p vcf {output.vcf_out}
+        """
+
+
+rule dedup_rename_bcf:
+    """Deduplicate and rename SNP IDs in a VCF, output as BCF."""
+    input:
+        vcf_in = "results/geno_lifted_hg38.vcf.gz"
+    output:
+        bcf_out = "results/geno_lifted_hg38_deduped_renamed.bcf",
+        bcf_out_indx = "results/geno_lifted_hg38_deduped_renamed.bcf.csi"
+    shell:
+        r"""
+        bcftools annotate --set-id '%CHROM\_%POS\_%REF\_%ALT' {input.vcf_in} | \
+        bcftools norm -d exact -Ou | \
+        bcftools view -Ob -o {output.bcf_out}
+        
+        # Index the cleaned BCF
+        bcftools index {output.bcf_out}
+        """
+
+
+### END

@@ -1,0 +1,41 @@
+# =====================================================================================================================
+# 07 Fine-mapping (SuSiE) of the dizziness GWAS loci and the ZNF91 isoform QTL.
+# LD from the 1000 Genomes reference (resources/ldref_1kg_hg38). Scripts run from the project root.
+#   snakemake -s analyses/07_fine_mapping/Snakefile --profile profiles/slurm -n
+# Inputs: analyses/04_gwas_sumstats (formatted + TWAS input sumstats), analyses/05_pantry/pheast (isoform QTL nominal results).
+# =====================================================================================================================
+from pathlib import Path
+
+ROOT = Path(workflow.basedir).parents[1]
+workdir: str(ROOT)
+configfile: str(ROOT / "config" / "config.yaml")
+_LAB = ROOT / "config" / "config_lab.yaml"   # lab-specific settings, not in git (overrides config.yaml)
+if _LAB.exists():
+    configfile: str(_LAB)
+RS = f"{config['conda_prefix']}/{config['envs']['susie']}/bin/Rscript"
+S = "analyses/07_fine_mapping/scripts"
+O = "analyses/07_fine_mapping"
+
+# locus -> (script, result file); one script per locus as in the original analysis
+LOCI = {
+    "meta_all_chr17":   ("susei_meta_all_chr17.R", "susie_results_balance_meta_chr17_67.66M-68.23M.tsv"),
+    "meta_all_chr19":   ("susei_meta_all_chr19.R", "susie_results_balance_meta_chr19_21.42M-23.7M.tsv"),
+    "meta_eur_chr17":   ("susei_meta_eur_chr17.R", "susie_results_balance_meta_EUR_chr17_67.66M-68.24M.tsv"),
+    "meta_eur_chr19":   ("susei_meta_eur_chr19.R", "susie_results_balance_meta_EUR_chr19_21.27M-24.01M.tsv"),
+    "ukb_eur_chr13":    ("susei_ukb_eur_chr13.R",  "susie_results_balance_UKB_EUR_chr13_52.94M-53.57M.tsv"),
+    "ukb_eur_chr19":    ("susei_ukb_eur_chr19.R",  "susie_results_balance_UKB_EUR_chr19_23.18M-23.65M.tsv"),
+    "isoQTL_chr19":     ("sus_isoQTL_chr19.R",     "susie_results_isoformQTL_nominal_chr19_21.42M-23.7M_all_snps.tsv"),   # credible-set file only if a CS is found
+    "gwas_qtl_chr19":   ("SuSiE_fine_mapping.R",   "susie_results_balance_meta1.tsv"),
+}
+# susei_meta_all_chr18.R (chr18 locus) is not part of the workflow: it writes to the chr17 result file name
+
+
+rule all:
+    input: [f"{O}/results/{v[1]}" for v in LOCI.values()]
+
+
+rule susie:
+    output: f"{O}/results/{{result}}"
+    params: script=lambda wc: next(v[0] for v in LOCI.values() if v[1] == wc.result)
+    resources: mem_mb=32000, runtime="4h"
+    shell: "{RS} {S}/{params.script}"

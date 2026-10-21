@@ -1,0 +1,33 @@
+# =====================================================================================================================
+# Supplementary tables and manuscript numbers. Each table folder holds its code and output. Run from the project root.
+#   snakemake -s manuscript/tables/Snakefile --profile profiles/slurm -n
+# =====================================================================================================================
+from pathlib import Path
+
+ROOT = Path(workflow.basedir).parents[1]   # manuscript/tables -> project root
+workdir: str(ROOT)
+configfile: str(ROOT / "config" / "config.yaml")
+_LAB = ROOT / "config" / "config_lab.yaml"   # lab-specific settings, not in git (overrides config.yaml)
+if _LAB.exists():
+    configfile: str(_LAB)
+CP = config["conda_prefix"]; ENV = config["envs"]
+PY = f"{CP}/{ENV['base']}/bin/python3"
+CROSS = "analyses/05_pantry/pheast/output/vestibular/qtl/cross_modality.cis_independent_qtl.txt.gz"
+TWAS = "analyses/06_twas/results/vestibular/output/twas_hits_annot.tsv"
+
+
+rule all:
+    input: "manuscript/tables/SuppTables/Supplementary_Table2_QTL_TWAS.xlsx", "manuscript/tables/manuscript_numbers/manuscript_numbers.tsv"
+
+
+rule supp_table2:
+    # Supplementary Table 2: phenotypes, xQTLs, eGenes vs GTEx, GWAS traits, TWAS hits (S1-S7)
+    input: CROSS, TWAS
+    output: "manuscript/tables/SuppTables/Supplementary_Table2_QTL_TWAS.xlsx"
+    shell: f"PATH={CP}/{ENV['pheast']}/bin:$PATH {PY} -W ignore manuscript/tables/SuppTables/build_supp_table2.py"
+
+rule manuscript_numbers:
+    # every number quoted in the manuscript text, recomputed from the results
+    input: CROSS, TWAS, "analyses/05_pantry/results/xqtl_summary/vestibular.comb.qtls.rel_pos.tsv"
+    output: "manuscript/tables/manuscript_numbers/manuscript_numbers.tsv"
+    shell: f"{PY} -W ignore manuscript/tables/manuscript_numbers/manuscript_numbers.py"

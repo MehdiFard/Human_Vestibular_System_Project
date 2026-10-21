@@ -1,0 +1,79 @@
+category	modality	tissue	log2_enrichment	freq_in_xvariants
+Enhancer	Intron excision	VESTIB	0.724045	0.0137466
+Promoter	Intron excision	VESTIB	1.39593	0.0240637
+Open chromatin	Intron excision	VESTIB	-0.258576	0.0207322
+Promoter-flanking	Intron excision	VESTIB	0.526564	0.0345162
+CTCF binding site	Intron excision	VESTIB	0.181372	0.0315896
+TF binding site	Intron excision	VESTIB	0.70466	0.00742491
+3' UTR	Intron excision	VESTIB	1.09299	0.0244587
+5' UTR	Intron excision	VESTIB	1.44248	0.00814748
+Intron	Intron excision	VESTIB	0.103218	0.557786
+Missense	Intron excision	VESTIB	2.57932	0.0214132
+NC transcript	Intron excision	VESTIB	1.66294	0.0569203
+Splicing	Intron excision	VESTIB	3.81716	0.0181494
+Synonymous	Intron excision	VESTIB	1.50786	0.00963243
+Enhancer	RNA stability	VESTIB	1.16863	0.0191614
+Promoter	RNA stability	VESTIB	1.72531	0.0310221
+Open chromatin	RNA stability	VESTIB	0.601608	0.0382363
+Promoter-flanking	RNA stability	VESTIB	-0.0191578	0.0242467
+5' UTR	RNA stability	VESTIB	1.98944	0.0122144
+Intron	RNA stability	VESTIB	0.104313	0.556149
+Missense	RNA stability	VESTIB	2.2354	0.0173027
+NC transcript	RNA stability	VESTIB	0.991964	0.0363351
+Synonymous	RNA stability	VESTIB	1.91097	0.0130621
+Promoter	Alt. polyA	VESTIB	0.942744	0.016852
+Open chromatin	Alt. polyA	VESTIB	0.229019	0.0281618
+CTCF binding site	Alt. polyA	VESTIB	-0.832247	0.0153294
+3' UTR	Alt. polyA	VESTIB	2.93556	0.0841654
+Intron	Alt. polyA	VESTIB	0.0630833	0.528465
+NC transcript	Alt. polyA	VESTIB	1.33058	0.0440118
+Splicing	Alt. polyA	VESTIB	2.20022	0.00572498
+Synonymous	Alt. polyA	VESTIB	2.21677	0.0151226
+Enhancer	Isoform ratio	VESTIB	-0.436764	0.00588565
+Promoter	Isoform ratio	VESTIB	1.37362	0.0226641
+Open chromatin	Isoform ratio	VESTIB	0.44339	0.0326522
+Promoter-flanking	Isoform ratio	VESTIB	0.504648	0.0325707
+CTCF binding site	Isoform ratio	VESTIB	-0.465645	0.019718
+TF binding site	Isoform ratio	VESTIB	1.39296	0.0115661
+3' UTR	Isoform ratio	VESTIB	2.19593	0.0503013
+5' UTR	Isoform ratio	VESTIB	1.18526	0.00652756
+Intron	Isoform ratio	VESTIB	0.0452266	0.522055
+Missense	Isoform ratio	VESTIB	2.44639	0.0187148
+NC transcript	Isoform ratio	VESTIB	1.72141	0.0576
+Splicing	Isoform ratio	VESTIB	2.9812	0.00981154
+Synonymous	Isoform ratio	VESTIB	1.42638	0.00871862
+Promoter	RNA editing	VESTIB	0.157841	0.0121387
+Open chromatin	RNA editing	VESTIB	-0.0920083	0.0251931
+Promoter-flanking	RNA editing	VESTIB	0.13732	0.0309379
+CTCF binding site	RNA editing	VESTIB	-0.594687	0.0198057
+TF binding site	RNA editing	VESTIB	0.90712	0.00976469
+3' UTR	RNA editing	VESTIB	2.11984	0.0582923
+Intron	RNA editing	VESTIB	0.273761	0.649347
+Missense	RNA editing	VESTIB	1.08089	0.00901454
+NC transcript	RNA editing	VESTIB	0.262506	0.0243764
+Splicing	RNA editing	VESTIB	1.75828	0.00505327
+Synonymous	RNA editing	VESTIB	1.61385	0.0123104
+Enhancer	Alt. TSS	VESTIB	0.285264	0.00984731
+Promoter	Alt. TSS	VESTIB	3.58812	0.106702
+Open chromatin	Alt. TSS	VESTIB	-0.559913	0.0164626
+Promoter-flanking	Alt. TSS	VESTIB	0.387151	0.0304484
+CTCF binding site	Alt. TSS	VESTIB	0.170071	0.0309242
+TF binding site	Alt. TSS	VESTIB	1.36679	0.0115131
+3' UTR	Alt. TSS	VESTIB	1.30138	0.0274358
+5' UTR	Alt. TSS	VESTIB	3.44105	0.0316127
+Intron	Alt. TSS	VESTIB	-0.0736005	0.484505
+NC transcript	Alt. TSS	VESTIB	1.79396	0.0612821
+Splicing	Alt. TSS	VESTIB	2.60105	0.00763726
+Enhancer	Expression	VESTIB	0.0230424	0.00792738
+Promoter	Expression	VESTIB	2.78494	0.0590181
+Open chromatin	Expression	VESTIB	-0.77025	0.01384
+Promoter-flanking	Expression	VESTIB	0.677259	0.0359416
+CTCF binding site	Expression	VESTIB	-0.173799	0.0238739
+TF binding site	Expression	VESTIB	0.349867	0.00551335
+3' UTR	Expression	VESTIB	1.65795	0.0339254
+5' UTR	Expression	VESTIB	2.55429	0.0165115
+Intron	Expression	VESTIB	0.0234787	0.507927
+Missense	Expression	VESTIB	2.24558	0.0160191
+NC transcript	Expression	VESTIB	1.33395	0.0433555
+Splicing	Expression	VESTIB	2.25098	0.00580496
+Synonymous	Expression	VESTIB	2.31857	0.0158796

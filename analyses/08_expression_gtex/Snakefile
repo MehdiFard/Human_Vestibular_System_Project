@@ -1,0 +1,47 @@
+# =====================================================================================================================
+# 08 Otolith organs vs GTEx: PCA, per-gene comparison with every GTEx tissue, vestibular-enriched genes, enrichment
+# (Fig 3 inputs, Supp Fig 5b). Scripts run from the project root.
+#   snakemake -s analyses/08_expression_gtex/Snakefile --profile profiles/slurm -n
+# Inputs: analyses/05_pantry/phenotyping (vestibular expression), GTEx Pantry phenotypes (config refs; per-tissue gene counts written to results/gtex_raw_counts_pantry).
+# The STRING disease/phenotype enrichment was run in Cytoscape (manual): results/enrichment_stringdb_cytoscape.csv.
+# =====================================================================================================================
+from pathlib import Path
+
+ROOT = Path(workflow.basedir).parents[1]
+workdir: str(ROOT)
+configfile: str(ROOT / "config" / "config.yaml")
+_LAB = ROOT / "config" / "config_lab.yaml"   # lab-specific settings, not in git (overrides config.yaml)
+if _LAB.exists():
+    configfile: str(_LAB)
+RS = f"{config['conda_prefix']}/{config['envs']['base']}/bin/Rscript"
+S = "analyses/08_expression_gtex/scripts"
+O = "analyses/08_expression_gtex/results"
+
+
+rule all:
+    input:
+        f"{O}/gtex_vest_logCPM_vestib_gtex_same_pipeline_PCs.RData",
+        f"{O}/vestibular_high_expressed_genes_accross_all_gtex.tsv",
+        f"{O}/enrichment_BP.tsv",
+
+
+rule pca_vestib_gtex:
+    output: f"{O}/gtex_vest_logCPM_vestib_gtex_same_pipeline_PCs.RData"
+    resources: mem_mb=128000, runtime="12h"
+    shell: "{RS} {S}/PCA_VESTIB_vs_GTEx.R"
+
+rule expression_comparison:
+    output: f"{O}/vestib_vs_gtex_t_tests.tsv", "analyses/08_expression_gtex/figures/expr_across_gtex_ENSG00000167232.pdf"
+    resources: mem_mb=64000, runtime="12h"
+    shell: "{RS} {S}/expression_comparsion.R"
+
+rule vestibular_enriched_genes:
+    input: f"{O}/vestib_vs_gtex_t_tests.tsv"
+    output: f"{O}/vestibular_high_expressed_genes_accross_all_gtex.tsv", f"{O}/vestibular_and_gtex_genes_background.tsv"
+    resources: mem_mb=64000
+    shell: "{RS} {S}/highly_expressed_in_vestib.R"
+
+rule gene_enrichment:
+    input: rules.vestibular_enriched_genes.output
+    output: f"{O}/enrichment_BP.tsv"
+    shell: "{RS} {S}/gene_enrichment.R"

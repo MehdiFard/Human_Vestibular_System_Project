@@ -1,0 +1,28 @@
+file_name	trait	ref_build	sample_size
+ANX_EUR.txt.gz	anx_eur	GRCh37	845137
+balance_meta_EUR.gz	balance_meta_eur	GRCh37	667777
+balance_meta1.tbl.sorted.filtered.gz	balance_meta1	GRCh37	420000
+cognitive_skills_ext.gz	cognitive_skills_ext	GRCh37	10346
+EUR_fluid_intelligence.sumstats.txt.gz	fluid_intelligence_eur	GRCh37	125935
+eur_jul8_2021_allchr.any_tinnitus.maf01.ADD.resultsa.fuma_ours.gz	tinnitus_eur	GRCh37	566890
+Frailty_GWAS_maf0.01_FUMA.tsv	frailty_gwas	GRCh37	386565
+GCST90027158_buildGRCh38.gz.tsv	alzheimer	GRCh38	488511
+GP2_ALL_EUR_ALL_DATASET_HG38_12162024.txt.gz	parkinson_gp2_eur	GRCh38	1827641
+hearing_HLeur_WellsFlip_STDERR_allchr.hearbroad.maf01.fuma_1.tbl.filtered.gz	hearing_hleur	GRCh37	598899
+ICP_FA.txt.gz	icp_fa	GRCh37	25415
+ICP_MD.txt.gz	icp_md	GRCh37	25415
+MCP_FA.txt.gz	mcp_fa	GRCh37	25415
+MCP_MD.txt.gz	mcp_md	GRCh37	25415
+non_cognitive_skills_ext.gz	non_cognitive_skills_ext	GRCh37	10346
+pgc-mdd2025_no23andMe_eur_v3-49-24-11.tsv	depression_mdd	GRCh37	3887532
+SCP_FA.txt.gz	scp_fa	GRCh37	25415
+SCP_MD.txt.gz	scp_md	GRCh37	25415
+Tissinketal_CommBio2022_cerebellarvolume.txt.gz	cerebellar_volume	GRCh37	27486
+Tissinketal_CommBio2022_cerebralvolume.txt.gz	cerebral_volume	GRCh37	27486
+Tissinketal_CommBio2022_subcorticalvolume.txt.gz	subcortical_volume	GRCh37	27486
+UKBB_falls_gwas_MAF001.txt.gz	ukbb_falls	GRCh37	451179
+vertigo_GRCH38_sorted_cln.tsv.gz	vertigo	GRCh38	500000
+All_MVP_Trpchevska_De-Angelis_BBJ.N.txt.gz	MVP_hearing_loss	GRCh37	1510447
+
+
+

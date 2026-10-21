@@ -1,0 +1,371 @@
+trait	gene_id	modality_hits	top_hit_modality	top_hit_p_coloc
+MVP_hearing_loss	ENSG00000072778	Non-expr. only	Alt. TSS	0.655
+MVP_hearing_loss	ENSG00000077498	Expression only	Expression	0.049
+MVP_hearing_loss	ENSG00000085999	Non-expr. only	Isoform ratio	0.049
+MVP_hearing_loss	ENSG00000086015	Expression only	Expression	0.49
+MVP_hearing_loss	ENSG00000087266	Non-expr. only	RNA editing	0.694
+MVP_hearing_loss	ENSG00000100142	Non-expr. only	RNA editing	0.03
+MVP_hearing_loss	ENSG00000110367	Non-expr. only	RNA editing	0.049
+MVP_hearing_loss	ENSG00000115310	Non-expr. only	RNA editing	0.156
+MVP_hearing_loss	ENSG00000117461	Expr. & other(s)	Isoform ratio	0.284
+MVP_hearing_loss	ENSG00000117481	Non-expr. only	Alt. TSS	0.055
+MVP_hearing_loss	ENSG00000132780	Non-expr. only	RNA editing	0.048
+MVP_hearing_loss	ENSG00000139428	Non-expr. only	RNA stability	0.85
+MVP_hearing_loss	ENSG00000139433	Non-expr. only	RNA editing	0.4
+MVP_hearing_loss	ENSG00000159592	Non-expr. only	RNA editing	0.44
+MVP_hearing_loss	ENSG00000164695	Expression only	Expression	0.994
+MVP_hearing_loss	ENSG00000170291	Non-expr. only	Alt. polyA	0.841
+MVP_hearing_loss	ENSG00000175826	Non-expr. only	Isoform ratio	0.557
+MVP_hearing_loss	ENSG00000183921	Non-expr. only	Intron excision ratio	0.315
+MVP_hearing_loss	ENSG00000197429	Non-expr. only	RNA editing	0.327
+MVP_hearing_loss	ENSG00000214944	Non-expr. only	Isoform ratio	0.645
+MVP_hearing_loss	ENSG00000278376	Expression only	Expression	0.158
+alzheimer	ENSG00000005844	Non-expr. only	Isoform ratio	0.459
+alzheimer	ENSG00000029725	Non-expr. only	Intron excision ratio	0.052
+alzheimer	ENSG00000064932	Non-expr. only	Intron excision ratio	0.13
+alzheimer	ENSG00000090238	Non-expr. only	Alt. TSS	0.908
+alzheimer	ENSG00000120071	Non-expr. only	Intron excision ratio	0.292
+alzheimer	ENSG00000122378	Non-expr. only	RNA editing	0.335
+alzheimer	ENSG00000129204	Non-expr. only	Alt. TSS	0.058
+alzheimer	ENSG00000130208	Non-expr. only	Intron excision ratio	0.081
+alzheimer	ENSG00000149923	Non-expr. only	Isoform ratio	0.434
+alzheimer	ENSG00000156170	Non-expr. only	Intron excision ratio	0.961
+alzheimer	ENSG00000169967	Non-expr. only	RNA editing	0.043
+alzheimer	ENSG00000170788	Expression only	Expression	0.034
+alzheimer	ENSG00000176681	Expr. & other(s)	Alt. TSS	0.373
+alzheimer	ENSG00000179344	Non-expr. only	Intron excision ratio	0.002
+alzheimer	ENSG00000185829	Expr. & other(s)	Isoform ratio	0.8
+alzheimer	ENSG00000196126	Expr. & other(s)	Expression	0.573
+alzheimer	ENSG00000196735	Non-expr. only	Alt. polyA	0.445
+alzheimer	ENSG00000198502	Non-expr. only	Intron excision ratio	0.006
+alzheimer	ENSG00000203710	Non-expr. only	Isoform ratio	0.514
+alzheimer	ENSG00000204267	Non-expr. only	Alt. polyA	0.067
+alzheimer	ENSG00000204525	Non-expr. only	Intron excision ratio	0.06
+alzheimer	ENSG00000214401	Non-expr. only	Alt. TSS	0.279
+alzheimer	ENSG00000225914	Non-expr. only	Isoform ratio	0.011
+alzheimer	ENSG00000228696	Expr. & other(s)	Isoform ratio	0.328
+alzheimer	ENSG00000232629	Non-expr. only	Intron excision ratio	0.002
+alzheimer	ENSG00000234745	Non-expr. only	Intron excision ratio	0.917
+alzheimer	ENSG00000234906	Non-expr. only	Alt. TSS	0.03
+alzheimer	ENSG00000236682	Expression only	Expression	0.074
+alzheimer	ENSG00000238083	Non-expr. only	Intron excision ratio	0.68
+alzheimer	ENSG00000241404	Non-expr. only	Alt. TSS	0.078
+alzheimer	ENSG00000261879	Expr. & other(s)	Expression	0.918
+alzheimer	ENSG00000262633	Non-expr. only	Intron excision ratio	0.989
+alzheimer	ENSG00000262879	Non-expr. only	Alt. polyA	0.965
+alzheimer	ENSG00000263715	Non-expr. only	RNA editing	0.246
+alzheimer	ENSG00000265148	Non-expr. only	Isoform ratio	0.417
+alzheimer	ENSG00000267198	Non-expr. only	Alt. polyA	0.382
+alzheimer	ENSG00000290682	Non-expr. only	Alt. TSS	0.06
+alzheimer	ENSG00000290878	Non-expr. only	Intron excision ratio	0.006
+alzheimer	ENSG00000291018	Expression only	Expression	0.349
+alzheimer	ENSG00000291047	Expression only	Expression	0.526
+alzheimer	ENSG00000291175	Non-expr. only	Intron excision ratio	0.281
+alzheimer	ENSG00000291209	Non-expr. only	Intron excision ratio	0.989
+anx_eur	ENSG00000001617	Non-expr. only	Alt. TSS	0.521
+anx_eur	ENSG00000004534	Non-expr. only	RNA editing	0.508
+anx_eur	ENSG00000163939	Non-expr. only	Alt. TSS	0.751
+anx_eur	ENSG00000166510	Non-expr. only	Intron excision ratio	0.29
+anx_eur	ENSG00000168268	Non-expr. only	Alt. TSS	0.773
+anx_eur	ENSG00000173402	Non-expr. only	Alt. TSS	0.106
+anx_eur	ENSG00000186470	Non-expr. only	Isoform ratio	0.756
+anx_eur	ENSG00000198561	Non-expr. only	RNA editing	0.272
+anx_eur	ENSG00000243696	Expression only	Expression	0.296
+balance_meta1	ENSG00000167232	Non-expr. only	RNA editing	0.391
+balance_meta1	ENSG00000284428	Expr. & other(s)	Expression	0.229
+balance_meta_eur	ENSG00000167232	Non-expr. only	RNA editing	0.455
+balance_meta_eur	ENSG00000284428	Expr. & other(s)	Expression	0.215
+cerebellar_volume	ENSG00000119401	Non-expr. only	Alt. TSS	0.03
+cerebellar_volume	ENSG00000120860	Non-expr. only	RNA editing	0.243
+cerebellar_volume	ENSG00000132424	Non-expr. only	Isoform ratio	0.419
+cerebellar_volume	ENSG00000138111	Non-expr. only	Intron excision ratio	0.831
+cerebellar_volume	ENSG00000166272	Non-expr. only	RNA editing	0.804
+cerebellar_volume	ENSG00000279170	Non-expr. only	Isoform ratio	0.369
+cerebral_volume	ENSG00000106034	Non-expr. only	Intron excision ratio	0.536
+cerebral_volume	ENSG00000132478	Non-expr. only	RNA editing	0.966
+cognitive_skills_ext	ENSG00000001617	Non-expr. only	Alt. TSS	0.138
+cognitive_skills_ext	ENSG00000004534	Non-expr. only	RNA editing	0.309
+cognitive_skills_ext	ENSG00000010803	Non-expr. only	RNA editing	0.397
+cognitive_skills_ext	ENSG00000026950	Non-expr. only	Intron excision ratio	0.407
+cognitive_skills_ext	ENSG00000075292	Expression only	Expression	0.923
+cognitive_skills_ext	ENSG00000077458	Non-expr. only	Isoform ratio	0.503
+cognitive_skills_ext	ENSG00000088808	Non-expr. only	Isoform ratio	0.327
+cognitive_skills_ext	ENSG00000100197	Non-expr. only	Intron excision ratio	0.432
+cognitive_skills_ext	ENSG00000112763	Non-expr. only	Intron excision ratio	0.042
+cognitive_skills_ext	ENSG00000114302	Non-expr. only	Alt. polyA	0.219
+cognitive_skills_ext	ENSG00000114735	Non-expr. only	Intron excision ratio	0.672
+cognitive_skills_ext	ENSG00000115526	Non-expr. only	Intron excision ratio	0.157
+cognitive_skills_ext	ENSG00000116127	Expr. & other(s)	Alt. polyA	0.6
+cognitive_skills_ext	ENSG00000124357	Non-expr. only	Alt. polyA	0.612
+cognitive_skills_ext	ENSG00000126215	Non-expr. only	Alt. TSS	0.75
+cognitive_skills_ext	ENSG00000132600	Non-expr. only	RNA stability	0.344
+cognitive_skills_ext	ENSG00000137185	Expression only	Expression	0.191
+cognitive_skills_ext	ENSG00000143028	Expression only	Expression	0.25
+cognitive_skills_ext	ENSG00000144034	Non-expr. only	Isoform ratio	0.509
+cognitive_skills_ext	ENSG00000144035	Expression only	Expression	0.887
+cognitive_skills_ext	ENSG00000162267	Expression only	Expression	0.046
+cognitive_skills_ext	ENSG00000163939	Non-expr. only	Alt. TSS	0.314
+cognitive_skills_ext	ENSG00000164068	Non-expr. only	Alt. TSS	0.077
+cognitive_skills_ext	ENSG00000164087	Non-expr. only	Intron excision ratio	0.05
+cognitive_skills_ext	ENSG00000164142	Non-expr. only	Alt. TSS	0.44
+cognitive_skills_ext	ENSG00000166166	Non-expr. only	RNA stability	0.915
+cognitive_skills_ext	ENSG00000168268	Non-expr. only	Isoform ratio	0.747
+cognitive_skills_ext	ENSG00000168488	Non-expr. only	Intron excision ratio	0.874
+cognitive_skills_ext	ENSG00000168765	Non-expr. only	RNA stability	0.535
+cognitive_skills_ext	ENSG00000173402	Non-expr. only	Alt. TSS	0.835
+cognitive_skills_ext	ENSG00000173531	Non-expr. only	Intron excision ratio	0.06
+cognitive_skills_ext	ENSG00000173540	Expression only	Expression	0
+cognitive_skills_ext	ENSG00000175213	Expression only	Expression	0.733
+cognitive_skills_ext	ENSG00000177410	Non-expr. only	Alt. TSS	0.046
+cognitive_skills_ext	ENSG00000177479	Non-expr. only	Alt. TSS	0.154
+cognitive_skills_ext	ENSG00000178188	Non-expr. only	RNA editing	0.431
+cognitive_skills_ext	ENSG00000178467	Non-expr. only	RNA stability	0.049
+cognitive_skills_ext	ENSG00000184110	Expr. & other(s)	Isoform ratio	0.563
+cognitive_skills_ext	ENSG00000186470	Non-expr. only	Isoform ratio	0.617
+cognitive_skills_ext	ENSG00000196296	Non-expr. only	Alt. polyA	0.843
+cognitive_skills_ext	ENSG00000196502	Expr. & other(s)	Expression	0.402
+cognitive_skills_ext	ENSG00000197062	Non-expr. only	Alt. TSS	0.415
+cognitive_skills_ext	ENSG00000197728	Expr. & other(s)	Expression	0.976
+cognitive_skills_ext	ENSG00000198156	Non-expr. only	Alt. TSS	0.838
+cognitive_skills_ext	ENSG00000198218	Non-expr. only	Alt. polyA	0.05
+cognitive_skills_ext	ENSG00000198911	Non-expr. only	RNA editing	0.767
+cognitive_skills_ext	ENSG00000204872	Expression only	Expression	0.734
+cognitive_skills_ext	ENSG00000205702	Non-expr. only	Intron excision ratio	0.438
+cognitive_skills_ext	ENSG00000213533	Expression only	Expression	0.172
+cognitive_skills_ext	ENSG00000213658	Non-expr. only	Alt. polyA	0.523
+cognitive_skills_ext	ENSG00000227403	Expression only	Expression	0.992
+cognitive_skills_ext	ENSG00000235724	Expression only	Expression	0.874
+cognitive_skills_ext	ENSG00000243696	Expression only	Expression	0.114
+cognitive_skills_ext	ENSG00000288656	Non-expr. only	Intron excision ratio	0
+cognitive_skills_ext	ENSG00000289754	Non-expr. only	Intron excision ratio	0
+cognitive_skills_ext	ENSG00000289755	Expr. & other(s)	Alt. TSS	0.64
+cognitive_skills_ext	ENSG00000290727	Expr. & other(s)	Expression	0.86
+cognitive_skills_ext	ENSG00000290928	Non-expr. only	RNA editing	0.416
+cognitive_skills_ext	ENSG00000291104	Non-expr. only	Intron excision ratio	0.042
+depression_mdd	ENSG00000001617	Non-expr. only	Alt. TSS	0.267
+depression_mdd	ENSG00000004534	Non-expr. only	RNA editing	0.244
+depression_mdd	ENSG00000026950	Non-expr. only	Intron excision ratio	0.792
+depression_mdd	ENSG00000044574	Non-expr. only	RNA editing	0.614
+depression_mdd	ENSG00000055955	Expr. & other(s)	Intron excision ratio	0.2
+depression_mdd	ENSG00000075413	Non-expr. only	RNA editing	0.589
+depression_mdd	ENSG00000088808	Non-expr. only	Isoform ratio	0.287
+depression_mdd	ENSG00000111801	Non-expr. only	Intron excision ratio	0.598
+depression_mdd	ENSG00000112249	Non-expr. only	Intron excision ratio	0.542
+depression_mdd	ENSG00000114735	Non-expr. only	Intron excision ratio	0.651
+depression_mdd	ENSG00000126214	Non-expr. only	RNA editing	0.173
+depression_mdd	ENSG00000126215	Non-expr. only	Alt. TSS	0.686
+depression_mdd	ENSG00000136950	Non-expr. only	Alt. TSS	0.41
+depression_mdd	ENSG00000137185	Expression only	Expression	0.047
+depression_mdd	ENSG00000138002	Non-expr. only	Alt. TSS	0.241
+depression_mdd	ENSG00000148841	Non-expr. only	Isoform ratio	0.477
+depression_mdd	ENSG00000149292	Non-expr. only	RNA stability	0.026
+depression_mdd	ENSG00000149743	Non-expr. only	Alt. TSS	0.7
+depression_mdd	ENSG00000155719	Non-expr. only	Isoform ratio	0.865
+depression_mdd	ENSG00000163939	Non-expr. only	Alt. TSS	0.425
+depression_mdd	ENSG00000164068	Non-expr. only	Alt. TSS	0.187
+depression_mdd	ENSG00000164855	Non-expr. only	Intron excision ratio	0.125
+depression_mdd	ENSG00000165219	Non-expr. only	Isoform ratio	0.224
+depression_mdd	ENSG00000166166	Non-expr. only	RNA stability	0.869
+depression_mdd	ENSG00000166510	Non-expr. only	Intron excision ratio	0.18
+depression_mdd	ENSG00000168268	Non-expr. only	Isoform ratio	0.748
+depression_mdd	ENSG00000171798	Non-expr. only	Isoform ratio	0.546
+depression_mdd	ENSG00000171811	Non-expr. only	Alt. polyA	0.097
+depression_mdd	ENSG00000173402	Non-expr. only	RNA editing	0.702
+depression_mdd	ENSG00000173457	Expression only	Expression	0.853
+depression_mdd	ENSG00000173531	Non-expr. only	Intron excision ratio	0
+depression_mdd	ENSG00000173540	Expression only	Expression	0.523
+depression_mdd	ENSG00000174891	Non-expr. only	Alt. polyA	0.298
+depression_mdd	ENSG00000184983	Non-expr. only	Alt. polyA	0.783
+depression_mdd	ENSG00000186470	Expr. & other(s)	Isoform ratio	0.889
+depression_mdd	ENSG00000196419	Expression only	Expression	0.57
+depression_mdd	ENSG00000197062	Non-expr. only	Alt. TSS	0.36
+depression_mdd	ENSG00000198561	Non-expr. only	RNA editing	0.335
+depression_mdd	ENSG00000205702	Non-expr. only	Intron excision ratio	0.363
+depression_mdd	ENSG00000213533	Expression only	Expression	0.387
+depression_mdd	ENSG00000226314	Non-expr. only	Isoform ratio	0.274
+depression_mdd	ENSG00000227676	Expression only	Expression	0.996
+depression_mdd	ENSG00000243696	Expression only	Expression	0.604
+depression_mdd	ENSG00000248540	Expression only	Expression	0.067
+depression_mdd	ENSG00000249673	Non-expr. only	Alt. polyA	0.451
+depression_mdd	ENSG00000254732	Non-expr. only	RNA editing	0.685
+depression_mdd	ENSG00000256500	Non-expr. only	RNA editing	0.173
+depression_mdd	ENSG00000261801	Non-expr. only	Alt. TSS	0.106
+depression_mdd	ENSG00000288534	Non-expr. only	RNA editing	0.685
+depression_mdd	ENSG00000289285	Expression only	Expression	0.541
+depression_mdd	ENSG00000291112	Expression only	Expression	0.316
+fluid_intelligence_eur	ENSG00000001617	Non-expr. only	Alt. TSS	0.33
+fluid_intelligence_eur	ENSG00000004534	Non-expr. only	RNA editing	0.485
+fluid_intelligence_eur	ENSG00000114302	Non-expr. only	Alt. polyA	0.247
+fluid_intelligence_eur	ENSG00000114735	Non-expr. only	Intron excision ratio	0.704
+fluid_intelligence_eur	ENSG00000116127	Non-expr. only	Alt. polyA	0.073
+fluid_intelligence_eur	ENSG00000164068	Non-expr. only	Alt. TSS	0.077
+fluid_intelligence_eur	ENSG00000166166	Non-expr. only	RNA stability	0.888
+fluid_intelligence_eur	ENSG00000173402	Non-expr. only	Alt. TSS	0.833
+fluid_intelligence_eur	ENSG00000173531	Non-expr. only	Intron excision ratio	0.214
+fluid_intelligence_eur	ENSG00000176681	Non-expr. only	Alt. TSS	0.339
+fluid_intelligence_eur	ENSG00000177479	Non-expr. only	Alt. TSS	0.154
+fluid_intelligence_eur	ENSG00000184110	Expression only	Expression	0.525
+fluid_intelligence_eur	ENSG00000214401	Non-expr. only	Alt. TSS	0.205
+fluid_intelligence_eur	ENSG00000228696	Non-expr. only	Isoform ratio	0.338
+fluid_intelligence_eur	ENSG00000238083	Non-expr. only	Isoform ratio	0.515
+fluid_intelligence_eur	ENSG00000291175	Non-expr. only	Alt. TSS	0.242
+frailty_gwas	ENSG00000004534	Non-expr. only	RNA editing	0.216
+frailty_gwas	ENSG00000035115	Non-expr. only	Alt. polyA	0.496
+frailty_gwas	ENSG00000087266	Non-expr. only	Alt. TSS	0.098
+frailty_gwas	ENSG00000136950	Non-expr. only	Alt. TSS	0.953
+frailty_gwas	ENSG00000164068	Non-expr. only	Alt. TSS	0.747
+frailty_gwas	ENSG00000168488	Non-expr. only	Isoform ratio	0.806
+frailty_gwas	ENSG00000173540	Expression only	Expression	0.963
+frailty_gwas	ENSG00000178188	Non-expr. only	RNA editing	0.64
+frailty_gwas	ENSG00000184110	Expr. & other(s)	Expression	0.548
+frailty_gwas	ENSG00000196296	Non-expr. only	Alt. polyA	0.661
+frailty_gwas	ENSG00000196502	Expr. & other(s)	Alt. TSS	0.686
+frailty_gwas	ENSG00000198561	Non-expr. only	RNA editing	0.702
+frailty_gwas	ENSG00000213658	Non-expr. only	Alt. polyA	0.392
+frailty_gwas	ENSG00000254732	Non-expr. only	RNA editing	0.702
+frailty_gwas	ENSG00000288534	Non-expr. only	RNA editing	0.702
+frailty_gwas	ENSG00000289285	Expression only	Expression	0.68
+frailty_gwas	ENSG00000289755	Non-expr. only	Alt. TSS	0.366
+hearing_hleur	ENSG00000072778	Non-expr. only	Alt. TSS	0.697
+hearing_hleur	ENSG00000085999	Non-expr. only	Isoform ratio	0.052
+hearing_hleur	ENSG00000086015	Expression only	Expression	0.628
+hearing_hleur	ENSG00000110367	Non-expr. only	RNA editing	0.049
+hearing_hleur	ENSG00000115310	Non-expr. only	RNA editing	0.156
+hearing_hleur	ENSG00000117280	Expression only	Expression	0.978
+hearing_hleur	ENSG00000117461	Expr. & other(s)	Isoform ratio	0.3
+hearing_hleur	ENSG00000117616	Non-expr. only	Intron excision ratio	0.881
+hearing_hleur	ENSG00000120071	Non-expr. only	Intron excision ratio	0.126
+hearing_hleur	ENSG00000130413	Non-expr. only	Isoform ratio	0.411
+hearing_hleur	ENSG00000132780	Non-expr. only	RNA editing	0.154
+hearing_hleur	ENSG00000132781	Non-expr. only	Intron excision ratio	0
+hearing_hleur	ENSG00000137312	Non-expr. only	Isoform ratio	0.646
+hearing_hleur	ENSG00000139428	Non-expr. only	RNA stability	0.371
+hearing_hleur	ENSG00000159592	Non-expr. only	RNA editing	0.335
+hearing_hleur	ENSG00000164695	Expression only	Expression	0.994
+hearing_hleur	ENSG00000170291	Non-expr. only	Alt. polyA	0.969
+hearing_hleur	ENSG00000175356	Non-expr. only	Alt. polyA	0.649
+hearing_hleur	ENSG00000176681	Expr. & other(s)	Isoform ratio	0.14
+hearing_hleur	ENSG00000183921	Non-expr. only	Intron excision ratio	0.04
+hearing_hleur	ENSG00000185829	Non-expr. only	RNA editing	0.512
+hearing_hleur	ENSG00000186470	Non-expr. only	Isoform ratio	0.72
+hearing_hleur	ENSG00000197429	Non-expr. only	RNA editing	0.509
+hearing_hleur	ENSG00000204525	Expr. & other(s)	Intron excision ratio	0.156
+hearing_hleur	ENSG00000214401	Non-expr. only	Isoform ratio	0.122
+hearing_hleur	ENSG00000214944	Non-expr. only	Isoform ratio	0.382
+hearing_hleur	ENSG00000228696	Non-expr. only	Isoform ratio	0.147
+hearing_hleur	ENSG00000234745	Non-expr. only	Intron excision ratio	0.161
+hearing_hleur	ENSG00000238083	Non-expr. only	Isoform ratio	0.668
+hearing_hleur	ENSG00000263715	Non-expr. only	RNA editing	0.295
+hearing_hleur	ENSG00000267246	Expression only	Expression	0.286
+hearing_hleur	ENSG00000278376	Expression only	Expression	0.137
+hearing_hleur	ENSG00000288208	Non-expr. only	Intron excision ratio	0
+hearing_hleur	ENSG00000290788	Expression only	Expression	0.296
+hearing_hleur	ENSG00000291175	Non-expr. only	Alt. TSS	0.294
+non_cognitive_skills_ext	ENSG00000001617	Non-expr. only	Alt. TSS	0.452
+non_cognitive_skills_ext	ENSG00000004534	Expr. & other(s)	RNA editing	0.328
+non_cognitive_skills_ext	ENSG00000041357	Non-expr. only	Alt. TSS	0.893
+non_cognitive_skills_ext	ENSG00000078487	Non-expr. only	Intron excision ratio	0.615
+non_cognitive_skills_ext	ENSG00000087266	Non-expr. only	RNA editing	0.196
+non_cognitive_skills_ext	ENSG00000092036	Non-expr. only	RNA stability	0.992
+non_cognitive_skills_ext	ENSG00000100461	Non-expr. only	Alt. TSS	0.996
+non_cognitive_skills_ext	ENSG00000109919	Non-expr. only	Isoform ratio	0.823
+non_cognitive_skills_ext	ENSG00000114735	Non-expr. only	Intron excision ratio	0.802
+non_cognitive_skills_ext	ENSG00000115526	Non-expr. only	Intron excision ratio	0.577
+non_cognitive_skills_ext	ENSG00000131931	Non-expr. only	Alt. TSS	0.121
+non_cognitive_skills_ext	ENSG00000164068	Non-expr. only	Alt. TSS	0.323
+non_cognitive_skills_ext	ENSG00000173402	Non-expr. only	Alt. TSS	0.078
+non_cognitive_skills_ext	ENSG00000173531	Non-expr. only	Intron excision ratio	0.003
+non_cognitive_skills_ext	ENSG00000185955	Expression only	Expression	0.501
+non_cognitive_skills_ext	ENSG00000187676	Non-expr. only	RNA stability	0.897
+non_cognitive_skills_ext	ENSG00000198198	Non-expr. only	Isoform ratio	0.55
+non_cognitive_skills_ext	ENSG00000284989	Non-expr. only	Intron excision ratio	0.185
+parkinson_gp2_eur	ENSG00000043093	Non-expr. only	Isoform ratio	0.205
+parkinson_gp2_eur	ENSG00000069275	Non-expr. only	RNA editing	0.043
+parkinson_gp2_eur	ENSG00000072310	Non-expr. only	RNA editing	0.171
+parkinson_gp2_eur	ENSG00000073969	Expr. & other(s)	Intron excision ratio	0.087
+parkinson_gp2_eur	ENSG00000079459	Non-expr. only	Alt. polyA	0.901
+parkinson_gp2_eur	ENSG00000085514	Non-expr. only	RNA stability	0.856
+parkinson_gp2_eur	ENSG00000114796	Non-expr. only	Isoform ratio	0.039
+parkinson_gp2_eur	ENSG00000115041	Non-expr. only	Isoform ratio	0.461
+parkinson_gp2_eur	ENSG00000115464	Non-expr. only	Alt. polyA	0.945
+parkinson_gp2_eur	ENSG00000115977	Non-expr. only	RNA editing	0.714
+parkinson_gp2_eur	ENSG00000117280	Expr. & other(s)	Expression	0.987
+parkinson_gp2_eur	ENSG00000119820	Non-expr. only	RNA editing	0.689
+parkinson_gp2_eur	ENSG00000120071	Expr. & other(s)	RNA editing	0.25
+parkinson_gp2_eur	ENSG00000120088	Expression only	Expression	0.264
+parkinson_gp2_eur	ENSG00000121716	Non-expr. only	Alt. TSS	0.55
+parkinson_gp2_eur	ENSG00000126775	Non-expr. only	RNA editing	0.381
+parkinson_gp2_eur	ENSG00000127415	Non-expr. only	RNA stability	0.043
+parkinson_gp2_eur	ENSG00000130449	Non-expr. only	RNA editing	0.252
+parkinson_gp2_eur	ENSG00000136243	Expression only	Expression	0.694
+parkinson_gp2_eur	ENSG00000138744	Non-expr. only	Intron excision ratio	0.048
+parkinson_gp2_eur	ENSG00000139428	Non-expr. only	RNA stability	0.334
+parkinson_gp2_eur	ENSG00000141027	Non-expr. only	RNA editing	0.546
+parkinson_gp2_eur	ENSG00000145349	Non-expr. only	RNA editing	0.67
+parkinson_gp2_eur	ENSG00000151552	Non-expr. only	Isoform ratio	0.439
+parkinson_gp2_eur	ENSG00000159674	Non-expr. only	Alt. TSS	0.258
+parkinson_gp2_eur	ENSG00000161692	Expression only	Expression	0.108
+parkinson_gp2_eur	ENSG00000163257	Non-expr. only	RNA editing	0.046
+parkinson_gp2_eur	ENSG00000164181	Non-expr. only	Alt. TSS	0.098
+parkinson_gp2_eur	ENSG00000164733	Expr. & other(s)	Alt. polyA	0.887
+parkinson_gp2_eur	ENSG00000166682	Non-expr. only	Intron excision ratio	0.897
+parkinson_gp2_eur	ENSG00000167553	Non-expr. only	Alt. polyA	0.201
+parkinson_gp2_eur	ENSG00000168216	Non-expr. only	Alt. polyA	0.969
+parkinson_gp2_eur	ENSG00000169251	Non-expr. only	Intron excision ratio	0.939
+parkinson_gp2_eur	ENSG00000170291	Non-expr. only	Alt. polyA	0.859
+parkinson_gp2_eur	ENSG00000170425	Expr. & other(s)	Isoform ratio	0.577
+parkinson_gp2_eur	ENSG00000176681	Expr. & other(s)	Alt. TSS	0.044
+parkinson_gp2_eur	ENSG00000178222	Non-expr. only	Intron excision ratio	0.047
+parkinson_gp2_eur	ENSG00000178974	Non-expr. only	RNA editing	0.281
+parkinson_gp2_eur	ENSG00000182903	Non-expr. only	RNA editing	0.354
+parkinson_gp2_eur	ENSG00000184305	Expression only	Expression	0.072
+parkinson_gp2_eur	ENSG00000185619	Expr. & other(s)	Expression	0.032
+parkinson_gp2_eur	ENSG00000185829	Expr. & other(s)	RNA editing	0.909
+parkinson_gp2_eur	ENSG00000186523	Non-expr. only	Intron excision ratio	0.172
+parkinson_gp2_eur	ENSG00000188906	Non-expr. only	RNA stability	0.329
+parkinson_gp2_eur	ENSG00000196126	Expr. & other(s)	Expression	0.573
+parkinson_gp2_eur	ENSG00000196735	Non-expr. only	Alt. polyA	0.501
+parkinson_gp2_eur	ENSG00000198502	Non-expr. only	Intron excision ratio	0.002
+parkinson_gp2_eur	ENSG00000204267	Non-expr. only	Alt. polyA	0.078
+parkinson_gp2_eur	ENSG00000204525	Expr. & other(s)	Intron excision ratio	0.6
+parkinson_gp2_eur	ENSG00000206344	Non-expr. only	Alt. TSS	0.183
+parkinson_gp2_eur	ENSG00000214401	Expr. & other(s)	Alt. TSS	0.208
+parkinson_gp2_eur	ENSG00000214941	Expr. & other(s)	Alt. polyA	0.609
+parkinson_gp2_eur	ENSG00000224389	Non-expr. only	Alt. polyA	0.095
+parkinson_gp2_eur	ENSG00000225190	Non-expr. only	RNA stability	0.247
+parkinson_gp2_eur	ENSG00000225914	Non-expr. only	Isoform ratio	0.017
+parkinson_gp2_eur	ENSG00000226430	Expression only	Expression	0.823
+parkinson_gp2_eur	ENSG00000228696	Expr. & other(s)	Alt. polyA	0.348
+parkinson_gp2_eur	ENSG00000230658	Non-expr. only	Isoform ratio	0.889
+parkinson_gp2_eur	ENSG00000234745	Non-expr. only	Intron excision ratio	0.602
+parkinson_gp2_eur	ENSG00000237541	Expression only	Expression	0.016
+parkinson_gp2_eur	ENSG00000238083	Non-expr. only	Alt. TSS	0.234
+parkinson_gp2_eur	ENSG00000241106	Non-expr. only	Isoform ratio	0.194
+parkinson_gp2_eur	ENSG00000241404	Non-expr. only	Alt. TSS	0.119
+parkinson_gp2_eur	ENSG00000244731	Non-expr. only	Intron excision ratio	0.162
+parkinson_gp2_eur	ENSG00000255052	Expression only	Expression	0.67
+parkinson_gp2_eur	ENSG00000262633	Non-expr. only	Intron excision ratio	0
+parkinson_gp2_eur	ENSG00000262879	Non-expr. only	Alt. polyA	0.977
+parkinson_gp2_eur	ENSG00000263715	Expr. & other(s)	RNA editing	0.434
+parkinson_gp2_eur	ENSG00000267198	Expr. & other(s)	Isoform ratio	0.407
+parkinson_gp2_eur	ENSG00000267246	Expr. & other(s)	Intron excision ratio	0.424
+parkinson_gp2_eur	ENSG00000272752	Non-expr. only	Isoform ratio	0.782
+parkinson_gp2_eur	ENSG00000285668	Expression only	Expression	0.46
+parkinson_gp2_eur	ENSG00000286619	Non-expr. only	Alt. TSS	0.784
+parkinson_gp2_eur	ENSG00000287252	Expression only	Expression	0.565
+parkinson_gp2_eur	ENSG00000289811	Non-expr. only	Alt. polyA	0.375
+parkinson_gp2_eur	ENSG00000290682	Non-expr. only	Isoform ratio	0.718
+parkinson_gp2_eur	ENSG00000290878	Expr. & other(s)	Intron excision ratio	0.009
+parkinson_gp2_eur	ENSG00000291018	Expression only	Expression	0.296
+parkinson_gp2_eur	ENSG00000291175	Expr. & other(s)	Intron excision ratio	0.437
+parkinson_gp2_eur	ENSG00000291209	Non-expr. only	Intron excision ratio	0
+scp_fa	ENSG00000120071	Non-expr. only	Intron excision ratio	0.35
+scp_fa	ENSG00000176681	Expr. & other(s)	Alt. TSS	0.327
+scp_fa	ENSG00000185829	Non-expr. only	RNA editing	0.509
+scp_fa	ENSG00000214401	Non-expr. only	Isoform ratio	0.427
+scp_fa	ENSG00000228696	Non-expr. only	Isoform ratio	0.352
+scp_fa	ENSG00000238083	Non-expr. only	Isoform ratio	0.463
+scp_fa	ENSG00000291175	Non-expr. only	Alt. TSS	0.37
+scp_md	ENSG00000143569	Non-expr. only	Alt. polyA	0.405
+subcortical_volume	ENSG00000119820	Non-expr. only	RNA editing	0.941
+ukbb_falls	ENSG00000186184	Non-expr. only	Intron excision ratio	0.001

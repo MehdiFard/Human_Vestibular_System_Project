@@ -1,0 +1,29 @@
+trait	sample_size
+anx_eur	845137
+balance_meta_eur	667777
+balance_meta1	420000
+cognitive_skills_ext	10346
+fluid_intelligence_eur	125935
+tinnitus_eur	566890
+frailty_gwas	386565
+alzheimer	488511
+parkinson_gp2_eur	1827641
+hearing_hleur	598899
+icp_fa	25415
+icp_md	25415
+mcp_fa	25415
+mcp_md	25415
+non_cognitive_skills_ext	10346
+depression_mdd	3887532
+scp_fa	25415
+scp_md	25415
+cerebellar_volume	27486
+cerebral_volume	27486
+subcortical_volume	27486
+ukbb_falls	451179
+MVP_hearing_loss	1510447
+
+
+
+
+

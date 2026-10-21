@@ -1,0 +1,63 @@
+# =====================================================================================================================
+# 05 Pantry: multimodal RNA phenotyping (phenotyping/) and xQTL / heritability / TWAS-weight mapping (pheast/).
+# Pantry's own Snakefiles run inside phenotyping/ and pheast/ (Pantry layout: input/, intermediate/, output/);
+# this file runs the three stages in order, then the xQTL summary tables for the figures (scripts/ -> results/).
+# See README.md.
+#   snakemake -s analyses/05_pantry/Snakefile --profile profiles/slurm          (from the project root)
+# =====================================================================================================================
+from pathlib import Path
+
+HERE = Path(workflow.basedir)
+workdir: str(HERE)
+configfile: str(HERE.parents[1] / "config" / "config.yaml")
+_LAB = HERE.parents[1] / "config" / "config_lab.yaml"   # lab-specific settings, not in git (overrides config.yaml)
+if _LAB.exists():
+    configfile: str(_LAB)
+CP = config["conda_prefix"]
+DS = config["pantry"]["dataset"]
+MODS = ["alt_polyA", "alt_TSS", "expression", "isoforms", "RNA_editing", "splicing", "stability"]
+RS = f"{CP}/{config['envs']['plots']}/bin/Rscript"
+XS = f"results/xqtl_summary/{DS}"
+PHENOTYPING_CMD = (f"cd phenotyping && {CP}/{config['envs']['pantry']}/bin/snakemake --config dataset={DS} "
+                   f"--profile ../../../{config['profile']}")
+PHEAST_CMD = (f"PHEAST_CONTAINER={config['pheast_container']} MAMBA_SH={config['mamba_sh']} "
+              f"PHEAST_ENV={config['envs']['pheast']} APPTAINER_BIND_DIR={config['apptainer_bind']} "
+              f"bash pheast/run_pheast_gpu.sh config.yml {DS}")
+PHEAST_INPUTS_CMD = f"PATH={CP}/{config['envs']['pheast']}/bin:$PATH bash pheast/prepare_inputs.sh {DS}"   # plink2, python (pantry_pheast)
+
+
+rule all:
+    input:
+        expand(f"pheast/output/{DS}/qtl/{{m}}.cis_independent_qtl.txt.gz", m=MODS + ["cross_modality"]),
+        f"{XS}.comb.qtls.rel_pos.tsv",
+        f"results/xqtl_summary/enrich.{DS}.comb.tsv"
+
+
+rule phenotyping:
+    output: expand(f"phenotyping/output/{DS}/{{m}}.bed.gz", m=MODS)
+    shell: PHENOTYPING_CMD
+
+rule pheast_inputs:
+    # cross-modality, individual IDs (analysed individuals), RNA editing ~ host-gene expression, genotypes, covariates
+    input: rules.phenotyping.output, "../02_imputation/results/imputed_vcf/geno_lifted_phased_imputed_hg38_allchrs.vcf.gz"
+    output: expand(f"pheast/input/{DS}/phenotypes/{{m}}.bed.gz", m=MODS + ["cross_modality"])
+    shell: PHEAST_INPUTS_CMD
+
+rule pheast:
+    input: rules.pheast_inputs.output
+    output: expand(f"pheast/output/{DS}/qtl/{{m}}.cis_independent_qtl.txt.gz", m=MODS + ["cross_modality"])
+    resources: slurm_partition=config["slurm"]["gpu_partition"], gres="gpu:1", cpus_per_task=34, mem_mb=256000, runtime="48h"
+    shell: PHEAST_CMD
+
+rule xqtl_summary:
+    # Fig 4 / Supp Fig 3 tables: phenotypes per gene, separate-mapping top associations, cross-modality xQTLs,
+    # xQTL positions along the gene, functional annotation enrichment (src/gtex_wgs_vep_annotation)
+    input: rules.phenotyping.output, rules.pheast.output
+    output:
+        f"{XS}.phenotypes.tsv.gz",
+        f"{XS}.sep.assoc.tsv",
+        f"{XS}.comb.qtls.tsv",
+        f"{XS}.comb.qtls.rel_pos.tsv",
+        f"results/xqtl_summary/enrich.{DS}.comb.tsv"
+    resources: mem_mb=96000, cpus_per_task=4, runtime="4h"
+    shell: f"{RS} scripts/xqtl_tables.R {DS} && {RS} scripts/xqtl_positions.R {DS} && {RS} scripts/xqtl_func_enrichment.R {DS}"

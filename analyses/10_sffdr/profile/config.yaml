@@ -1,10 +1,11 @@
+# Snakemake Slurm profile for the sfFDR workflow (general): set the account and partition. Lab version: ../profile_lab.
 executor: slurm
 jobs: 100
 cores: 40
 local-cores: 8
 default-resources:
-  slurm_account: "gdml"
-  slurm_partition: "cpu-core"
+  slurm_account: "<account>"
+  slurm_partition: "<cpu_partition>"
   runtime: 5
   # NB: can't get mem_mb_per_cpu to work with threads
   mem_mb: threads * 7500
@@ -12,7 +13,7 @@ keep-going: True
 software-deployment-method:
   - apptainer
   # - conda
-apptainer-args: "--bind=$PWD --bind=/data/hps/assoc/private/gdml/user/twil15/1kGP_pipeline/results/1kG/hg38/unrelated/eur/snps_only/005/qc/sans_pars_and_sans_long_range_ld/pruned/1000_1_0_2"
+apptainer-args: "--bind=$PWD"   # add --bind=<dir> for data outside the project
 groups:
   - download_topld_reference=pred_ld
   - download_topld_annotation=pred_ld

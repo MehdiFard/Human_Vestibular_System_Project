@@ -1,0 +1,74 @@
+section	quantity	value	previous_draft
+Phenotypes	phenotypes, all	463674	486415
+Phenotypes	phenotypes, lncRNA + protein-coding	445382	467739
+Phenotypes	phenotypes, protein-coding	370111	389941
+Phenotypes	unique genes, all	46128	46129
+Phenotypes	unique genes, lncRNA + protein-coding	34494	34495
+Phenotypes	phenotypes, all except RNA editing	346794	346794
+Phenotypes	phenotypes, lncRNA + protein-coding, except RNA editing	330101	330101
+xQTLs (cross-modality mapping)	xQTL pairs, all	3219	3164
+xQTLs (cross-modality mapping)	unique xQTL variants, all	2956	2920
+xQTLs (cross-modality mapping)	unique xGenes, all	2939	2900
+xQTLs (cross-modality mapping)	% xGenes with >1 xQTL, all	7	7
+xQTLs (cross-modality mapping)	xQTL pairs, lncRNA + protein-coding	2676	2627
+xQTLs (cross-modality mapping)	unique xQTL variants, lncRNA + protein-coding	2533	2493
+xQTLs (cross-modality mapping)	unique xGenes, lncRNA + protein-coding	2436	2403
+xQTLs (cross-modality mapping)	% xGenes with >1 xQTL, lncRNA + protein-coding	7.3	7.4
+xQTLs (cross-modality mapping)	expression: xQTL pairs	934	940
+xQTLs (cross-modality mapping)	expression: xQTL variants	882	890
+xQTLs (cross-modality mapping)	expression: xGenes	919	927
+xQTLs (cross-modality mapping)	splicing: xQTL pairs	674	674
+xQTLs (cross-modality mapping)	splicing: xQTL variants	631	626
+xQTLs (cross-modality mapping)	splicing: xGenes	621	625
+xQTLs (cross-modality mapping)	isoforms: xQTL pairs	365	362
+xQTLs (cross-modality mapping)	isoforms: xQTL variants	362	360
+xQTLs (cross-modality mapping)	isoforms: xGenes	352	351
+xQTLs (cross-modality mapping)	RNA_editing: xQTL pairs	175	137
+xQTLs (cross-modality mapping)	RNA_editing: xQTL variants	160	130
+xQTLs (cross-modality mapping)	RNA_editing: xGenes	161	132
+xQTLs (cross-modality mapping)	expression / splicing ratio, xQTL pairs	1.39	1.39
+xQTLs (cross-modality mapping)	expression / splicing ratio, xGenes	1.48	1.48
+TWAS	TWAS hits	1062	1195
+TWAS	traits with TWAS hits	18	19
+TWAS	unique TWAS phenotypes	713	802
+TWAS	unique TWAS phenotypes (modality:ID)	717	806
+TWAS	unique TWAS genes, all	275	282
+TWAS	unique TWAS genes, lncRNA + protein-coding	239	245
+TWAS	trait-gene pairs, lncRNA + protein-coding	370	394
+TWAS	trait-gene pairs with non-expression hits only	278	302
+TWAS	% trait-gene pairs with non-expression hits only	75.1	76.6
+TWAS	TWAS hits with coloc PP4 > 0.8	119	142
+TWAS	% TWAS hits with coloc PP4 > 0.8	11	12
+Dizziness TWAS (balance_meta1)	balance_meta1: TWAS hits	9	10
+Dizziness TWAS (balance_meta1)	balance_meta1: isoforms hits	4	4
+Dizziness TWAS (balance_meta1)	balance_meta1: RNA_editing hits	4	5
+Dizziness TWAS (balance_meta1)	balance_meta1: expression hits	1.0	1.0
+Dizziness TWAS (balance_meta1)	balance_meta1: coloc PP4 > 0.8, isoforms ZNF91 ENST00000300619	0.92	
+Dizziness TWAS (balance_meta1)	balance_meta1: coloc PP4 > 0.8, RNA_editing ZNF91 19_23338819	0.968	
+Dizziness TWAS (balance_meta_eur)	balance_meta_eur: TWAS hits	9	10
+Dizziness TWAS (balance_meta_eur)	balance_meta_eur: isoforms hits	4	4
+Dizziness TWAS (balance_meta_eur)	balance_meta_eur: RNA_editing hits	4	5
+Dizziness TWAS (balance_meta_eur)	balance_meta_eur: expression hits	1.0	1.0
+Dizziness TWAS (balance_meta_eur)	balance_meta_eur: coloc PP4 > 0.8, isoforms ZNF91 ENST00000300619	0.916	
+Dizziness TWAS (balance_meta_eur)	balance_meta_eur: coloc PP4 > 0.8, RNA_editing ZNF91 19_23338819	0.967	
+Figures	Supp Fig 3d: xQTLs within one gene length of the gene start/end	1621	
+Figures	Supp Fig 3d: % of xQTLs within one gene length of the gene start/end	60.6	
+Figures	Supp Fig 3b: xGenes with >1 xQTL	179	
+Figures	Supp Fig 3b: % xGenes with >1 xQTL	7.3	
+Figures	Supp Fig 3c: xQTLs of rank 1	2427	
+Figures	Supp Fig 3c: xQTLs of rank 2	187	
+Figures	Supp Fig 3c: xQTLs of rank 3	35	
+Figures	Supp Fig 3c: xQTLs of rank 4	10	
+Figures	Supp Fig 3c: xQTLs of rank 5	6	
+Figures	Supp Fig 3c: xQTLs of rank 6	4	
+Figures	Supp Fig 3c: xQTLs of rank 7	2	
+Figures	Supp Fig 3c: xQTLs of rank 8	2	
+Figures	Supp Fig 3c: xQTLs of rank 9	2	
+Figures	Supp Fig 3c: xQTLs of rank 10+	1.0	
+Figures	Fig 4b: xGenes, RNA editing	161	
+Figures	Fig 4b: xGenes, Alt. TSS	192	
+Figures	Fig 4b: xGenes, Alt. polyA	202	
+Figures	Fig 4b: xGenes, Expression	919	
+Figures	Fig 4b: xGenes, Isoform ratio	352	
+Figures	Fig 4b: xGenes, Intron excision	621	
+Figures	Fig 4b: xGenes, RNA stability	125	

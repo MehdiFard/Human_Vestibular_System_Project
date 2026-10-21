@@ -1,0 +1,25 @@
+# =====================================================================================================================
+# 09 Utricle vs saccule differential expression (volcano plot used in Supp Fig 1; the PCA panel is in manuscript/figures/SuppFig1). Scripts run from the project root.
+#   snakemake -s analyses/09_dge/Snakefile --profile profiles/slurm -n
+# Inputs: analyses/05_pantry/phenotyping (utricle, saccule expression counts), analyses/03_sample_matching/results/sample_sheets/metadata_rna.tsv.
+# =====================================================================================================================
+from pathlib import Path
+
+ROOT = Path(workflow.basedir).parents[1]
+workdir: str(ROOT)
+configfile: str(ROOT / "config" / "config.yaml")
+_LAB = ROOT / "config" / "config_lab.yaml"   # lab-specific settings, not in git (overrides config.yaml)
+if _LAB.exists():
+    configfile: str(_LAB)
+RS = f"{config['conda_prefix']}/{config['envs']['base']}/bin/Rscript"
+S = "analyses/09_dge/scripts"
+
+
+rule all:
+    input: "analyses/09_dge/results/DEA_result_vestibular.tsv"
+
+
+rule dge:
+    output: "analyses/09_dge/results/DEA_result_vestibular.tsv", "analyses/09_dge/figures/VolcanoPlot_utricle_vs_saccule_batch_corrected.pdf"
+    resources: mem_mb=64000
+    shell: "{RS} {S}/dge_analysis.R"

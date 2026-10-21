@@ -1,0 +1,51 @@
+# Snakemake Slurm profile, general template. Set your Slurm account and partitions (the <...> values), then:
+#   snakemake --profile profiles/slurm -n            (or: sbatch run_pipeline.slurm)
+# Each rule is submitted as its own Slurm job (snakemake-executor-plugin-slurm); rules run in the environment of the
+# controller job.
+executor: slurm
+jobs: 200
+latency-wait: 60
+rerun-incomplete: true
+keep-going: true
+printshellcmds: true
+max-jobs-per-timespan: "20/1s"
+max-status-checks-per-second: 5
+
+default-resources:
+  slurm_partition: "<cpu_partition>"
+  slurm_account: "<account>"
+  runtime: "4h"
+  mem_mb: 8000
+
+set-resources:                  # GPU and memory-heavy steps (Pantry pheast, TWAS)
+  calculate_heritability_chr_batch:
+    mem_mb: 8000
+    runtime: "8h"
+  twas_compute_weights_batch:
+    mem_mb: 16000
+    runtime: "8h"
+  covariates:
+    mem_mb: 16000
+  tensorqtl_cis:
+    slurm_partition: "<gpu_partition>"
+    gres: "gpu:1"
+    cpus_per_task: 8
+    mem_mb: 64000
+    runtime: "12h"
+  tensorqtl_cis_independent:
+    slurm_partition: "<gpu_partition>"
+    gres: "gpu:1"
+    cpus_per_task: 8
+    mem_mb: 64000
+    runtime: "12h"
+  tensorqtl_cis_nominal:
+    slurm_partition: "<gpu_partition>"
+    gres: "gpu:1"
+    cpus_per_task: 8
+    mem_mb: 64000
+    runtime: "12h"
+  tensorqtl_all_signif:
+    mem_mb: 64000
+  assoc_test_chr:               # FUSION TWAS association; large chromosomes need ~96 GB
+    mem_mb: 96000
+    runtime: "4h"

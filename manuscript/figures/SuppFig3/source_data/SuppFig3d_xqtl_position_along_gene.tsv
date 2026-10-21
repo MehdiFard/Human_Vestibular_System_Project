@@ -1,0 +1,701 @@
+modality	xmin	xmax	n_qtls
+Expression	-1	-0.97	4
+Expression	-0.97	-0.94	3
+Expression	-0.94	-0.91	4
+Expression	-0.91	-0.88	3
+Expression	-0.88	-0.85	2
+Expression	-0.85	-0.82	5
+Expression	-0.82	-0.79	2
+Expression	-0.79	-0.76	3
+Expression	-0.76	-0.73	1
+Expression	-0.73	-0.7	1
+Expression	-0.7	-0.67	2
+Expression	-0.67	-0.64	5
+Expression	-0.64	-0.61	3
+Expression	-0.61	-0.58	1
+Expression	-0.58	-0.55	0
+Expression	-0.55	-0.52	1
+Expression	-0.52	-0.49	2
+Expression	-0.49	-0.46	2
+Expression	-0.46	-0.43	2
+Expression	-0.43	-0.4	2
+Expression	-0.4	-0.37	1
+Expression	-0.37	-0.34	5
+Expression	-0.34	-0.31	6
+Expression	-0.31	-0.28	6
+Expression	-0.28	-0.25	5
+Expression	-0.25	-0.22	5
+Expression	-0.22	-0.19	5
+Expression	-0.19	-0.16	3
+Expression	-0.16	-0.13	2
+Expression	-0.13	-0.1	5
+Expression	-0.1	-0.07	4
+Expression	-0.07	-0.04	9
+Expression	-0.04	-0.01	15
+Expression	-0.01	0.02	31
+Expression	0.02	0.05	12
+Expression	0.05	0.08	5
+Expression	0.08	0.11	7
+Expression	0.11	0.14	9
+Expression	0.14	0.17	4
+Expression	0.17	0.2	10
+Expression	0.2	0.23	5
+Expression	0.23	0.26	6
+Expression	0.26	0.29	7
+Expression	0.29	0.32	4
+Expression	0.32	0.35	6
+Expression	0.35	0.38	8
+Expression	0.38	0.41	11
+Expression	0.41	0.44	10
+Expression	0.44	0.47	7
+Expression	0.47	0.5	7
+Expression	0.5	0.53	3
+Expression	0.53	0.56	6
+Expression	0.56	0.59	4
+Expression	0.59	0.62	4
+Expression	0.62	0.65	9
+Expression	0.65	0.68	3
+Expression	0.68	0.71	3
+Expression	0.71	0.74	3
+Expression	0.74	0.77	7
+Expression	0.77	0.8	7
+Expression	0.8	0.83	1
+Expression	0.83	0.86	6
+Expression	0.86	0.89	1
+Expression	0.89	0.92	3
+Expression	0.92	0.95	6
+Expression	0.95	0.98	4
+Expression	0.98	1.01	3
+Expression	1.01	1.04	4
+Expression	1.04	1.07	2
+Expression	1.07	1.1	6
+Expression	1.1	1.13	3
+Expression	1.13	1.16	1
+Expression	1.16	1.19	5
+Expression	1.19	1.22	1
+Expression	1.22	1.25	2
+Expression	1.25	1.28	1
+Expression	1.28	1.31	1
+Expression	1.31	1.34	1
+Expression	1.34	1.37	1
+Expression	1.37	1.4	1
+Expression	1.4	1.43	0
+Expression	1.43	1.46	2
+Expression	1.46	1.49	0
+Expression	1.49	1.52	1
+Expression	1.52	1.55	1
+Expression	1.55	1.58	3
+Expression	1.58	1.61	0
+Expression	1.61	1.64	2
+Expression	1.64	1.67	0
+Expression	1.67	1.7	2
+Expression	1.7	1.73	3
+Expression	1.73	1.76	1
+Expression	1.76	1.79	1
+Expression	1.79	1.82	4
+Expression	1.82	1.85	0
+Expression	1.85	1.88	2
+Expression	1.88	1.91	2
+Expression	1.91	1.94	2
+Expression	1.94	1.97	0
+Expression	1.97	2	2
+Isoform ratio	-1	-0.97	1
+Isoform ratio	-0.97	-0.94	0
+Isoform ratio	-0.94	-0.91	0
+Isoform ratio	-0.91	-0.88	1
+Isoform ratio	-0.88	-0.85	0
+Isoform ratio	-0.85	-0.82	1
+Isoform ratio	-0.82	-0.79	0
+Isoform ratio	-0.79	-0.76	0
+Isoform ratio	-0.76	-0.73	0
+Isoform ratio	-0.73	-0.7	0
+Isoform ratio	-0.7	-0.67	1
+Isoform ratio	-0.67	-0.64	0
+Isoform ratio	-0.64	-0.61	1
+Isoform ratio	-0.61	-0.58	0
+Isoform ratio	-0.58	-0.55	1
+Isoform ratio	-0.55	-0.52	1
+Isoform ratio	-0.52	-0.49	0
+Isoform ratio	-0.49	-0.46	1
+Isoform ratio	-0.46	-0.43	0
+Isoform ratio	-0.43	-0.4	2
+Isoform ratio	-0.4	-0.37	0
+Isoform ratio	-0.37	-0.34	0
+Isoform ratio	-0.34	-0.31	1
+Isoform ratio	-0.31	-0.28	1
+Isoform ratio	-0.28	-0.25	1
+Isoform ratio	-0.25	-0.22	2
+Isoform ratio	-0.22	-0.19	3
+Isoform ratio	-0.19	-0.16	0
+Isoform ratio	-0.16	-0.13	2
+Isoform ratio	-0.13	-0.1	5
+Isoform ratio	-0.1	-0.07	3
+Isoform ratio	-0.07	-0.04	2
+Isoform ratio	-0.04	-0.01	2
+Isoform ratio	-0.01	0.02	4
+Isoform ratio	0.02	0.05	5
+Isoform ratio	0.05	0.08	5
+Isoform ratio	0.08	0.11	7
+Isoform ratio	0.11	0.14	3
+Isoform ratio	0.14	0.17	5
+Isoform ratio	0.17	0.2	7
+Isoform ratio	0.2	0.23	3
+Isoform ratio	0.23	0.26	6
+Isoform ratio	0.26	0.29	5
+Isoform ratio	0.29	0.32	7
+Isoform ratio	0.32	0.35	5
+Isoform ratio	0.35	0.38	2
+Isoform ratio	0.38	0.41	7
+Isoform ratio	0.41	0.44	4
+Isoform ratio	0.44	0.47	3
+Isoform ratio	0.47	0.5	7
+Isoform ratio	0.5	0.53	5
+Isoform ratio	0.53	0.56	4
+Isoform ratio	0.56	0.59	5
+Isoform ratio	0.59	0.62	6
+Isoform ratio	0.62	0.65	4
+Isoform ratio	0.65	0.68	5
+Isoform ratio	0.68	0.71	7
+Isoform ratio	0.71	0.74	6
+Isoform ratio	0.74	0.77	6
+Isoform ratio	0.77	0.8	7
+Isoform ratio	0.8	0.83	6
+Isoform ratio	0.83	0.86	5
+Isoform ratio	0.86	0.89	3
+Isoform ratio	0.89	0.92	2
+Isoform ratio	0.92	0.95	9
+Isoform ratio	0.95	0.98	7
+Isoform ratio	0.98	1.01	5
+Isoform ratio	1.01	1.04	6
+Isoform ratio	1.04	1.07	7
+Isoform ratio	1.07	1.1	2
+Isoform ratio	1.1	1.13	2
+Isoform ratio	1.13	1.16	2
+Isoform ratio	1.16	1.19	1
+Isoform ratio	1.19	1.22	1
+Isoform ratio	1.22	1.25	3
+Isoform ratio	1.25	1.28	4
+Isoform ratio	1.28	1.31	1
+Isoform ratio	1.31	1.34	1
+Isoform ratio	1.34	1.37	1
+Isoform ratio	1.37	1.4	1
+Isoform ratio	1.4	1.43	1
+Isoform ratio	1.43	1.46	0
+Isoform ratio	1.46	1.49	3
+Isoform ratio	1.49	1.52	1
+Isoform ratio	1.52	1.55	0
+Isoform ratio	1.55	1.58	0
+Isoform ratio	1.58	1.61	1
+Isoform ratio	1.61	1.64	2
+Isoform ratio	1.64	1.67	3
+Isoform ratio	1.67	1.7	1
+Isoform ratio	1.7	1.73	1
+Isoform ratio	1.73	1.76	0
+Isoform ratio	1.76	1.79	0
+Isoform ratio	1.79	1.82	2
+Isoform ratio	1.82	1.85	0
+Isoform ratio	1.85	1.88	2
+Isoform ratio	1.88	1.91	1
+Isoform ratio	1.91	1.94	0
+Isoform ratio	1.94	1.97	1
+Isoform ratio	1.97	2	0
+Intron excision	-1	-0.97	3
+Intron excision	-0.97	-0.94	0
+Intron excision	-0.94	-0.91	2
+Intron excision	-0.91	-0.88	0
+Intron excision	-0.88	-0.85	0
+Intron excision	-0.85	-0.82	2
+Intron excision	-0.82	-0.79	1
+Intron excision	-0.79	-0.76	4
+Intron excision	-0.76	-0.73	1
+Intron excision	-0.73	-0.7	2
+Intron excision	-0.7	-0.67	3
+Intron excision	-0.67	-0.64	3
+Intron excision	-0.64	-0.61	2
+Intron excision	-0.61	-0.58	1
+Intron excision	-0.58	-0.55	0
+Intron excision	-0.55	-0.52	1
+Intron excision	-0.52	-0.49	0
+Intron excision	-0.49	-0.46	1
+Intron excision	-0.46	-0.43	1
+Intron excision	-0.43	-0.4	5
+Intron excision	-0.4	-0.37	3
+Intron excision	-0.37	-0.34	2
+Intron excision	-0.34	-0.31	8
+Intron excision	-0.31	-0.28	2
+Intron excision	-0.28	-0.25	2
+Intron excision	-0.25	-0.22	2
+Intron excision	-0.22	-0.19	5
+Intron excision	-0.19	-0.16	4
+Intron excision	-0.16	-0.13	4
+Intron excision	-0.13	-0.1	5
+Intron excision	-0.1	-0.07	5
+Intron excision	-0.07	-0.04	7
+Intron excision	-0.04	-0.01	9
+Intron excision	-0.01	0.02	11
+Intron excision	0.02	0.05	11
+Intron excision	0.05	0.08	9
+Intron excision	0.08	0.11	10
+Intron excision	0.11	0.14	7
+Intron excision	0.14	0.17	10
+Intron excision	0.17	0.2	11
+Intron excision	0.2	0.23	5
+Intron excision	0.23	0.26	4
+Intron excision	0.26	0.29	12
+Intron excision	0.29	0.32	14
+Intron excision	0.32	0.35	10
+Intron excision	0.35	0.38	16
+Intron excision	0.38	0.41	7
+Intron excision	0.41	0.44	8
+Intron excision	0.44	0.47	11
+Intron excision	0.47	0.5	11
+Intron excision	0.5	0.53	6
+Intron excision	0.53	0.56	7
+Intron excision	0.56	0.59	8
+Intron excision	0.59	0.62	8
+Intron excision	0.62	0.65	13
+Intron excision	0.65	0.68	11
+Intron excision	0.68	0.71	7
+Intron excision	0.71	0.74	11
+Intron excision	0.74	0.77	9
+Intron excision	0.77	0.8	8
+Intron excision	0.8	0.83	6
+Intron excision	0.83	0.86	7
+Intron excision	0.86	0.89	12
+Intron excision	0.89	0.92	16
+Intron excision	0.92	0.95	11
+Intron excision	0.95	0.98	8
+Intron excision	0.98	1.01	9
+Intron excision	1.01	1.04	7
+Intron excision	1.04	1.07	4
+Intron excision	1.07	1.1	3
+Intron excision	1.1	1.13	4
+Intron excision	1.13	1.16	6
+Intron excision	1.16	1.19	0
+Intron excision	1.19	1.22	1
+Intron excision	1.22	1.25	3
+Intron excision	1.25	1.28	3
+Intron excision	1.28	1.31	1
+Intron excision	1.31	1.34	1
+Intron excision	1.34	1.37	1
+Intron excision	1.37	1.4	3
+Intron excision	1.4	1.43	2
+Intron excision	1.43	1.46	2
+Intron excision	1.46	1.49	0
+Intron excision	1.49	1.52	1
+Intron excision	1.52	1.55	1
+Intron excision	1.55	1.58	1
+Intron excision	1.58	1.61	0
+Intron excision	1.61	1.64	1
+Intron excision	1.64	1.67	0
+Intron excision	1.67	1.7	3
+Intron excision	1.7	1.73	0
+Intron excision	1.73	1.76	2
+Intron excision	1.76	1.79	1
+Intron excision	1.79	1.82	0
+Intron excision	1.82	1.85	0
+Intron excision	1.85	1.88	0
+Intron excision	1.88	1.91	1
+Intron excision	1.91	1.94	2
+Intron excision	1.94	1.97	0
+Intron excision	1.97	2	0
+Alt. TSS	-1	-0.97	0
+Alt. TSS	-0.97	-0.94	1
+Alt. TSS	-0.94	-0.91	0
+Alt. TSS	-0.91	-0.88	0
+Alt. TSS	-0.88	-0.85	1
+Alt. TSS	-0.85	-0.82	0
+Alt. TSS	-0.82	-0.79	1
+Alt. TSS	-0.79	-0.76	0
+Alt. TSS	-0.76	-0.73	1
+Alt. TSS	-0.73	-0.7	0
+Alt. TSS	-0.7	-0.67	0
+Alt. TSS	-0.67	-0.64	1
+Alt. TSS	-0.64	-0.61	0
+Alt. TSS	-0.61	-0.58	0
+Alt. TSS	-0.58	-0.55	1
+Alt. TSS	-0.55	-0.52	1
+Alt. TSS	-0.52	-0.49	0
+Alt. TSS	-0.49	-0.46	2
+Alt. TSS	-0.46	-0.43	0
+Alt. TSS	-0.43	-0.4	0
+Alt. TSS	-0.4	-0.37	1
+Alt. TSS	-0.37	-0.34	1
+Alt. TSS	-0.34	-0.31	1
+Alt. TSS	-0.31	-0.28	1
+Alt. TSS	-0.28	-0.25	1
+Alt. TSS	-0.25	-0.22	2
+Alt. TSS	-0.22	-0.19	2
+Alt. TSS	-0.19	-0.16	0
+Alt. TSS	-0.16	-0.13	3
+Alt. TSS	-0.13	-0.1	2
+Alt. TSS	-0.1	-0.07	2
+Alt. TSS	-0.07	-0.04	1
+Alt. TSS	-0.04	-0.01	1
+Alt. TSS	-0.01	0.02	14
+Alt. TSS	0.02	0.05	8
+Alt. TSS	0.05	0.08	7
+Alt. TSS	0.08	0.11	2
+Alt. TSS	0.11	0.14	6
+Alt. TSS	0.14	0.17	2
+Alt. TSS	0.17	0.2	3
+Alt. TSS	0.2	0.23	4
+Alt. TSS	0.23	0.26	3
+Alt. TSS	0.26	0.29	2
+Alt. TSS	0.29	0.32	3
+Alt. TSS	0.32	0.35	2
+Alt. TSS	0.35	0.38	0
+Alt. TSS	0.38	0.41	1
+Alt. TSS	0.41	0.44	1
+Alt. TSS	0.44	0.47	3
+Alt. TSS	0.47	0.5	2
+Alt. TSS	0.5	0.53	3
+Alt. TSS	0.53	0.56	3
+Alt. TSS	0.56	0.59	2
+Alt. TSS	0.59	0.62	0
+Alt. TSS	0.62	0.65	1
+Alt. TSS	0.65	0.68	3
+Alt. TSS	0.68	0.71	2
+Alt. TSS	0.71	0.74	1
+Alt. TSS	0.74	0.77	1
+Alt. TSS	0.77	0.8	2
+Alt. TSS	0.8	0.83	1
+Alt. TSS	0.83	0.86	0
+Alt. TSS	0.86	0.89	4
+Alt. TSS	0.89	0.92	1
+Alt. TSS	0.92	0.95	0
+Alt. TSS	0.95	0.98	1
+Alt. TSS	0.98	1.01	0
+Alt. TSS	1.01	1.04	2
+Alt. TSS	1.04	1.07	3
+Alt. TSS	1.07	1.1	0
+Alt. TSS	1.1	1.13	2
+Alt. TSS	1.13	1.16	0
+Alt. TSS	1.16	1.19	1
+Alt. TSS	1.19	1.22	1
+Alt. TSS	1.22	1.25	0
+Alt. TSS	1.25	1.28	0
+Alt. TSS	1.28	1.31	0
+Alt. TSS	1.31	1.34	0
+Alt. TSS	1.34	1.37	0
+Alt. TSS	1.37	1.4	0
+Alt. TSS	1.4	1.43	2
+Alt. TSS	1.43	1.46	0
+Alt. TSS	1.46	1.49	0
+Alt. TSS	1.49	1.52	1
+Alt. TSS	1.52	1.55	1
+Alt. TSS	1.55	1.58	0
+Alt. TSS	1.58	1.61	0
+Alt. TSS	1.61	1.64	0
+Alt. TSS	1.64	1.67	1
+Alt. TSS	1.67	1.7	0
+Alt. TSS	1.7	1.73	0
+Alt. TSS	1.73	1.76	0
+Alt. TSS	1.76	1.79	0
+Alt. TSS	1.79	1.82	0
+Alt. TSS	1.82	1.85	0
+Alt. TSS	1.85	1.88	0
+Alt. TSS	1.88	1.91	0
+Alt. TSS	1.91	1.94	0
+Alt. TSS	1.94	1.97	0
+Alt. TSS	1.97	2	0
+Alt. polyA	-1	-0.97	0
+Alt. polyA	-0.97	-0.94	0
+Alt. polyA	-0.94	-0.91	0
+Alt. polyA	-0.91	-0.88	0
+Alt. polyA	-0.88	-0.85	0
+Alt. polyA	-0.85	-0.82	0
+Alt. polyA	-0.82	-0.79	0
+Alt. polyA	-0.79	-0.76	0
+Alt. polyA	-0.76	-0.73	0
+Alt. polyA	-0.73	-0.7	0
+Alt. polyA	-0.7	-0.67	0
+Alt. polyA	-0.67	-0.64	1
+Alt. polyA	-0.64	-0.61	1
+Alt. polyA	-0.61	-0.58	0
+Alt. polyA	-0.58	-0.55	0
+Alt. polyA	-0.55	-0.52	0
+Alt. polyA	-0.52	-0.49	1
+Alt. polyA	-0.49	-0.46	1
+Alt. polyA	-0.46	-0.43	1
+Alt. polyA	-0.43	-0.4	0
+Alt. polyA	-0.4	-0.37	0
+Alt. polyA	-0.37	-0.34	1
+Alt. polyA	-0.34	-0.31	0
+Alt. polyA	-0.31	-0.28	0
+Alt. polyA	-0.28	-0.25	0
+Alt. polyA	-0.25	-0.22	0
+Alt. polyA	-0.22	-0.19	1
+Alt. polyA	-0.19	-0.16	1
+Alt. polyA	-0.16	-0.13	0
+Alt. polyA	-0.13	-0.1	0
+Alt. polyA	-0.1	-0.07	1
+Alt. polyA	-0.07	-0.04	0
+Alt. polyA	-0.04	-0.01	1
+Alt. polyA	-0.01	0.02	1
+Alt. polyA	0.02	0.05	1
+Alt. polyA	0.05	0.08	2
+Alt. polyA	0.08	0.11	1
+Alt. polyA	0.11	0.14	1
+Alt. polyA	0.14	0.17	2
+Alt. polyA	0.17	0.2	2
+Alt. polyA	0.2	0.23	1
+Alt. polyA	0.23	0.26	2
+Alt. polyA	0.26	0.29	4
+Alt. polyA	0.29	0.32	1
+Alt. polyA	0.32	0.35	1
+Alt. polyA	0.35	0.38	5
+Alt. polyA	0.38	0.41	5
+Alt. polyA	0.41	0.44	0
+Alt. polyA	0.44	0.47	3
+Alt. polyA	0.47	0.5	2
+Alt. polyA	0.5	0.53	5
+Alt. polyA	0.53	0.56	2
+Alt. polyA	0.56	0.59	4
+Alt. polyA	0.59	0.62	2
+Alt. polyA	0.62	0.65	2
+Alt. polyA	0.65	0.68	3
+Alt. polyA	0.68	0.71	4
+Alt. polyA	0.71	0.74	1
+Alt. polyA	0.74	0.77	2
+Alt. polyA	0.77	0.8	4
+Alt. polyA	0.8	0.83	3
+Alt. polyA	0.83	0.86	1
+Alt. polyA	0.86	0.89	3
+Alt. polyA	0.89	0.92	4
+Alt. polyA	0.92	0.95	5
+Alt. polyA	0.95	0.98	6
+Alt. polyA	0.98	1.01	7
+Alt. polyA	1.01	1.04	5
+Alt. polyA	1.04	1.07	4
+Alt. polyA	1.07	1.1	2
+Alt. polyA	1.1	1.13	2
+Alt. polyA	1.13	1.16	1
+Alt. polyA	1.16	1.19	1
+Alt. polyA	1.19	1.22	1
+Alt. polyA	1.22	1.25	2
+Alt. polyA	1.25	1.28	1
+Alt. polyA	1.28	1.31	0
+Alt. polyA	1.31	1.34	1
+Alt. polyA	1.34	1.37	2
+Alt. polyA	1.37	1.4	3
+Alt. polyA	1.4	1.43	0
+Alt. polyA	1.43	1.46	2
+Alt. polyA	1.46	1.49	1
+Alt. polyA	1.49	1.52	0
+Alt. polyA	1.52	1.55	1
+Alt. polyA	1.55	1.58	0
+Alt. polyA	1.58	1.61	1
+Alt. polyA	1.61	1.64	0
+Alt. polyA	1.64	1.67	0
+Alt. polyA	1.67	1.7	0
+Alt. polyA	1.7	1.73	0
+Alt. polyA	1.73	1.76	1
+Alt. polyA	1.76	1.79	0
+Alt. polyA	1.79	1.82	0
+Alt. polyA	1.82	1.85	0
+Alt. polyA	1.85	1.88	0
+Alt. polyA	1.88	1.91	0
+Alt. polyA	1.91	1.94	0
+Alt. polyA	1.94	1.97	1
+Alt. polyA	1.97	2	2
+RNA stability	-1	-0.97	1
+RNA stability	-0.97	-0.94	0
+RNA stability	-0.94	-0.91	0
+RNA stability	-0.91	-0.88	0
+RNA stability	-0.88	-0.85	1
+RNA stability	-0.85	-0.82	0
+RNA stability	-0.82	-0.79	1
+RNA stability	-0.79	-0.76	0
+RNA stability	-0.76	-0.73	1
+RNA stability	-0.73	-0.7	1
+RNA stability	-0.7	-0.67	0
+RNA stability	-0.67	-0.64	2
+RNA stability	-0.64	-0.61	0
+RNA stability	-0.61	-0.58	1
+RNA stability	-0.58	-0.55	0
+RNA stability	-0.55	-0.52	0
+RNA stability	-0.52	-0.49	1
+RNA stability	-0.49	-0.46	1
+RNA stability	-0.46	-0.43	0
+RNA stability	-0.43	-0.4	0
+RNA stability	-0.4	-0.37	0
+RNA stability	-0.37	-0.34	0
+RNA stability	-0.34	-0.31	0
+RNA stability	-0.31	-0.28	0
+RNA stability	-0.28	-0.25	0
+RNA stability	-0.25	-0.22	1
+RNA stability	-0.22	-0.19	1
+RNA stability	-0.19	-0.16	2
+RNA stability	-0.16	-0.13	0
+RNA stability	-0.13	-0.1	1
+RNA stability	-0.1	-0.07	0
+RNA stability	-0.07	-0.04	1
+RNA stability	-0.04	-0.01	0
+RNA stability	-0.01	0.02	3
+RNA stability	0.02	0.05	2
+RNA stability	0.05	0.08	0
+RNA stability	0.08	0.11	1
+RNA stability	0.11	0.14	0
+RNA stability	0.14	0.17	1
+RNA stability	0.17	0.2	1
+RNA stability	0.2	0.23	2
+RNA stability	0.23	0.26	2
+RNA stability	0.26	0.29	1
+RNA stability	0.29	0.32	0
+RNA stability	0.32	0.35	0
+RNA stability	0.35	0.38	0
+RNA stability	0.38	0.41	2
+RNA stability	0.41	0.44	1
+RNA stability	0.44	0.47	0
+RNA stability	0.47	0.5	3
+RNA stability	0.5	0.53	3
+RNA stability	0.53	0.56	2
+RNA stability	0.56	0.59	1
+RNA stability	0.59	0.62	2
+RNA stability	0.62	0.65	1
+RNA stability	0.65	0.68	0
+RNA stability	0.68	0.71	2
+RNA stability	0.71	0.74	2
+RNA stability	0.74	0.77	2
+RNA stability	0.77	0.8	0
+RNA stability	0.8	0.83	2
+RNA stability	0.83	0.86	2
+RNA stability	0.86	0.89	3
+RNA stability	0.89	0.92	1
+RNA stability	0.92	0.95	0
+RNA stability	0.95	0.98	2
+RNA stability	0.98	1.01	0
+RNA stability	1.01	1.04	0
+RNA stability	1.04	1.07	2
+RNA stability	1.07	1.1	2
+RNA stability	1.1	1.13	2
+RNA stability	1.13	1.16	1
+RNA stability	1.16	1.19	1
+RNA stability	1.19	1.22	1
+RNA stability	1.22	1.25	1
+RNA stability	1.25	1.28	3
+RNA stability	1.28	1.31	1
+RNA stability	1.31	1.34	1
+RNA stability	1.34	1.37	0
+RNA stability	1.37	1.4	1
+RNA stability	1.4	1.43	0
+RNA stability	1.43	1.46	0
+RNA stability	1.46	1.49	0
+RNA stability	1.49	1.52	0
+RNA stability	1.52	1.55	1
+RNA stability	1.55	1.58	0
+RNA stability	1.58	1.61	0
+RNA stability	1.61	1.64	0
+RNA stability	1.64	1.67	2
+RNA stability	1.67	1.7	0
+RNA stability	1.7	1.73	0
+RNA stability	1.73	1.76	0
+RNA stability	1.76	1.79	0
+RNA stability	1.79	1.82	0
+RNA stability	1.82	1.85	2
+RNA stability	1.85	1.88	1
+RNA stability	1.88	1.91	1
+RNA stability	1.91	1.94	0
+RNA stability	1.94	1.97	0
+RNA stability	1.97	2	0
+RNA editing	-1	-0.97	0
+RNA editing	-0.97	-0.94	0
+RNA editing	-0.94	-0.91	0
+RNA editing	-0.91	-0.88	1
+RNA editing	-0.88	-0.85	0
+RNA editing	-0.85	-0.82	0
+RNA editing	-0.82	-0.79	0
+RNA editing	-0.79	-0.76	0
+RNA editing	-0.76	-0.73	1
+RNA editing	-0.73	-0.7	1
+RNA editing	-0.7	-0.67	0
+RNA editing	-0.67	-0.64	0
+RNA editing	-0.64	-0.61	0
+RNA editing	-0.61	-0.58	0
+RNA editing	-0.58	-0.55	0
+RNA editing	-0.55	-0.52	0
+RNA editing	-0.52	-0.49	0
+RNA editing	-0.49	-0.46	1
+RNA editing	-0.46	-0.43	0
+RNA editing	-0.43	-0.4	0
+RNA editing	-0.4	-0.37	1
+RNA editing	-0.37	-0.34	0
+RNA editing	-0.34	-0.31	0
+RNA editing	-0.31	-0.28	0
+RNA editing	-0.28	-0.25	1
+RNA editing	-0.25	-0.22	0
+RNA editing	-0.22	-0.19	1
+RNA editing	-0.19	-0.16	1
+RNA editing	-0.16	-0.13	1
+RNA editing	-0.13	-0.1	0
+RNA editing	-0.1	-0.07	1
+RNA editing	-0.07	-0.04	0
+RNA editing	-0.04	-0.01	3
+RNA editing	-0.01	0.02	2
+RNA editing	0.02	0.05	3
+RNA editing	0.05	0.08	3
+RNA editing	0.08	0.11	3
+RNA editing	0.11	0.14	3
+RNA editing	0.14	0.17	7
+RNA editing	0.17	0.2	2
+RNA editing	0.2	0.23	3
+RNA editing	0.23	0.26	3
+RNA editing	0.26	0.29	3
+RNA editing	0.29	0.32	4
+RNA editing	0.32	0.35	1
+RNA editing	0.35	0.38	4
+RNA editing	0.38	0.41	3
+RNA editing	0.41	0.44	2
+RNA editing	0.44	0.47	3
+RNA editing	0.47	0.5	4
+RNA editing	0.5	0.53	5
+RNA editing	0.53	0.56	4
+RNA editing	0.56	0.59	6
+RNA editing	0.59	0.62	2
+RNA editing	0.62	0.65	5
+RNA editing	0.65	0.68	3
+RNA editing	0.68	0.71	4
+RNA editing	0.71	0.74	3
+RNA editing	0.74	0.77	2
+RNA editing	0.77	0.8	3
+RNA editing	0.8	0.83	3
+RNA editing	0.83	0.86	2
+RNA editing	0.86	0.89	2
+RNA editing	0.89	0.92	3
+RNA editing	0.92	0.95	3
+RNA editing	0.95	0.98	8
+RNA editing	0.98	1.01	4
+RNA editing	1.01	1.04	2
+RNA editing	1.04	1.07	1
+RNA editing	1.07	1.1	2
+RNA editing	1.1	1.13	1
+RNA editing	1.13	1.16	1
+RNA editing	1.16	1.19	0
+RNA editing	1.19	1.22	1
+RNA editing	1.22	1.25	2
+RNA editing	1.25	1.28	0
+RNA editing	1.28	1.31	0
+RNA editing	1.31	1.34	0
+RNA editing	1.34	1.37	1
+RNA editing	1.37	1.4	0
+RNA editing	1.4	1.43	0
+RNA editing	1.43	1.46	0
+RNA editing	1.46	1.49	0
+RNA editing	1.49	1.52	0
+RNA editing	1.52	1.55	1
+RNA editing	1.55	1.58	1
+RNA editing	1.58	1.61	1
+RNA editing	1.61	1.64	0
+RNA editing	1.64	1.67	1
+RNA editing	1.67	1.7	1
+RNA editing	1.7	1.73	0
+RNA editing	1.73	1.76	0
+RNA editing	1.76	1.79	1
+RNA editing	1.79	1.82	0
+RNA editing	1.82	1.85	0
+RNA editing	1.85	1.88	0
+RNA editing	1.88	1.91	1
+RNA editing	1.91	1.94	0
+RNA editing	1.94	1.97	0
+RNA editing	1.97	2	1

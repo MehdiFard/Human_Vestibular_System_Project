@@ -1,0 +1,135 @@
+# =====================================================================================================================
+# Human vestibular (otolith organ) project: shared config for analyses/, manuscript/ (figures, tables) and the main Snakefile.
+# Paths are relative to the project root unless absolute. Values written as /path/to/... are site-specific: set them
+# here, or put them in config/config_lab.yaml (not in git), which is loaded after this file and overrides it.
+# Pantry keeps its own configs (analyses/05_pantry/{phenotyping,pheast}/config.yml).
+# =====================================================================================================================
+
+# ---- analyses (each has its own Snakefile, scripts/, src/, results/, figures/) -------------------------------------
+dirs:
+  liftover:        analyses/01_liftover
+  imputation:      analyses/02_imputation
+  sample_matching: analyses/03_sample_matching
+  gwas_sumstats:   analyses/04_gwas_sumstats
+  pantry:          analyses/05_pantry          # Pantry phenotyping + pheast (own Pantry layout inside)
+  twas:            analyses/06_twas
+  fine_mapping:    analyses/07_fine_mapping
+  expression_gtex: analyses/08_expression_gtex
+  dge:             analyses/09_dge
+  sffdr:           analyses/10_sffdr
+  figures:         manuscript/figures          # one folder per paper figure (code, panels/, final figure)
+  tables:          manuscript/tables
+
+# ---- raw inputs (unchanged, outside or under data/) -----------------------------------------------------------------
+data:
+  genotype_raw_dir: /path/to/genotype           # PLINK ped/map per batch (hg19); linked into data/genotype
+  genotype_dir:     data/genotype                      # symlinks to genotype_raw_dir
+  genotype_batches:                                    # PLINK ped/map prefixes merged in step 01
+    batch12: data/genotype/batch12/20240129_hg19
+    batch3:  data/genotype/batch3/20250515_hg19
+  fastq_raw_dir:    /path/to/rnaseq_fastq       # paired-end RNA-seq FASTQ; linked into data/rna_fq
+  fastq_dir:        data/rna_fq                        # symlinks to fastq_raw_dir
+  gwas_raw_dir:     data/gwas_raw_sumstats             # GWAS meta-analysis, MAGMA, LDSC outputs (received, not run here)
+  gwas_map:         analyses/04_gwas_sumstats/src/gwas_map.tsv        # trait, file name, genome build, sample size
+
+# ---- sample sheets (made by 03 make_metadata.R) + sample inputs (analyses/*/src) ----------------------------------------------------------------
+samples:
+  metadata_rna:   analyses/03_sample_matching/results/sample_sheets/metadata_rna.tsv
+  metadata_geno:  analyses/03_sample_matching/results/sample_sheets/metadata_geno.tsv
+  path_to_fqs:    analyses/03_sample_matching/src/path_to_fqs.tsv
+  covars:
+    vestibular: analyses/03_sample_matching/results/sample_sheets/vestibular_covars.tsv
+    utricle:    analyses/03_sample_matching/results/sample_sheets/utricle_covars.tsv
+    saccule:    analyses/03_sample_matching/results/sample_sheets/saccule_covars.tsv
+  sample_ids:
+    vestibular: analyses/03_sample_matching/results/sample_sheets/vestibular_sample_ids.tsv
+    utricle:    analyses/03_sample_matching/results/sample_sheets/utricle_sample_ids.tsv
+    saccule:    analyses/03_sample_matching/results/sample_sheets/saccule_sample_ids.tsv
+  individuals_analysed: analyses/05_pantry/src/vestibular_individuals_107.txt   # QTL/TWAS individuals (110 minus 3 PCA outliers)
+  outlier_samples: []               # donor IDs removed as PCA outliers (110 -> 107); participant IDs: set in config_lab.yaml
+  outlier_samples_gtex_pca: []      # outliers left out of the otolith-vs-GTEx PCA plots (Fig 3a, 08)
+  merged_library_donor: ""          # donor of the merged library FTL_500 + FTL_501 (step 03)
+  birth_date_corrections: {}        # {donor ID: "d/m/Y"} fixes to the batch-3 RNA-seq sheet (step 03)
+  excluded_libraries: ["FTL_500", "FTL_501"]             # step 03: mapped separately (merged library)
+
+# ---- references and tools --------------------------------------------------------------------------------------------
+refs:                                           # shared references (resources/); analysis-only ones are in analyses/*/src/
+  ensembl110_fasta: resources/genome/ensembl110/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa
+  gtf:              resources/annotation/ensembl110/Homo_sapiens.GRCh38.110.chr.gtf      # Ensembl 110
+  tx2gene:          analyses/05_pantry/src/tx2gene.tsv
+  ldref_prefix:     resources/ldref_1kg_hg38/1kg_ldref_hg38_chr       # + {chr}.bed/bim/fam (1000G, all populations)
+  edit_sites_bed:   analyses/05_pantry/src/editing_sites/All.AG.stranded.annovar.Hg38_multianno.AnnoAlu.AnnoRep.NR.nochr.bed
+  recomb_bw:        resources/ucsc_recomb/hg38/recomb1000GAvg.bw
+  gtex_colors:      resources/gtex_colors.json
+  gtex_raw_counts:  analyses/08_expression_gtex/results/gtex_raw_counts_pantry   # made by 08 from gtex_pantry_phenos
+  igsr_samples:     /path/to/igsr_samples.tsv   # 1000 Genomes sample -> population (IGSR data portal)
+  star_index:       /path/to/star_index         # STAR index of the GRCh38 Ensembl genome
+  kgp_phase3_vcf_dir: /path/to/1kgp_phase3_hg38_phased   # 1000 Genomes phase 3 phased VCFs, GRCh38 (kgp_phase3_url)
+  gtex_pantry_phenos: /path/to/pantry/phenos    # GTEx v8 tissues run through Pantry phenotyping (Munro et al. 2024)
+  gtex_pantry_pheast: /path/to/pantry/pheast    # Pantry pheast results of the GTEx tissues
+  gtex_pantry_gtex_pheast: /path/to/pantry/GTEx/pheast
+  ucsc:
+    hg19_fa:   https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz
+    hg38_fa:   https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz
+    chain:     https://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz
+  kgp_phase3_url: https://cgl.gi.ucsc.edu/data/giraffe/construction
+  grch38_noalt_url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids
+  eagle_map_url: https://storage.googleapis.com/broad-alkesgroup-public/Eagle/downloads/tables/genetic_map_hg38_withX.txt.gz
+
+tools:                          # executables (on PATH, or full paths); versions used: STAR 2.7.11b, Eagle 2.4.1, Minimac4 4.1.6
+  star:      STAR
+  eagle:     eagle
+  minimac4:  minimac4
+  ldsc_munge: /path/to/ldsc/munge_sumstats.py   # LDSC (Python 2.7, env ldsc)
+
+# ---- conda environments (create them from envs/*.yml; names as below) ------------------------------------------------
+conda_prefix: /path/to/miniforge3/envs
+envs:
+  base:      Env1             # snakemake, python, R tidyverse
+  pantry:    pantry
+  pheast:    pantry_pheast
+  ldsc:      ldsc
+  plots:     r_plots          # R 4.4.3: tidyverse, ggplot2 3.5.2, cowplot, ragg, ggrepel, patchwork, rtracklayer
+  locuszoom: locuszoomr  # locuszoomr, ensembldb (Fig 5, Supp Fig 4)
+  susie:     susie
+  sffdr_smk: sffdr_smk        # Snakemake 9.25 (sfFDR workflow needs pathvars; its tools run in its container)
+profile: profiles/slurm          # Snakemake profile for nested runs (set the account/partitions in profiles/slurm)
+mamba_sh: /path/to/miniforge3/etc/profile.d/mamba.sh
+pheast_container: ""            # optional Apptainer image to run pheast in; empty = directly in the pantry_pheast env
+apptainer_bind: ""              # with a container: extra directory to bind into it (data outside the project)
+slurm:
+  gpu_partition: "<gpu_partition>"   # Slurm partition with GPUs (pheast / tensorQTL)
+
+# ---- step parameters -------------------------------------------------------------------------------------------------
+sffdr:                                   # analyses/10_sffdr (own config: analyses/10_sffdr/config/config.yaml)
+  rerun: false                           # false: only check that results/sffdr/results.tsv.gz exists (existing run)
+  profile: profile                       # its Snakemake profile (analyses/10_sffdr/profile)
+  targets: [compile_rg, draw_locuszoomr_plot_for_chr18_associations, draw_sffdr_manhattan_plot_for_publication,
+            write_tables_to_xlsx]        # rules giving the paper outputs (sfFDR results, rg, Fig 2 panels, lead-SNP table)
+liftover:
+  maf: 0.01
+imputation:
+  chromosomes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+  min_r2: 0.8
+  threads: 8
+pantry:                                     # read by the analyses; Pantry itself is configured in Pantry/*/config.yml
+  dataset: vestibular                       # utricle + saccule, 107 individuals after outlier removal
+  modalities: [alt_polyA, alt_TSS, expression, isoforms, RNA_editing, splicing, stability]
+  twas_threshold: 7.14e-9                   # 5e-8 / 7 modalities
+expression_gtex:
+  min_tpm: 0.1
+  min_tissues_expressed: 10
+  padj: 0.01
+  log2fc_enriched: 2
+  excluded_gtex_tissues: [TESTIS, BLDDER, CVSEND, CVXECT, FLLPNT, KDNMDL]
+twas_traits_dizziness: [balance_meta1, balance_meta_eur]
+znf91:
+  gene: ZNF91
+  ensg: ENSG00000167232
+  chr: 19
+  region: [23000000, 23800000]
+  lead_gwas: rs695017
+  lead_isoform_qtl: rs167154
+  lead_editing_qtl: rs607168
+  editing_site: ENSG00000167232__19_23338819
+  isoform: ENSG00000167232__ENST00000300619

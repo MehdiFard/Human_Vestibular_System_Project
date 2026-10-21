@@ -1,0 +1,15 @@
+modality	gene_biotype	n	thousands
+Expression	lncRNA	15632	15.632
+Expression	protein_coding	18593	18.593
+Isoform ratio	lncRNA	9885	9.885
+Isoform ratio	protein_coding	62347	62.347
+Intron excision	lncRNA	10184	10.184
+Intron excision	protein_coding	77758	77.758
+Alt. TSS	lncRNA	11431	11.431
+Alt. TSS	protein_coding	55458	55.458
+Alt. polyA	lncRNA	14038	14.038
+Alt. polyA	protein_coding	42527	42.527
+RNA stability	lncRNA	62	0.062
+RNA stability	protein_coding	12186	12.186
+RNA editing	lncRNA	14039	14.039
+RNA editing	protein_coding	101242	101.242

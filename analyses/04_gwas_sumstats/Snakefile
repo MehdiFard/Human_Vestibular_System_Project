@@ -1,0 +1,134 @@
+# =====================================================================================================================
+# Step 04: GWAS summary statistics harmonisation and TWAS / LDSC input
+# Runs inside its folder (analyses/04_gwas_sumstats/); paths below are relative to that folder unless built from ROOT/config.
+#   snakemake -s analyses/04_gwas_sumstats/Snakefile --profile profiles/slurm        (from the project root)
+# (or through the main workflow: snakemake analyses/04_gwas_sumstats)
+# Analysis-specific references in src/, shared ones in ../../resources/.
+# =====================================================================================================================
+from pathlib import Path
+ROOT = Path(workflow.basedir).parents[1]
+workdir: str(Path(workflow.basedir))      # paths below are relative to this folder
+configfile: str(ROOT / "config" / "config.yaml")
+_LAB = ROOT / "config" / "config_lab.yaml"   # lab-specific settings, not in git (overrides config.yaml)
+if _LAB.exists():
+    configfile: str(_LAB)
+SCRIPTS = str(Path(workflow.basedir) / "scripts")
+T = config["tools"]
+
+### Harmonizing GWAS sumstats and making TWAS input
+
+import pandas as pd
+
+# Read GWAS map
+gwas_map = pd.read_csv(str(ROOT / config["data"]["gwas_map"]), sep="\t")
+
+# Map trait → info
+# GWAS = {
+#     row.trait: {
+#         "file_name": row.file_name,
+#         "ref_build": row.ref_build
+#     }
+#     for _, row in gwas_map.iterrows()
+# }
+
+
+GWAS = {
+    row.trait: {
+        "file_name": row.file_name,
+        "ref_build": row.ref_build,
+        "sample_size": int(row.sample_size),
+    }
+    for _, row in gwas_map.iterrows()
+}
+
+# ---- rule all ----
+rule all:
+    input:
+        # formatted + chrpos for each trait
+        expand("results/formatted_sumstats/{trait}_formatted_hg38.tsv.gz", trait=list(GWAS.keys())),
+        expand("results/formatted_sumstats/{trait}_formatted_hg38_ChrPosId.tsv.gz", trait=list(GWAS.keys())),
+        # final TWAS/LDSC outputs for each trait
+        expand("results/twas_input/{trait}_hg38_twas_input.sumstats.gz", trait=list(GWAS.keys()))
+
+
+# ---- harmonize/format with R ----
+rule format_gwas:
+    input:
+        sumstat = lambda wc: f"../../data/gwas_raw_sumstats/{GWAS[wc.trait]['file_name']}"
+    output:
+        formatted = "results/formatted_sumstats/{trait}_formatted_hg38.tsv.gz",
+        chrpos    = "results/formatted_sumstats/{trait}_formatted_hg38_ChrPosId.tsv.gz"
+    params:
+        ref_build = lambda wc: GWAS[wc.trait]["ref_build"]
+    log:
+        log_sumstat = "logs/format_gwas/{trait}_formatted_hg38.log"
+    threads: 8
+    shell:
+        r"""
+        set -euo pipefail
+        mkdir -p "$(dirname {output.formatted})"
+        mkdir -p "$(dirname {log.log_sumstat})"
+
+        Rscript {SCRIPTS}/harmonising_sumstats_liftover.R \
+            --sumstat {input.sumstat} \
+            --ref_build {params.ref_build} \
+            --out {output.formatted} \
+            &> "{log.log_sumstat}"
+        
+        # The R script creates {output.chrpos}
+        """
+
+# ---- munge to LDSC/TWAS input ----
+rule make_twas_input:
+    input:
+        clean_sumstat = "results/formatted_sumstats/{trait}_formatted_hg38_ChrPosId.tsv.gz"
+    output:
+        twas_sumstat = "results/twas_input/{trait}_hg38_twas_input.sumstats.gz"
+    params:
+        # out prefix is simply the output path without the .sumstats.gz suffix
+        out_prefix = lambda wc: f"results/twas_input/{wc.trait}_hg38_twas_input",
+        min_maf = 0,
+        # sample_size = 100000,
+        sample_size = lambda wc: GWAS[wc.trait]["sample_size"],
+        env_name = "ldsc"
+    log:
+        log_ldsc = "logs/make_twas_input/{trait}_hg38_twas_input.log"
+    threads: 8
+    shell:
+        r"""
+        set -euo pipefail
+        mkdir -p "$(dirname {output.twas_sumstat})"
+        mkdir -p "$(dirname {log.log_ldsc})"
+
+        # Path to LDSC
+        LDSC="{config[tools][ldsc_munge]}"
+
+        # Getting trait name
+        trait="{wildcards.trait}"
+
+        if [[ "$trait" =~ ^(cerebellar_volume|cerebral_volume|subcortical_volume|tinnitus_eur)$ ]]; then
+            # Use Z as signed sumstat for brain-volume traits
+            mamba run -n {params.env_name} python "$LDSC" \
+                --sumstats "{input.clean_sumstat}" \
+                --out "{params.out_prefix}" \
+                --maf-min {params.min_maf} \
+                --N {params.sample_size} \
+                --signed-sumstats Z,0 \
+                --ignore rsID,HETPVALVARIANT_ALTERNATE_ID,OR,ID,L95,U95,SIGNED_SUMSTAT,UNIQUE_ID \
+                --snp SNP \
+                &> "{log.log_ldsc}"
+        else
+            # Default path (no Z)
+            mamba run -n {params.env_name} python "$LDSC" \
+                --sumstats "{input.clean_sumstat}" \
+                --out "{params.out_prefix}" \
+                --maf-min {params.min_maf} \
+                --N {params.sample_size} \
+                --signed-sumstats BETA,0 \
+                --ignore rsID,HETPVALVARIANT_ALTERNATE_ID,OR,ID,L95,U95,SIGNED_SUMSTAT,UNIQUE_ID \
+                --snp SNP \
+                &> "{log.log_ldsc}"
+        fi
+        """
+
+### END

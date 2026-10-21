@@ -48,10 +48,10 @@
       chr21: "574209ba9edbfda028651e631041e67bdf340fdd2d19d655c38ea3fff0287a25"
       chr22: "70ff24cfd01eab24c6f4c6e825f55a2b3475ff595f6e12e179c4ef06b9cc4df6"
       chrX: "f42c786cba67ff74c30e9bd37254b5a605a5957cfe3a5dc54e7dd41d9c9d8edc"
-harmonised_gwas_root: "/data/hps/assoc/private/gdml/user/sesmae/projects/vestibulart_project_human_pantry/gwas_sumstats_prep/formatted_sumstats"
+harmonised_gwas_root: "../04_gwas_sumstats/results/formatted_sumstats"   # relative to analyses/10_sffdr
 sffdr_inputs:
   primary: "results/pred_ld/balance_meta_eur/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
-  prune: "/data/hps/assoc/private/gdml/user/twil15/1kGP_pipeline/results/1kG/hg38/unrelated/eur/snps_only/005/qc/sans_pars_and_sans_long_range_ld/pruned/1000_1_0_2/merged.prune.in"
+  prune: "results/1kG/hg38/unrelated/eur/snps_only/005/qc/sans_pars_and_sans_long_range_ld/pruned/1000_1_0_2/merged.prune.in"
   informative:
     - "results/pred_ld/tinnitus_eur/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
     - "results/pred_ld/hearing_hleur/imputed/EUR/r2_0_2/maf_0_005/combined.tsv.gz"
@@ -140,4 +140,4 @@ gwas_datasets:
     accession_no: "GCST90027158"
 apis:
   ldlink:
-    token: "a39950a52a4b"
+    token: ""   # LDlink API token (https://ldlink.nih.gov/?tab=apiaccess); set in config/config_lab.yaml
