@@ -7,7 +7,7 @@ modalities (Pantry), TWAS and colocalisation, fine-mapping, and otolith-vs-GTEx 
 ## Workflow
 
 Each box is one analysis folder with its own Snakefile; the main `Snakefile` runs them in this order
-(`snakemake --rulegraph`, redundant edges removed).
+(redundant edges removed).
 
 ```mermaid
 flowchart LR
@@ -89,3 +89,8 @@ snakemake --profile profiles/slurm -n                           # dry run (envir
 ```
 
 Files and folders that are not in git (data, references, results, figures) are described by the README.md in each.
+
+## Author
+
+Mehdi Esmaeili-Fard (mehdi.esmaeilifard@gmail.com).
+Completion date: April 2026.
