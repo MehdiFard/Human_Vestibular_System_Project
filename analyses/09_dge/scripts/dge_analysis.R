@@ -181,12 +181,9 @@ p <- ggplot(data=DegResUtrVsSac_clean) +
     ); p
 
 # Save the plot
-ggsave(filename = "analyses/09_dge/figures/VolcanoPlot_utricle_vs_saccule_batch_corrected.pdf",
-        plot = p,
-        units = "mm",
-        width = 80,
-        height = 80,
-        dpi = 300)
+for (dv in c("pdf", "png"))
+    ggsave(filename = paste0("analyses/09_dge/figures/VolcanoPlot_utricle_vs_saccule_batch_corrected.", dv),
+           plot = p, units = "mm", width = 80, height = 80, dpi = 300, bg = "white")
 
 
 ### END

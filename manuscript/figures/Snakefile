@@ -27,7 +27,7 @@ X = f"{A}/05_pantry/results/xqtl_summary"
 rule all:
     input:
         "manuscript/figures/Fig1/panels/manhattan_meta_all.pdf",
-        "manuscript/figures/Fig2/panels/panel_a_magma_manhattan_new.pdf",
+        "manuscript/figures/Fig2/panels/panel_a_magma_manhattan.pdf",
         "manuscript/figures/Fig3/Fig3_5.8x5.8in.pdf",
         "manuscript/figures/Fig4/Fig4.pdf",
         "manuscript/figures/Fig5/Fig5_6.45x5.02in.pdf",
@@ -39,14 +39,14 @@ rule all:
 
 # ---- Fig 1: cohort demographics, Manhattan and QQ plots (panels; assembled in Illustrator) ----------------------------
 rule fig1:
-    output: "manuscript/figures/Fig1/panels/manhattan_meta_all.pdf", "manuscript/figures/Fig1/panels/demographics/panel_A_donut.pdf"
+    output: "manuscript/figures/Fig1/panels/manhattan_meta_all.pdf", "manuscript/figures/Fig1/panels/demographics/panel_A1_cohort_donut.pdf"
     resources: mem_mb=64000
     shell: f"{RS('plots')} manuscript/figures/Fig1/Fig1_gwas_meta.R && {RS('plots')} manuscript/figures/Fig1/Fig1_demographic.R"
 
 # ---- Fig 2: MAGMA, GSEM, sfFDR, LocusZoom (panels; assembled in Illustrator). Supp Fig 2 is the partner figure as is -
 rule fig2:
     input: "manuscript/figures/Fig2/inputs/GSEM.pdf", f"{A}/10_sffdr/results/sffdr/results.tsv.gz"
-    output: "manuscript/figures/Fig2/panels/panel_a_magma_manhattan_new.pdf"
+    output: "manuscript/figures/Fig2/panels/panel_a_magma_manhattan.pdf"
     resources: mem_mb=64000
     shell: f"{RS('locuszoom')} manuscript/figures/Fig2/Fig2_gwas_annot.R"     # needs locuszoomr
 
@@ -91,14 +91,14 @@ rule ld_znf91:
 rule fig5_panels:
     # Fig 5a (and the Supp Fig 4 regional panels), Fig 5c LocusCompare
     input: rules.znf91_region_cache.output, rules.ld_znf91.output, TWAS
-    output: "manuscript/figures/Fig5/panels/Fig5a.rds", "manuscript/figures/Fig5/panels/Fig5c.rds", "manuscript/figures/SuppFig4/panels/regional/Supp_Fig4.rds"
+    output: "manuscript/figures/Fig5/panels/Fig5a.rds", "manuscript/figures/Fig5/panels/Fig5c.rds", "manuscript/figures/SuppFig4/panels/Supp_Fig4.rds"
     resources: mem_mb=32000
     shell: f"{RS('locuszoom')} manuscript/figures/Fig5/fig5a_suppfig4_regional.R && {RS('locuszoom')} manuscript/figures/Fig5/fig5c_locuscompare.R"
 
 rule fig5:
     # Fig 5b (LocusZoom) is drawn on the page by fig5_assemble.R; output is vector, scaled to the final sizes
     input: rules.fig5_panels.output
-    output: "manuscript/figures/Fig5/Fig5_6.45x5.02in.pdf", "manuscript/figures/Fig5/Fig5_6.45x5.02in.png"
+    output: "manuscript/figures/Fig5/Fig5_6.45x5.02in.pdf", "manuscript/figures/Fig5/Fig5_6.45x5.02in.png", "manuscript/figures/Fig5/panels/Fig5b.pdf"
     resources: mem_mb=32000
     shell: f"{RS('locuszoom')} manuscript/figures/Fig5/fig5_assemble.R"
 
@@ -110,17 +110,16 @@ rule suppfig4:
 
 # ---- Supp Fig 1: utricle vs saccule (PCA here; volcano from analyses/09_dge) ----------------------------------------
 rule suppfig1:
-    input: f"{A}/09_dge/figures/VolcanoPlot_utricle_vs_saccule_batch_corrected.pdf"
+    input: f"{A}/09_dge/figures/VolcanoPlot_utricle_vs_saccule_batch_corrected.pdf", f"{A}/09_dge/figures/VolcanoPlot_utricle_vs_saccule_batch_corrected.png"
     output:
         "manuscript/figures/SuppFig1/panels/VolcanoPlot_utricle_vs_saccule_batch_corrected.pdf",
         "manuscript/figures/SuppFig1/panels/pca_sac_vs_utr_tmm_logcpm_centered.pdf"
     resources: mem_mb=32000
     shell: f"{RS('base')} manuscript/figures/SuppFig1/suppfig1a_pca_saccule_utricle.R && cp -p {{input}} manuscript/figures/SuppFig1/panels/"
 
-# ---- Supp Fig 5: ZNF91 expression vs age (here) and across GTEx tissues (analyses/08_expression_gtex) ----------------
+# ---- Supp Fig 5: ZNF91 expression vs age (a) and across GTEx tissues (b) ---------------------------------------------
 rule suppfig5:
-    input: f"{A}/08_expression_gtex/figures/expr_across_gtex_ENSG00000167232.pdf"
     output:
         "manuscript/figures/SuppFig5/panels/znf91_expression_vs_age_vestibular.pdf",
         "manuscript/figures/SuppFig5/panels/expr_across_gtex_ENSG00000167232.pdf"
-    shell: f"{RS('plots')} manuscript/figures/SuppFig5/suppfig5a_znf91_age.R && cp -p {{input}} manuscript/figures/SuppFig5/panels/"
+    shell: f"{RS('plots')} manuscript/figures/SuppFig5/suppfig5a_znf91_age.R && {RS('plots')} manuscript/figures/SuppFig5/suppfig5b_znf91_gtex.R"

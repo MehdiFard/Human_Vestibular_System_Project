@@ -20,6 +20,6 @@ rule all:
 
 
 rule dge:
-    output: "analyses/09_dge/results/DEA_result_vestibular.tsv", "analyses/09_dge/figures/VolcanoPlot_utricle_vs_saccule_batch_corrected.pdf"
+    output: "analyses/09_dge/results/DEA_result_vestibular.tsv", "analyses/09_dge/figures/VolcanoPlot_utricle_vs_saccule_batch_corrected.pdf", "analyses/09_dge/figures/VolcanoPlot_utricle_vs_saccule_batch_corrected.png"
     resources: mem_mb=64000
     shell: "{RS} {S}/dge_analysis.R"

@@ -1,13 +1,13 @@
 ## ====================================================================
 ## Figure 2 — panels, each saved to panels/ (PDF + PNG) and assembled in Illustrator
 ##   a. MAGMA gene-based Manhattan        (built here)
-##   b. enrich-in-GTEx bar plot           (partner figure = Supp Fig 2, not built here)
-##   c. GSEM diagram                      (partner PDF in inputs/, copied + PNG)
-##   d. sfFDR variant-level Manhattan     (built here)
-##   e. Regional locuszoom (chr18 52–57Mb)(locuszoomr; LD from NIH LDlink, token in config_lab.yaml)
+##   b. GSEM diagram                      (partner PDF in inputs/, copied + PNG)
+##   c. sfFDR variant-level Manhattan     (built here)
+##   d. Regional locuszoom (chr18 52–57Mb)(locuszoomr; LD from NIH LDlink, token in config_lab.yaml)
+## The MAGMA GTEx-enrichment bar plot is Supp Fig 2 (partner figure, not built here).
 ##
-## Environment: locuszoomr (config envs.locuszoom). Panel c is a partner figure (inputs/, not in git);
-## d and e use analyses/10_sffdr results.
+## Environment: locuszoomr (config envs.locuszoom). Panel b is a partner figure (inputs/, not in git);
+## c and d use analyses/10_sffdr results.
 ## ====================================================================
 
 rm(list = ls())
@@ -137,7 +137,7 @@ build_magma <- function() {
 }
 
 ## ====================================================================
-## Panel d — sfFDR variant-level Manhattan
+## Panel c — sfFDR variant-level Manhattan
 ## Source: analyses/10_sffdr (sfFDR workflow results)
 ##         results/sffdr/results.tsv.gz
 ## Highlights: rs7098100=MLLT10, rs9536418=OLFM4, rs74564337=C17orf58,
@@ -214,12 +214,12 @@ build_sffdr <- function() {
 }
 
 ## ====================================================================
-## Build panels a and d
+## Build panels a and c
 ## ====================================================================
 cat("[..] building panel a — MAGMA Manhattan\n")
 pA <- build_magma()
-cat("[..] building panel d — sfFDR Manhattan\n")
-pD <- build_sffdr()
+cat("[..] building panel c — sfFDR Manhattan\n")
+pC <- build_sffdr()
 
 ## ====================================================================
 ## Save each panel as its own file — for layout in Illustrator
@@ -234,24 +234,24 @@ save_fig <- function(p, stub, w, h) {
 }
 
 ## a. MAGMA Manhattan
-save_fig(pA, "panel_a_magma_manhattan_new", W_MAN, H_MAN)
+save_fig(pA, "panel_a_magma_manhattan", W_MAN, H_MAN)
 
-## d. sfFDR Manhattan
-save_fig(pD, "panel_d_sffdr_manhattan_new", W_MAN, H_MAN)
+## c. sfFDR Manhattan
+save_fig(pC, "panel_c_sffdr_manhattan", W_MAN, H_MAN)
 
-## c. GSEM — copy partner PDF unchanged (size is fixed) + 600 dpi PNG
+## b. GSEM — copy partner PDF unchanged (size is fixed) + 600 dpi PNG
 if (!file.exists(PARTNER_GSEM)) stop("Missing partner PDF: ", PARTNER_GSEM)
-file.copy(PARTNER_GSEM, file.path(OUT_DIR, "panel_c_gsem.pdf"), overwrite = TRUE)
+file.copy(PARTNER_GSEM, file.path(OUT_DIR, "panel_b_gsem.pdf"), overwrite = TRUE)
 if (system2("pdftocairo", c("-png", "-r", "600", "-singlefile", shQuote(PARTNER_GSEM),
-                            shQuote(file.path(OUT_DIR, "panel_c_gsem")))) != 0)
+                            shQuote(file.path(OUT_DIR, "panel_b_gsem")))) != 0)
   stop("pdftocairo failed for: ", PARTNER_GSEM)
 
-## e. Regional locuszoom (chr18 52–57Mb, sfFDR P-values), drawn directly to PDF + PNG.
+## d. Regional locuszoom (chr18 52–57Mb, sfFDR P-values), drawn directly to PDF + PNG.
 ## Width matches the Manhattans; height is locuszoom-natural (taller because of gene tracks).
 LZ_W_MM <- 145
 LZ_H_MM <- 90
 
-cat("[..] building panel e — regional locuszoom\n")
+cat("[..] building panel d — regional locuszoom\n")
 sff <- fread("analyses/10_sffdr/results/sffdr/results.tsv.gz") %>%
   transmute(rsid = as.character(rsID),
             chr  = as.integer(CHR),
@@ -277,16 +277,16 @@ draw_lz <- function() locus_plot(loc,
                                  ylab = expression(-log[10](SFFDR~P)),
                                  filter_gene_biotype = "protein_coding",
                                  highlight = c("DCC", "TCF4"))
-cairo_pdf(file.path(OUT_DIR, "panel_e_locuszoom.pdf"), width = LZ_W_MM / 25.4, height = LZ_H_MM / 25.4)
+cairo_pdf(file.path(OUT_DIR, "panel_d_locuszoom.pdf"), width = LZ_W_MM / 25.4, height = LZ_H_MM / 25.4)
 draw_lz(); invisible(dev.off())
-png(file.path(OUT_DIR, "panel_e_locuszoom.png"), width = LZ_W_MM, height = LZ_H_MM, units = "mm", res = 600)
+png(file.path(OUT_DIR, "panel_d_locuszoom.png"), width = LZ_W_MM, height = LZ_H_MM, units = "mm", res = 600)
 draw_lz(); invisible(dev.off())
 
 cat("[done] panels written to ", OUT_DIR, ":\n",
-    "    panel_a_magma_manhattan_new.{pdf,png}   (", W_MAN, " x ", H_MAN, " mm)\n",
-    "    panel_c_gsem.{pdf,png}                  (partner PDF, copied)\n",
-    "    panel_d_sffdr_manhattan_new.{pdf,png}   (", W_MAN, " x ", H_MAN, " mm)\n",
-    "    panel_e_locuszoom.{pdf,png}             (", LZ_W_MM, " x ", LZ_H_MM, " mm)\n",
+    "    panel_a_magma_manhattan.{pdf,png}   (", W_MAN, " x ", H_MAN, " mm)\n",
+    "    panel_b_gsem.{pdf,png}              (partner PDF, copied)\n",
+    "    panel_c_sffdr_manhattan.{pdf,png}   (", W_MAN, " x ", H_MAN, " mm)\n",
+    "    panel_d_locuszoom.{pdf,png}         (", LZ_W_MM, " x ", LZ_H_MM, " mm)\n",
     sep = "")
 
 

@@ -1,6 +1,7 @@
 ## Fig 5 assembly, fully vector:
 ##   a  QTL / GWAS tracks (panels/Fig5a.rds, fig5a_suppfig4_regional.R)
-##   b  GWAS LocusZoom plot drawn on the page with locuszoomr (scatter_plot + genetracks), LD with rs695017 (1000G EUR)
+##   b  GWAS LocusZoom plot drawn on the page with locuszoomr (scatter_plot + genetracks), LD with rs695017 (1000G EUR);
+##      also written on its own as panels/Fig5b.{pdf,png} (3.6 x 3.8 in)
 ##   c  LocusCompare, GWAS vs RNA editing QTL (panels/Fig5c.rds, fig5c_locuscompare.R)
 ## Built at 7.2 x 5.6 in, then scaled with ghostscript (vector) to the manuscript size: Fig5_6.45x5.02in.{pdf,png}.
 ## Inputs: data/cache_znf91_region.rds, data/ld_rs695017_1kgEUR.tsv, the two panel objects. Run from the project root:
@@ -8,7 +9,6 @@
 suppressPackageStartupMessages({ library(locuszoomr); library(ensembldb); library(AnnotationHub); library(rtracklayer)
   library(data.table); library(dplyr); library(png); library(grid); library(ggplot2); library(cowplot) })
 F5  <- "manuscript/figures/Fig5/data"
-S4  <- "manuscript/figures/SuppFig4/panels/regional"
 OUT <- "manuscript/figures/Fig5"
 FONT <- "Nimbus Sans"
 W <- 7.2; H <- 5.6; WB <- W / 2; HB <- 3.8                 # page at 1x, and the panel b slot (top right)
@@ -40,16 +40,21 @@ axis_in <- function(img, width_in, min_run = 0.3) {
 }
 fc_in <- axis_in(readPNG("manuscript/figures/Fig5/panels/Fig5c.png"), WB)
 
-compose <- function() {
-  par(family = FONT); plot.new()                              # blank page for base graphics; grid draws on top
-  ## b = locus_plot(loc, labels, label_x) split by hand: genetracks (bottom 2/5) + scatter_plot (top 3/5)
-  y0 <- (H - HB) / H; ys <- y0 + (1 - y0) * GENE_FRAC
-  par(fig = c(0.5, 1, y0, ys), new = TRUE); par(cex = BASE_CEX)
+## b = locus_plot(loc, labels, label_x) split by hand: genetracks (bottom 2/5) + scatter_plot (top 3/5),
+## drawn in the device region x0-x1, y0-y1 (fractions of the page)
+draw_b <- function(x0, x1, y0, y1) {
+  ys <- y0 + (y1 - y0) * GENE_FRAC
+  par(fig = c(x0, x1, y0, ys), new = TRUE); par(cex = BASE_CEX)
   genetracks(loc, cex.axis = CEX_AXIS, cex.lab = CEX_LAB, cex.text = CEX_TEXT, gene_col = "blue4", exon_col = "blue4",
              exon_border = "blue4", xticks = TRUE, showRecomb = TRUE, maxrows = 7)
-  par(fig = c(0.5, 1, ys, 1), new = TRUE); par(cex = BASE_CEX)
+  par(fig = c(x0, x1, ys, y1), new = TRUE); par(cex = BASE_CEX)
   scatter_plot(loc, xticks = FALSE, cex.axis = CEX_AXIS, cex.lab = CEX_LAB, recomb_col = "blue",
                labels = c("rs695017", "rs167154", "rs607168"), label_x = c(-1, -5, 4))
+}
+
+compose <- function() {
+  par(family = FONT); plot.new()                              # blank page for base graphics; grid draws on top
+  draw_b(0.5, 1, (H - HB) / H, 1)
   ## page x (in) of b's y-axis, read from the scatter plot just drawn
   axis_b <- grconvertX(par("usr")[1], "user", "ndc") * W
   ## a (left column) and c (bottom right, its y-axis aligned with b's)
@@ -62,6 +67,13 @@ compose <- function() {
 }
 f1 <- tempfile(fileext = ".pdf")                      # intermediate (vector, 7.2 x 5.6 in)
 cairo_pdf(f1, width = W, height = H, family = FONT); compose(); invisible(dev.off())
+
+## ---- panel b on its own, same size and text as on the page
+fb <- file.path(OUT, "panels", "Fig5b")
+cairo_pdf(paste0(fb, ".pdf"), width = WB, height = HB, family = FONT)
+par(family = FONT); plot.new(); draw_b(0, 1, 0, 1); invisible(dev.off())
+system2("gs", c("-q", "-dNOPAUSE", "-dBATCH", "-dSAFER", "-sDEVICE=png16m", "-r600", "-dTextAlphaBits=4",
+                "-dGraphicsAlphaBits=4", paste0("-sOutputFile=", fb, ".png"), paste0(fb, ".pdf")))
 
 ## ---- vector scaling (ghostscript) to the manuscript size, 6.45 x 5.02 in (same aspect ratio), + 600 dpi PNG
 ## (DPI tag set, so Word places it at exactly w x h in)

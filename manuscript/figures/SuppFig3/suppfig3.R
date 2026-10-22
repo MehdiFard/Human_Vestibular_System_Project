@@ -5,7 +5,7 @@
 ##   d  xQTL position along the gene, one row per modality, with +-50 kb TSS / TES insets   (figure2d.R)
 ##   e  functional annotation enrichment of the xVariants (mean +- SD over tissues) and frequency   (figure2e.R)
 ## Inputs: analyses/05_pantry/results/xqtl_summary (phenotypes, xQTLs, xQTL positions, enrichment).
-## Writes panels/ (one PDF per panel), source_data/ (data behind each panel) and SuppFig3.pdf / SuppFig3.png.
+## Writes panels/ (PDF + PNG per panel), source_data/ (data behind each panel) and SuppFig3.pdf / SuppFig3.png.
 ## Run from the project root:  Rscript manuscript/figures/SuppFig3/suppfig3.R
 suppressPackageStartupMessages({ library(tidyverse); library(cowplot) })
 X <- "analyses/05_pantry/results/xqtl_summary"
@@ -16,7 +16,10 @@ modalities <- c(expression = "Expression", isoforms = "Isoform ratio", splicing 
                 alt_TSS = "Alt. TSS", alt_polyA = "Alt. polyA", stability = "RNA stability", RNA_editing = "RNA editing")
 modality_colors <- c(Expression = "#e41a1c", `Isoform ratio` = "#377eb8", `Intron excision` = "#4daf4a",
                      `Alt. TSS` = "#984ea3", `Alt. polyA` = "#ff7f00", `RNA stability` = "#fdc11c", `RNA editing` = "#984210")
-save_panel <- function(p, stem, w, h) ggsave(file.path(O, "panels", paste0(stem, ".pdf")), p, width = w, height = h)
+save_panel <- function(p, stem, w, h) {   # PDF + PNG of each panel
+  ggsave(file.path(O, "panels", paste0(stem, ".pdf")), p, width = w, height = h)
+  ggsave(file.path(O, "panels", paste0(stem, ".png")), p, width = w, height = h, dpi = 300, bg = "white", device = ragg::agg_png)
+}
 save_data <- function(d, stem) write_tsv(d, file.path(O, "source_data", paste0(stem, ".tsv")))
 
 ## ---- a: phenotypes per protein-coding gene ------------------------------------------------------------------------

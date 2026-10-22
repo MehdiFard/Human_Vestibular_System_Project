@@ -3,7 +3,7 @@
 ##   panels/SuppFig4bc_coloc_LD.{pdf,png}   b + c, 7.2 x 2.7 in
 ##   SuppFig4_5.5x5.5in.{pdf,png}           a + b + c, laid out at 7.2 x 7.2 in and scaled to 5.5 in with ghostscript
 ## Inputs: TWAS hits (balance_meta1, analyses/06_twas), data/ld_cross_ancestry_3snps.tsv (ld_cross_ancestry.py),
-## panels/regional/Supp_Fig4.rds (../Fig5/fig5a_suppfig4_regional.R). Run from the project root (env locuszoomr).
+## panels/Supp_Fig4.rds (../Fig5/fig5a_suppfig4_regional.R). Run from the project root (env locuszoomr).
 suppressPackageStartupMessages({ library(ggplot2); library(ggrepel); library(cowplot); library(data.table); library(dplyr); library(tidyr) })   # ggrepel: draws the SNP tags of the saved Supp Fig 4
 OUT <- "manuscript/figures/SuppFig4"; PAN <- "manuscript/figures/SuppFig4/panels"
 FONT <- "Nimbus Sans"; W <- 7.2
@@ -64,7 +64,7 @@ sv <- function(p, stem, w, h, dir = OUT) {
   ggsave(file.path(dir, paste0(stem, ".png")), p, width = w, height = h, dpi = 600, bg = "white")
 }
 sv(row_bc(c("a", "b")), "SuppFig4bc_coloc_LD", W, 2.7, dir = PAN)   # b + c as a standalone panel
-s4 <- readRDS("manuscript/figures/SuppFig4/panels/regional/Supp_Fig4.rds")
+s4 <- readRDS("manuscript/figures/SuppFig4/panels/Supp_Fig4.rds")
 ## square version for Word (5.5 x 5.5 in): laid out at 7.2 x 7.2 in (shorter regional tracks), scaled to 5.5 in with
 ## ghostscript (vector) + 600 dpi PNG with the DPI tag
 merged_sq <- plot_grid(do.call(plot_grid, c(list(s4, labels = "a"), LBL)), row_bc(c("b", "c")), ncol = 1, rel_heights = c(4.75, 2.45))

@@ -4,7 +4,7 @@
 ##   c  genes with xTWAS hits per GWAS trait, by modality of the gene's top hit (20 traits with most genes)
 ##                                                                (figure4.R, panel A right)
 ## Inputs: analyses/05_pantry/results/xqtl_summary (phenotypes, xQTLs), analyses/06_twas (all TWAS tests, GWAS sizes).
-## Writes panels/ (one PDF per panel), source_data/ (data behind each panel) and Fig4.pdf / Fig4.png.
+## Writes panels/ (PDF + PNG per panel), source_data/ (data behind each panel) and Fig4.pdf / Fig4.png.
 ## Run from the project root:  Rscript manuscript/figures/Fig4/fig4.R
 suppressPackageStartupMessages({ library(tidyverse); library(cowplot) })
 set.seed(1)   # ties in the top TWAS hit per trait and gene are broken at random (slice_sample)
@@ -17,7 +17,10 @@ modalities <- c(expression = "Expression", isoforms = "Isoform ratio", splicing 
                 alt_TSS = "Alt. TSS", alt_polyA = "Alt. polyA", stability = "RNA stability", RNA_editing = "RNA editing")
 modality_colors <- c(Expression = "#e41a1c", `Isoform ratio` = "#377eb8", `Intron excision` = "#4daf4a",
                      `Alt. TSS` = "#984ea3", `Alt. polyA` = "#ff7f00", `RNA stability` = "#fdc11c", `RNA editing` = "#984210")
-save_panel <- function(p, stem, w, h) ggsave(file.path(O, "panels", paste0(stem, ".pdf")), p, width = w, height = h)
+save_panel <- function(p, stem, w, h) {   # PDF + PNG of each panel
+  ggsave(file.path(O, "panels", paste0(stem, ".pdf")), p, width = w, height = h)
+  ggsave(file.path(O, "panels", paste0(stem, ".png")), p, width = w, height = h, dpi = 300, bg = "white", device = ragg::agg_png)
+}
 
 ## ---- a: phenotypes per modality ----------------------------------------------------------------------------------
 phenos <- read_tsv(paste0(X, ".phenotypes.tsv.gz"), col_types = "cccc") |>

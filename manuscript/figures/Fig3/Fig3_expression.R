@@ -10,7 +10,7 @@
 ##      enrichment of the enriched genes; redundant terms (gene-set Jaccard >= 0.7) dropped; bars = -log10(FDR)
 ## Inputs: analyses/08_expression_gtex/results (cached tables in _fig3_cache/; the per-tissue median TPM table is
 ## computed once and cached there, median_tpm_by_tissue.rds).
-## Output: manuscript/figures/Fig3/ (Fig3_5.8x5.8in.pdf/png, panels/).
+## Output: manuscript/figures/Fig3/ (Fig3_5.8x5.8in.pdf/png, panels/ PDF + PNG).
 ## Run from the project root on a compute node (env r_plots):
 ##   Rscript manuscript/figures/Fig3/Fig3_expression.R
 ## ====================================================================
@@ -304,7 +304,8 @@ system2("gs", c("-q", "-dNOPAUSE", "-dBATCH", "-dSAFER", "-sDEVICE=png16m", "-r6
                 "-dGraphicsAlphaBits=4", paste0("-sOutputFile=", sq_out, ".png"), paste0(sq_out, ".pdf")))
 for (p in list(list(pA, "Fig3a", 2.5, 2.5), list(pB, "Fig3b", 2.5, 2.5), list(pCt, "Fig3c", 2.5, 2.5),
                list(pD, "Fig3d", W, 3.05), list(pE, "Fig3e", W, 2.2)))
-  ggsave(file.path(OUT, "panels", paste0(p[[2]], ".pdf")), p[[1]], width = p[[3]], height = p[[4]], device = cairo_pdf)
+  for (dv in c("pdf", "png")) ggsave(file.path(OUT, "panels", paste0(p[[2]], ".", dv)), p[[1]], width = p[[3]], height = p[[4]],
+                                     device = if (dv == "pdf") cairo_pdf else ragg::agg_png, dpi = 300, bg = "white")
 cat("markers:\n"); print(mk[, .(cat, gene, oto = round(oto, 2), gtx = round(gtx, 2), gtx_t)])
 cat(sprintf("enriched genes: %d; heatmap genes: %d; reference columns: %d\n", n_enr, length(hg), length(gt)))
 cat("[done]\n")

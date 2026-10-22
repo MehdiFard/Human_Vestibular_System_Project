@@ -5,7 +5,7 @@
 ##                gene track under each column
 ## QTL track per modality: the ZNF91 phenotype with the smallest p (else the top phenotype in the region).
 ## Inputs: data/cache_znf91_region.rds (cache_znf91_region.R), data/ld_rs695017_1kgEUR.tsv (ld_rs695017_1kg_eur.py),
-## TWAS hits (analyses/06_twas). Outputs: panels/Fig5a.{rds,pdf,png}, ../SuppFig4/panels/regional/Supp_Fig4*.
+## TWAS hits (analyses/06_twas). Outputs: panels/Fig5a.{rds,pdf,png}, ../SuppFig4/panels/Supp_Fig4*.
 ## Run from the project root on a compute node:
 ##   Rscript manuscript/figures/Fig5/fig5a_suppfig4_regional.R
 ## ====================================================================
@@ -19,7 +19,7 @@ pdf(NULL)   # background device for grob/label measurement (otherwise R writes R
 
 ## Gene track: all genes, unnamed Ensembl genes unlabelled, label widths measured at the real panel width;
 ## thin axis lines (0.25 pt) on every track.
-OUT_F5 <- "manuscript/figures/Fig5/panels"; OUT_S4 <- "manuscript/figures/SuppFig4/panels/regional"
+OUT_F5 <- "manuscript/figures/Fig5/panels"; OUT_S4 <- "manuscript/figures/SuppFig4/panels"
 dir.create(OUT_S4, recursive = TRUE, showWarnings = FALSE); dir.create(OUT_F5, recursive = TRUE, showWarnings = FALSE)
 FONT   <- "Nimbus Sans"            # Helvetica-metric font available on the cluster
 W      <- 7.2                      # full page width (in)

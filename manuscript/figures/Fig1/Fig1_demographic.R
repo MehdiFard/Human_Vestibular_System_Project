@@ -88,7 +88,7 @@ strata_pal <- c(
 )
 
 ## ====================================================================
-## Panel A — Donut (8 x 8 cm)
+## Panel a, left — cohort donut (8 x 8 cm)
 ## ====================================================================
 ## Approach: build the donut from polygon coordinates so we can place
 ## labels exactly at the radial midpoint of each wedge. This avoids
@@ -182,10 +182,10 @@ pA <- ggplot() +
     plot.margin         = margin(4, 4, 4, 4)
   )
 pA
-save_panel(pA, "panel_A_donut")
+save_panel(pA, "panel_A1_cohort_donut")
 
 ## ====================================================================
-## Panel B — Cases vs controls per stratum (8 x 8 cm)
+## Panel b — cases vs controls per stratum (8 x 8 cm)
 ## ====================================================================
 make_row_lab_B <- function(stratum, sex, case_pct) {
   sprintf("%s %s (%.1f%%)",
@@ -237,7 +237,7 @@ pB
 save_panel(pB, "panel_B_stratum_n_percent")
 
 ## ====================================================================
-## Panel C — Sex composition per stratum (8 x 8 cm)
+## Panel c — sex composition per stratum (8 x 8 cm)
 ## ====================================================================
 sex_df <- demo |>
   group_by(stratum, sex) |>
@@ -270,7 +270,7 @@ save_panel(pC, "panel_C_sex_balance")
 cat("done — three panels at 8 x 8 cm each\n")
 
 ## ====================================================================
-## Panel D — Age donut (8 x 8 cm)
+## Panel a, right — age donut (8 x 8 cm)
 ## Decorative donut with 4 equal quarters (one per cohort × status).
 ## ====================================================================
 
@@ -358,7 +358,7 @@ pD <- ggplot() +
     plot.margin         = margin(4, 4, 4, 4)
   )
 pD
-save_panel(pD, "panel_D_age_donut")
+save_panel(pD, "panel_A2_age_donut")
 cat("done — panel D redesigned (4 equal quarters)\n")
 
 
