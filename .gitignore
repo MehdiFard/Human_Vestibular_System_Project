@@ -9,6 +9,7 @@ run_pipeline_lab.slurm
 analyses/10_sffdr/profile_lab/
 analyses/10_sffdr/config/config_lab.yaml
 analyses/checking_signals/
+analyses/checking_sac_utr/
 BACKUP/
 
 # data, references, logs
