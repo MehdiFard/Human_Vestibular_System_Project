@@ -92,5 +92,5 @@ Files and folders that are not in git (data, references, results, figures) are d
 
 ## Author
 
-Mehdi Esmaeili-Fard (mehdi.esmaeilifard@gmail.com).
+Mehdi Esmaeili-Fard (mehdi.esmaeilifard@gmail.com).  
 Completion date: April 2026.
