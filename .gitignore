@@ -20,6 +20,7 @@ resources/**
 !resources/**/.gitkeep
 !resources/README.md
 !resources/gtex_colors.json
+resources/tools/
 logs/*
 !logs/.gitkeep
 

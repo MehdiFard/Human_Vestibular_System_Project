@@ -42,7 +42,10 @@ rule symlink_genotype_files:
     shell:
         """
         mkdir -p ../../data/genotype
-        ln -sf {config[data][genotype_raw_dir]}/* ../../data/genotype/
+        # link the raw files in, unless the raw data already live in data/genotype (then linking would replace them)
+        if [ "$(realpath {config[data][genotype_raw_dir]})" != "$(realpath ../../data/genotype)" ]; then
+            ln -sf {config[data][genotype_raw_dir]}/* ../../data/genotype/
+        fi
         touch {output}
         """
 

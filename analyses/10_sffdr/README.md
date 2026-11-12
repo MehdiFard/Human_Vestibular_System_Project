@@ -19,8 +19,9 @@ The 1000 Genomes reference comes from the `twillis209/1kGP_pipeline` Snakemake m
 
 - GWAS summary statistics: `analyses/04_gwas_sumstats/results/formatted_sumstats` (`harmonised_gwas_root` in
   `config/config.yaml`); informative traits and sample sizes are also in `config/config.yaml`.
-- `results/` (not in git): the workflow's output (~650 GB for the full run). Fig 2 reads `results/sffdr/results.tsv.gz`;
-  it can be a link to an existing run (with `sffdr: rerun: false` in the project config, only its presence is checked).
+- `results/` (not in git): the workflow's output (~650 GB for the full run, almost all of it the predicted-LD
+  intermediates in `results/pred_ld/`). Fig 2 reads `results/sffdr/results.tsv.gz`; with `sffdr: rerun: false` in the
+  project config only its presence is checked, so the outputs of an earlier run without `pred_ld/` (~4 GB) are enough.
 
 ## Running (compute node or Slurm)
 
@@ -38,7 +39,6 @@ snakemake -s workflow/Snakefile --profile profile -n compile_rg draw_locuszoomr_
     draw_sffdr_manhattan_plot_for_publication write_tables_to_xlsx
 ```
 
-With `results/` linked to the existing run nothing can be written there. To re-run here: `rm results` (the link
-only), `mkdir results`, then run the command above without `-n`, or set `sffdr: rerun: true` in the project
-`config/config.yaml` and run the main Snakefile.
+To re-run: run the command above without `-n`, or set `sffdr: rerun: true` in the project `config/config.yaml` and
+run the main Snakefile (steps whose intermediates are missing, e.g. `results/pred_ld/`, are run again).
 

@@ -64,7 +64,7 @@ rule all:
 
 
 rule symlink_fastq:
-    """Create symbolic links to all files and folders in the top level of the RNA-seq FASTQ directory."""
+    """Link the top level of the RNA-seq FASTQ directory into data/rna_fq (nothing to do if the FASTQs are already there)."""
     output:
         "../../data/rna_fq/.symlinks_done"
     params:
@@ -73,7 +73,10 @@ rule symlink_fastq:
     shell:
         r"""
         mkdir -p {params.dest}
-        ln -sf {params.src}/* {params.dest}
+        # link the raw files in, unless the raw data already live in data/rna_fq (then linking would replace them)
+        if [ "$(realpath {params.src})" != "$(realpath {params.dest})" ]; then
+            ln -sf {params.src}/* {params.dest}
+        fi
         touch {output}
         """
 

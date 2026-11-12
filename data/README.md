@@ -1,16 +1,20 @@
 # data/ (not in git)
 
 Raw inputs. Individual-level data (genotypes, RNA-seq reads, sample sheets) stay on the analysis server. GWAS summary statistics are public or obtained from the collaborators.
+The raw files can live here or elsewhere: `config.yaml` `data.genotype_raw_dir` / `data.fastq_raw_dir` point to them, and steps 01 and 03 link
+them into `genotype/` and `rna_fq/` (nothing is linked when they already are these folders).
 
 ```
 data/
-  genotype/            genotyping array data, hg19, PLINK text format, one folder per batch (links to the raw data,
+  genotype/            genotyping array data, hg19, PLINK text format, one folder per batch (or links to them,
                        config.yaml data.genotype_raw_dir):
                          batch12/20240129_hg19.{ped,map}   batches 1-2
                          batch3/20250515_hg19.{ped,map}    batch 3
                          genotype_metadata_GDA_human_samples_b1b2b3.xlsx   sample sheet (sheet 1: batches 1-2, sheet 2: batch 3)
+                         original_2024/   files of the first delivery kept as received: OneDrive zip, Infinium GDA array
+                                          manifests (hg37/hg38), hg38 PLINK version 20240516.{ped,map}, first sample sheet
   rna_fq/              paired-end RNA-seq FASTQ of utricle and saccule, one folder per sequencing batch (batch1-3,
-                       gold_standard), named <library>_S<n>_L<lane>_R{1,2}_001.fastq.gz (links to the raw data,
+                       gold_standard), named <library>_S<n>_L<lane>_R{1,2}_001.fastq.gz (or links to them,
                        config.yaml data.fastq_raw_dir); rnaseq_metadata_human_b1b2b3_gs.xlsx = library sheet
   gwas_raw_sumstats/   GWAS summary statistics as received (file names, traits, builds and N in
                        analyses/04_gwas_sumstats/src/gwas_map.tsv)
@@ -38,6 +42,6 @@ data/
 | cognitive_skills_ext, non_cognitive_skills_ext | *cognitive_skills_ext.gz | GRCh37 | cognitive / non-cognitive skills GWAS |
 | icp/mcp/scp fa/md | {ICP,MCP,SCP}_{FA,MD}.txt.gz | GRCh37 | cerebellar peduncle diffusion MRI GWAS |
 
-Also here: `magma_all_sets.csv.gz` (MAGMA gene-set results, Fig 2a) and the original files of a few traits
+Also here: `magma_all_sets.csv.gz` (MAGMA gene-set results, Fig 2a), `Meta_analysis_balance.pdf` (collaborators' meta-analysis report) and the original files of a few traits
 (`balance_meta*.tbl.sorted*`, `vertigo_*`, `GP2_*`) kept as received. Harmonised hg38 versions are made by
 `analyses/04_gwas_sumstats`.
